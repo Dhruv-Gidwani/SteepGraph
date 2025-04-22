@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { Dashboard } from './app/pages/dashboard/dashboard';
+import { ChartDemo } from './app/pages/chart/chart';
 
 export const appRoutes: Routes = [
     {
@@ -8,7 +9,7 @@ export const appRoutes: Routes = [
         component: AppLayout,
         children: [
             { path: '', component: Dashboard },
-            { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
+            { path: 'chart', component: ChartDemo },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },

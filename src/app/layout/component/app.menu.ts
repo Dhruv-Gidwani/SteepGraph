@@ -27,7 +27,7 @@ export class AppMenu {
             {
                 label: 'WC Reports',
                 items: [
-                    { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/uikit/charts'] },
+                    { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] },
                 ]
             },
             // {
