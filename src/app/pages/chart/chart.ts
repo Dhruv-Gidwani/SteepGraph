@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { WorkContractService } from '../chart/service/chart.service';
 import { TableModule } from 'primeng/table';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { SortEvent } from 'primeng/api';
 
 @Component({
     selector: 'app-chart-demo',
@@ -42,14 +43,17 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
                         <div class="font-semibold text-xl mb-4 text-center">Project Distribution</div>
                         <div class="flex h-full overflow-hidden">
                             <!-- Pie chart area -->
-                            <div class="w-[250px] h-[250px]">
+                            <div class="w-[220px] h-[220px]">
                                 <p-chart type="pie" [data]="pieChartData" [options]="pieChartOptions"></p-chart>
                             </div>
 
                             <!-- Scrollable legend area -->
                             <div class="flex-1 overflow-y-auto ml-4 max-h-[350px] pr-2">
-                                <ul *ngIf="pieChartData?.labels?.length" class="space-y-2 text-sm">
-                                    <li *ngFor="let label of pieChartData.labels; let i = index">{{ label }} ({{ pieChartData.datasets[0].data[i] }})</li>
+                                <ul class="project-list">
+                                    <li *ngFor="let project of pieChartData?.labels" (click)="onProjectClick(project)" [class.selected]="project === selectedProject">
+                                        <span *ngIf="project === selectedProject">✔️</span>
+                                        {{ project }}
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -77,7 +81,7 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
             </p-fluid>
             <!-- Data Table -->
             <div class="p-mt-4" *ngIf="projectTableData.length">
-                <p-table [value]="projectTableData" [scrollable]="true" scrollHeight="300px">
+                <p-table [value]="projectTableData" [scrollable]="true" scrollHeight="500px" [customSort]="true" (sortFunction)="customSort($event)">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Project</th>
@@ -85,11 +89,29 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
                             <th>Project Manager</th>
                             <th>PWO Name</th>
                             <th>Role</th>
-                            <th>Resource Name</th>
+                            <th pSortableColumn="Resource Name">
+                                Resource Name
+                                <p-sortIcon field="Resource Name"></p-sortIcon>
+                            </th>
                             <th>Allocated Hrs.</th>
-                            <th>Rem. Hrs.</th>
+                            <th pSortableColumn="Rem. Hrs.">
+                                Rem. Hrs.
+                                <p-sortIcon field="Rem. Hrs."></p-sortIcon>
+                            </th>
                             <th>Start Date</th>
                             <th>End Date</th>
+                            <th>Jan</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Apr</th>
+                            <th>May</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Aug</th>
+                            <th>Sep</th>
+                            <th>Oct</th>
+                            <th>Nov</th>
+                            <th>Dec</th>
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="body" let-row let-i="rowIndex">
@@ -105,6 +127,20 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
                             <td>{{ row['Rem. Hrs.'] }}</td>
                             <td>{{ row['Start Date'] }}</td>
                             <td>{{ row['End Date'] }}</td>
+
+                            <!-- Month cells with day and background color -->
+                            <td *ngIf="row.Jan" [style.background-color]="row.Jan.color">{{ row.Jan.day }}</td>
+                            <td *ngIf="row.Feb" [style.background-color]="row.Feb.color">{{ row.Feb.day }}</td>
+                            <td *ngIf="row.Mar" [style.background-color]="row.Mar.color">{{ row.Mar.day }}</td>
+                            <td *ngIf="row.Apr" [style.background-color]="row.Apr.color">{{ row.Apr.day }}</td>
+                            <td *ngIf="row.May" [style.background-color]="row.May.color">{{ row.May.day }}</td>
+                            <td *ngIf="row.Jun" [style.background-color]="row.Jun.color">{{ row.Jun.day }}</td>
+                            <td *ngIf="row.Jul" [style.background-color]="row.Jul.color">{{ row.Jul.day }}</td>
+                            <td *ngIf="row.Aug" [style.background-color]="row.Aug.color">{{ row.Aug.day }}</td>
+                            <td *ngIf="row.Sep" [style.background-color]="row.Sep.color">{{ row.Sep.day }}</td>
+                            <td *ngIf="row.Oct" [style.background-color]="row.Oct.color">{{ row.Oct.day }}</td>
+                            <td *ngIf="row.Nov" [style.background-color]="row.Nov.color">{{ row.Nov.day }}</td>
+                            <td *ngIf="row.Dec" [style.background-color]="row.Dec.color">{{ row.Dec.day }}</td>
                         </tr>
                     </ng-template>
                 </p-table>
@@ -204,21 +240,31 @@ export class ChartDemo implements OnInit {
         this.pieChartOptions = {
             responsive: true,
             cutout: '50%', // <-- This turns it into a donut chart
+            // onClick: (evt: any, activeEls: any[]) => {
+            //     if (activeEls.length > 0) {
+            //         const chart = activeEls[0].element.$context.chart;
+            //         const index = activeEls[0].index;
+            //         const label = chart.data.labels[index];
+            //         this.selectedProject = label;
+            //         console.log('Selected Project:', label);
+            //         this.selectedProjectData = projectDataMap[label] || [];
+            //         this.selectedRole = '';
+            //         this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c.Role).filter(Boolean))];
+
+            //         this.renderBarChart(this.selectedProjectData);
+            //         this.renderProjectTable();
+            //         this.cdr.detectChanges();
+            //     }
+            // },
             onClick: (evt: any, activeEls: any[]) => {
                 if (activeEls.length > 0) {
                     const chart = activeEls[0].element.$context.chart;
                     const index = activeEls[0].index;
                     const label = chart.data.labels[index];
-                    this.selectedProject = label;
-                    this.selectedProjectData = projectDataMap[label] || [];
-                    this.selectedRole = '';
-                    this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c.Role).filter(Boolean))];
-
-                    this.renderBarChart(this.selectedProjectData);
-                    this.renderProjectTable(); // <-- New line to update table
-                    this.cdr.detectChanges();
+                    this.handleProjectSelection(label, projectDataMap);
                 }
             },
+
             plugins: {
                 legend: {
                     display: false
@@ -319,42 +365,167 @@ export class ChartDemo implements OnInit {
     }
 
     renderProjectTable(): void {
-        // Prepare an array for the table data
-        this.projectTableData = [...this.selectedProjectData];
+        this.projectTableData = this.selectedProjectData.map((contract) => {
+            const row = { ...contract }; // Deep clone the contract object
 
-        // Logic for rowspan of the first three columns
-        if (this.projectTableData.length > 0) {
-            let prevProject = '';
-            let prevContractName = '';
-            let prevProjectManager = '';
-
-            this.projectTableData.forEach((row, index) => {
-                // For the 'Project' column, display it only once if it's the same as the previous row's value
-                if (row.Project === prevProject) {
-                    row.projectRowspan = 0; // Skip rendering this cell by setting rowspan to 0
-                } else {
-                    row.projectRowspan = this.projectTableData.filter((item) => item.Project === row.Project).length;
+            // Helper function to format dates and validate them
+            const formatDate = (dateString: string): string | null => {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) {
+                    // Check if it's a valid date
+                    console.error('Invalid date:', dateString);
+                    return ''; // Return empty string if the date is invalid
                 }
+                return date.toISOString().slice(0, 10); // Return formatted date (YYYY-MM-DD)
+            };
 
-                if (row['Work Contract Name'] === prevContractName) {
-                    row.contractNameRowspan = 0;
-                } else {
-                    row.contractNameRowspan = this.projectTableData.filter((item) => item['Work Contract Name'] === row['Work Contract Name']).length;
+            // Format Start Date and End Date to YYYY-MM-DD
+            const formattedStartDate = formatDate(row['Start Date']);
+            const formattedEndDate = formatDate(row['End Date']);
+
+            if (!formattedStartDate && !formattedEndDate) {
+                console.warn('Both dates are invalid. Skipping project row.');
+                return row; // Skip this project row if both dates are invalid
+            }
+
+            row['Start Date'] = formattedStartDate;
+            row['End Date'] = formattedEndDate;
+
+            // Initialize month fields with empty values
+            const monthMap: { [key: string]: { day: string; color: string } } = {
+                Jan: { day: '', color: '' },
+                Feb: { day: '', color: '' },
+                Mar: { day: '', color: '' },
+                Apr: { day: '', color: '' },
+                May: { day: '', color: '' },
+                Jun: { day: '', color: '' },
+                Jul: { day: '', color: '' },
+                Aug: { day: '', color: '' },
+                Sep: { day: '', color: '' },
+                Oct: { day: '', color: '' },
+                Nov: { day: '', color: '' },
+                Dec: { day: '', color: '' }
+            };
+
+            if (formattedStartDate && formattedEndDate) {
+                const startDate = new Date(formattedStartDate);
+                const endDate = new Date(formattedEndDate);
+
+                const currentYear = new Date().getFullYear();
+
+                // Adjust startDate to January of the current year if it's before current year
+                const adjustedStartDate = new Date(Math.max(startDate.getTime(), new Date(currentYear, 0, 1).getTime()));
+
+                // Set the current date to the first day of the start month (January of current year if adjusted)
+                let currentDate = new Date(adjustedStartDate.getFullYear(), adjustedStartDate.getMonth(), 1);
+
+                // Loop through months from adjustedStartDate to endDate
+                while (currentDate.getFullYear() < endDate.getFullYear() || (currentDate.getFullYear() === endDate.getFullYear() && currentDate.getMonth() <= endDate.getMonth())) {
+                    const monthAbbr = Object.keys(monthMap)[currentDate.getMonth()];
+
+                    // Mark the month within the range with a color
+                    if (currentDate.getFullYear() === adjustedStartDate.getFullYear() || currentDate.getFullYear() > adjustedStartDate.getFullYear()) {
+                        monthMap[monthAbbr].color = '#66bb6a'; // Color months in the range
+                    }
+
+                    // Set the day for the start month if we're in the start month
+                    if (currentDate.getFullYear() === adjustedStartDate.getFullYear() && currentDate.getMonth() === adjustedStartDate.getMonth()) {
+                        monthMap[monthAbbr].day = String(adjustedStartDate.getDate());
+                    }
+
+                    // Set the day for the end month if we're in the end month
+                    if (currentDate.getFullYear() === endDate.getFullYear() && currentDate.getMonth() === endDate.getMonth()) {
+                        monthMap[monthAbbr].day = String(endDate.getDate());
+                    }
+
+                    // Move to the next month
+                    currentDate.setMonth(currentDate.getMonth() + 1);
                 }
+            }
 
-                if (row['Project Manager'] === prevProjectManager) {
-                    row.projectManagerRowspan = 0;
-                } else {
-                    row.projectManagerRowspan = this.projectTableData.filter((item) => item['Project Manager'] === row['Project Manager']).length;
-                }
+            // Merge the month data with the row data
+            return { ...row, ...monthMap };
+        });
 
-                // Update the previous row values to check for repetition
-                prevProject = row.Project;
-                prevContractName = row['Work Contract Name'];
-                prevProjectManager = row['Project Manager'];
-            });
+        this.calculateRowspan(); // Update rowspan calculations
+        this.cdr.detectChanges(); // Ensure UI updates
+    }
+
+    private calculateRowspan(): void {
+        const projectCounts = new Map<string, number>();
+        const contractCounts = new Map<string, number>();
+        const managerCounts = new Map<string, number>();
+
+        // Precompute counts
+        for (const row of this.projectTableData) {
+            projectCounts.set(row.Project, (projectCounts.get(row.Project) || 0) + 1);
+            contractCounts.set(row['Work Contract Name'], (contractCounts.get(row['Work Contract Name']) || 0) + 1);
+            managerCounts.set(row['Project Manager'], (managerCounts.get(row['Project Manager']) || 0) + 1);
         }
 
-        this.cdr.detectChanges(); // Trigger change detection after updating the table data
+        // Apply counts with flags to track first appearance
+        const seenProjects = new Set();
+        const seenContracts = new Set();
+        const seenManagers = new Set();
+
+        for (const row of this.projectTableData) {
+            row.projectRowspan = seenProjects.has(row.Project) ? 0 : projectCounts.get(row.Project);
+            row.contractNameRowspan = seenContracts.has(row['Work Contract Name']) ? 0 : contractCounts.get(row['Work Contract Name']);
+            row.projectManagerRowspan = seenManagers.has(row['Project Manager']) ? 0 : managerCounts.get(row['Project Manager']);
+
+            seenProjects.add(row.Project);
+            seenContracts.add(row['Work Contract Name']);
+            seenManagers.add(row['Project Manager']);
+        }
+    }
+
+    customSort(event: SortEvent): void {
+        const field = event.field!;
+        const order = event.order ?? 1;
+
+        this.projectTableData.sort((a, b) => {
+            let value1 = a[field];
+            let value2 = b[field];
+            let result = 0;
+
+            // Special handling for "Rem. Hrs." field
+            if (field === 'Rem. Hrs.') {
+                value1 = parseFloat(value1);
+                value2 = parseFloat(value2);
+            }
+
+            if (value1 == null && value2 != null) result = -1;
+            else if (value1 != null && value2 == null) result = 1;
+            else if (value1 == null && value2 == null) result = 0;
+            else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+            else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+
+            return order * result;
+        });
+
+        this.calculateRowspan();
+        this.cdr.detectChanges();
+    }
+
+    onProjectClick(project: string): void {
+        const projectDataMap: { [project: string]: any[] } = {};
+        this.filteredContracts.forEach((contract) => {
+            const proj = contract.Project || 'Unknown';
+            if (!projectDataMap[proj]) projectDataMap[proj] = [];
+            projectDataMap[proj].push(contract);
+        });
+
+        this.handleProjectSelection(project, projectDataMap);
+    }
+
+    handleProjectSelection(project: string, projectDataMap: { [project: string]: any[] }): void {
+        this.selectedProject = project;
+        this.selectedProjectData = projectDataMap[project] || [];
+        this.selectedRole = '';
+        this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c.Role).filter(Boolean))];
+
+        this.renderBarChart(this.selectedProjectData);
+        this.renderProjectTable();
+        this.cdr.detectChanges();
     }
 }
