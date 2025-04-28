@@ -22,12 +22,18 @@ export class AppMenu {
         this.model = [
             {
                 label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
+                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
             },
             {
                 label: 'WC Reports',
                 items: [
                     { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] },
+                ]
+            },
+            {
+                label: 'Authenticaition',
+                items: [
+                    { label: 'Login', icon: 'pi pi-fw pi-sign-in', routerLink: ['/'] },
                 ]
             },
             // {

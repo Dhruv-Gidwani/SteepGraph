@@ -3,25 +3,25 @@ import { Subject } from 'rxjs';
 
 export interface WorkContract {
     Level: string;
-    WorkContractName: string;
+    'Work Contract Name': string;
     Project: string;
-    ProjectManager: string;
-    FinanceManager: string;
-    WCTStatus: string;
+    'Project Manager': string;
+    'Finance Manager': string;
+    'WCT Status': string;
     Customer: string;
-    PWOStartDate: string;
-    PWOEndDate: string;
-    PWOName: string;
+    'PWO Start Date': string;
+    'PWO End Date': string;
+    'PWO Name': string;
     Role: string;
-    TotalHrs: string;
+    'Total Hrs.': string;
     Onsite: string;
-    CWOName: string;
-    ResourceName: string;
-    AllocatedHrs: string;
-    RemHrs: string;
-    IsExtension: string;
-    StartDate: string;
-    EndDate: string;
+    'CWO Name': string;
+    'Resource Name': string;
+    'Allocated Hrs.': string;
+    'Rem. Hrs.': string;
+    'Is Extension': string;
+    'Start Date': string;
+    'End Date': string;
     Status: string;
 }
 
@@ -29,21 +29,21 @@ export interface WorkContract {
     providedIn: 'root'
 })
 export class WorkContractService {
-    private workContracts: any[] = [
+    private workContracts: WorkContract[] = [
         {
-            'Level': '1',
+            Level: '1',
             'Work Contract Name': 'WCT00339',
-            'Project': '1572 COE',
+            Project: '1572 COE',
             'Project Manager': 'Himanshu ZALAVADIYA',
             'Finance Manager': 'Kalpesh ZALAVADIA',
             'WCT Status': 'Active',
-            'Customer': '7D0FC6503060479390671A523C9F782F',
+            Customer: '7D0FC6503060479390671A523C9F782F',
             'PWO Start Date': '2025-04-01T00:00:00',
             'PWO End Date': '2026-03-31T00:00:00',
             'PWO Name': 'PWO-000948',
-            'Role': 'undefined',
+            Role: 'undefined',
             'Total Hrs.': '3000.00',
-            'Onsite': '0',
+            Onsite: '0',
             'CWO Name': '1572 OffShore LMS  48.00',
             'Resource Name': 'Pratik KARLE On Payroll',
             'Allocated Hrs.': '112.00',
@@ -6158,7 +6158,7 @@ export class WorkContractService {
 
     // Method to get a work contract by its unique ID (WorkContractName)
     getWorkContractById(id: string): WorkContract | undefined {
-        return this.workContractsSignal().find((contract) => contract.WorkContractName === id);
+        return this.workContractsSignal().find((contract) => contract, 'Work Contract Name' === id);
     }
 
     // Computed values for filtered or derived data

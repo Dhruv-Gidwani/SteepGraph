@@ -48,10 +48,17 @@ import { SortEvent } from 'primeng/api';
                             </div>
 
                             <!-- Scrollable legend area -->
-                            <div class="flex-1 overflow-y-auto ml-4 max-h-[350px] pr-2">
+                            <div class="flex-1 overflow-y-auto ml-4 max-h-[350px] pr-2 hide-scrollbar">
                                 <ul class="project-list">
-                                    <li *ngFor="let project of pieChartData?.labels" (click)="onProjectClick(project)" [class.selected]="project === selectedProject">
-                                        <span *ngIf="project === selectedProject">✔️</span>
+                                    <li
+                                        *ngFor="let project of pieChartData?.labels"
+                                        (click)="onProjectClick(project)"
+                                        [ngClass]="{
+                                            'bg-blue-100 text-blue-700 font-semibold': project === selectedProject,
+                                            'hover:bg-gray-100 dark:hover:bg-surface-700': true
+                                        }"
+                                        class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
+                                    >
                                         {{ project }}
                                     </li>
                                 </ul>
@@ -81,7 +88,26 @@ import { SortEvent } from 'primeng/api';
             </p-fluid>
             <!-- Data Table -->
             <div class="p-mt-4" *ngIf="projectTableData.length">
-                <p-table [value]="projectTableData" [scrollable]="true" scrollHeight="500px" [customSort]="true" (sortFunction)="customSort($event)">
+                <p-table
+                    #dt2
+                    [value]="projectTableData"
+                    [scrollable]="true"
+                    scrollHeight="500px"
+                    [customSort]="true"
+                    (sortFunction)="customSort($event)"
+                    [globalFilterFields]="['Project', 'Work Contract Name', 'Project Manager', 'PWO Name', 'Role', 'Resource Name', 'Allocated Hrs.', 'Rem. Hrs.', 'Start Date', 'End Date']"
+                >
+                    <!-- Search Bar -->
+                    <ng-template pTemplate="caption">
+                        <div class="flex justify-content-end">
+                            <span class="p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input #globalFilterInput pInputText type="text" (input)="onGlobalFilter($event, dt2)" placeholder="Search keyword" />
+                            </span>
+                        </div>
+                    </ng-template>
+
+                    <!-- Table Header -->
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Project</th>
@@ -114,9 +140,10 @@ import { SortEvent } from 'primeng/api';
                             <th>Dec</th>
                         </tr>
                     </ng-template>
+
+                    <!-- Table Body -->
                     <ng-template pTemplate="body" let-row let-i="rowIndex">
                         <tr>
-                            <!-- Use the rowspan attribute for the first three columns -->
                             <td *ngIf="row.projectRowspan > 0" [attr.rowspan]="row.projectRowspan">{{ row.Project }}</td>
                             <td *ngIf="row.contractNameRowspan > 0" [attr.rowspan]="row.contractNameRowspan">{{ row['Work Contract Name'] }}</td>
                             <td *ngIf="row.projectManagerRowspan > 0" [attr.rowspan]="row.projectManagerRowspan">{{ row['Project Manager'] }}</td>
@@ -128,7 +155,7 @@ import { SortEvent } from 'primeng/api';
                             <td>{{ row['Start Date'] }}</td>
                             <td>{{ row['End Date'] }}</td>
 
-                            <!-- Month cells with day and background color -->
+                            <!-- Month Cells -->
                             <td *ngIf="row.Jan" [style.background-color]="row.Jan.color">{{ row.Jan.day }}</td>
                             <td *ngIf="row.Feb" [style.background-color]="row.Feb.color">{{ row.Feb.day }}</td>
                             <td *ngIf="row.Mar" [style.background-color]="row.Mar.color">{{ row.Mar.day }}</td>
@@ -154,6 +181,7 @@ export class ChartDemo implements OnInit {
     selectedProject: string | null = null;
     selectedProjectData: any[] = [];
     projectTableData: any[] = []; // Table data to show selected project details
+    selectedProjectIndex: number | null = null;
 
     barChartData: any;
     barChartOptions: any;
@@ -180,7 +208,30 @@ export class ChartDemo implements OnInit {
         this.allContracts = this.workContractService.getWorkContracts();
         this.filteredContracts = [...this.allContracts];
         this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
-        this.renderPieChart();
+
+        // Set default project and index BEFORE rendering the pie chart
+        if (this.filteredContracts.length > 0) {
+            const firstProject = this.filteredContracts[0].Project || 'Unknown';
+            this.selectedProject = firstProject;
+
+            // Temporarily create labels so we can get the correct index
+            const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
+            this.selectedProjectIndex = tempLabels.indexOf(firstProject);
+        }
+
+        this.renderPieChart(); // now uses correct selectedProjectIndex
+
+        // Handle project selection logic
+        const projectDataMap: { [project: string]: any[] } = {};
+        this.filteredContracts.forEach((contract) => {
+            const project = contract.Project || 'Unknown';
+            if (!projectDataMap[project]) projectDataMap[project] = [];
+            projectDataMap[project].push(contract);
+        });
+
+        if (this.selectedProject) {
+            this.handleProjectSelection(this.selectedProject, projectDataMap);
+        }
     }
 
     applyFilters(): void {
@@ -197,19 +248,44 @@ export class ChartDemo implements OnInit {
             return isDateMatch && statusMatch;
         });
 
-        this.selectedProject = null;
-        this.renderPieChart();
-
-        // Update the bar chart after applying filters
-        if (this.selectedProject) {
-            this.filterBarChartByRole();
-            this.renderProjectTable();
-        } else {
-            // If no project is selected, reset bar chart data
+        // If no contracts are found after filtering, reset everything
+        if (this.filteredContracts.length === 0) {
+            this.selectedProject = null;
+            this.selectedProjectIndex = null;
+            this.pieChartData = null;
             this.barChartData = null;
             this.projectTableData = [];
-            this.cdr.detectChanges(); // Force change detection for resetting the chart
+            this.availableRoles = [];
+            this.selectedRole = '';
+            this.cdr.detectChanges();
+            return;
         }
+
+        // Rebuild the project data map
+        const projectDataMap: { [project: string]: any[] } = {};
+        this.filteredContracts.forEach((contract) => {
+            const project = contract.Project || 'Unknown';
+            if (!projectDataMap[project]) projectDataMap[project] = [];
+            projectDataMap[project].push(contract);
+        });
+
+        // Set the first available project after filtering
+        const tempLabels = Object.keys(projectDataMap);
+        const firstProject = tempLabels[0];
+
+        this.selectedProject = firstProject;
+        this.selectedProjectIndex = tempLabels.indexOf(firstProject);
+
+        // Handle project-specific data (bar chart, table, roles)
+        this.handleProjectSelection(firstProject, projectDataMap);
+
+        // Now re-render the pie chart (with correct highlighting)
+        this.renderPieChart();
+    }
+
+    onGlobalFilter(event: Event, dt: any) {
+        const input = event.target as HTMLInputElement;
+        dt.filterGlobal(input.value, 'contains');
     }
 
     renderPieChart(): void {
@@ -232,39 +308,26 @@ export class ChartDemo implements OnInit {
                 {
                     data,
                     backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#FF7043', '#26C6DA', '#D4E157', '#FFCA28', '#8D6E63', '#78909C'],
-                    hoverBackgroundColor: ['#64B5F6', '#81C784', '#FFB74D', '#BA68C8', '#FF8A65', '#4DD0E1', '#DCE775', '#FFD54F', '#A1887F', '#90A4AE']
+                    hoverBackgroundColor: ['#64B5F6', '#81C784', '#FFB74D', '#BA68C8', '#FF8A65', '#4DD0E1', '#DCE775', '#FFD54F', '#A1887F', '#90A4AE'],
+                    offset: labels.map((_, index) => (index === this.selectedProjectIndex ? 20 : 0)) // highlight selected
                 }
             ]
         };
 
         this.pieChartOptions = {
             responsive: true,
-            cutout: '50%', // <-- This turns it into a donut chart
-            // onClick: (evt: any, activeEls: any[]) => {
-            //     if (activeEls.length > 0) {
-            //         const chart = activeEls[0].element.$context.chart;
-            //         const index = activeEls[0].index;
-            //         const label = chart.data.labels[index];
-            //         this.selectedProject = label;
-            //         console.log('Selected Project:', label);
-            //         this.selectedProjectData = projectDataMap[label] || [];
-            //         this.selectedRole = '';
-            //         this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c.Role).filter(Boolean))];
-
-            //         this.renderBarChart(this.selectedProjectData);
-            //         this.renderProjectTable();
-            //         this.cdr.detectChanges();
-            //     }
-            // },
+            cutout: '50%',
             onClick: (evt: any, activeEls: any[]) => {
                 if (activeEls.length > 0) {
                     const chart = activeEls[0].element.$context.chart;
                     const index = activeEls[0].index;
                     const label = chart.data.labels[index];
+
+                    this.selectedProjectIndex = index; // set selected index
                     this.handleProjectSelection(label, projectDataMap);
+                    this.renderPieChart(); // re-render to apply offset
                 }
             },
-
             plugins: {
                 legend: {
                     display: false
@@ -508,6 +571,7 @@ export class ChartDemo implements OnInit {
     }
 
     onProjectClick(project: string): void {
+        // Build the projectDataMap
         const projectDataMap: { [project: string]: any[] } = {};
         this.filteredContracts.forEach((contract) => {
             const proj = contract.Project || 'Unknown';
@@ -515,6 +579,12 @@ export class ChartDemo implements OnInit {
             projectDataMap[proj].push(contract);
         });
 
+        // Highlight selected project and trigger chart update
+        this.selectedProject = project;
+        this.selectedProjectIndex = this.pieChartData?.labels?.indexOf(project) ?? null;
+        this.renderPieChart();
+
+        // Handle project-specific logic
         this.handleProjectSelection(project, projectDataMap);
     }
 

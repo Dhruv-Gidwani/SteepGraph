@@ -16,7 +16,7 @@ import { LayoutService } from '../service/layout.service';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-                <img src="assets/demo/flags/steepgraph_logo.png" alt="SteepGraph Logo" class="logo" />
+                <img src="assets/demo/flags/steepgraph.png" alt="SteepGraph Logo" class="logo" />
             </a>
         </div>
 
