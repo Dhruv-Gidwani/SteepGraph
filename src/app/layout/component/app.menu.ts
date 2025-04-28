@@ -33,7 +33,7 @@ export class AppMenu {
             {
                 label: 'Authenticaition',
                 items: [
-                    { label: 'Login', icon: 'pi pi-fw pi-sign-in', routerLink: ['/'] },
+                    { label: 'LogOut', icon: 'pi pi-fw pi-sign-in', routerLink: ['/'] },
                 ]
             },
             // {
