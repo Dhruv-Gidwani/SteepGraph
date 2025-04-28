@@ -7,6 +7,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { md5 } from 'js-md5'; // MD5 library import
 
 @Component({
     selector: 'app-login',
@@ -21,45 +24,49 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
         RippleModule,
         AppFloatingConfigurator
     ],
-    template: `
-        <app-floating-configurator />
-        <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
-            <div class="flex flex-col items-center justify-center">
-                <div
-                    style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
-                    <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
-                        <div class="text-center mb-8">
-                            <img src="https://usercontent.one/wp/steepgraph.com/wp-content/uploads/2022/05/steepgraph-logo.png"
-                                alt="SteepGraph Logo"
-                                class="mb-6 w-20 mx-auto" />
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to SteepGraph!</div>
-                            <span class="text-muted-color font-medium">Sign in to continue</span>
-                        </div>
-
-                        <div>
-                            <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Username</label>
-                            <input pInputText id="email1" type="text" placeholder="Username" class="w-full md:w-[30rem] mb-8" [(ngModel)]="email" />
-
-                            <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                            <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
-
-                            <div class="flex items-center justify-between mt-2 mb-8 gap-8">
-                                <div class="flex items-center">
-                                    <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                    <label for="rememberme1">Remember me</label>
-                                </div>
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
-                            </div>
-                            <p-button label="Sign In" styleClass="w-full" routerLink="/"></p-button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `
+    templateUrl : "\login.component.html"
 })
 export class Login {
-    email: string = '';
+    username: string = '';
     password: string = '';
     checked: boolean = false;
+    
+    constructor(private http: HttpClient, private router: Router) {}
+
+    login() {
+        // Hash the password using MD5
+        const hashedPassword = md5(this.password);
+
+        // Prepare the body using URLSearchParams
+        const body = new URLSearchParams();
+        body.set('client_id', 'IOMApp');
+        body.set('grant_type', 'password');
+        body.set('scope', 'Innovator');
+        body.set('username', this.username);
+        body.set('password', hashedPassword);
+        body.set('database', 'OLM_QA');
+
+        // Prepare the headers to set Content-Type to x-www-form-urlencoded
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/x-www-form-urlencoded'
+        });
+
+        // Log the values to check
+        console.log('Username:', this.username);
+        console.log('Hashed Password:', hashedPassword);
+        console.log('Request Body:', body.toString());
+
+        // Send the POST request
+        this.http.post<any>('http://192.168.0.230/QAEnvironment/OAuthServer/connect/token', body.toString(), { headers })
+            .subscribe({
+                next: (response) => {
+                    sessionStorage.setItem('access_token', response.access_token);
+                    this.router.navigate(['/dashboard']);
+                },
+                error: (error) => {
+                    console.error('Login Error:', error);
+                    alert('Login failed. Please check credentials.');
+                }
+            });
+    }
 }
