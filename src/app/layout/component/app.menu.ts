@@ -239,7 +239,7 @@ import { AppMenuitem } from './app.menuitem';
 export class AppMenu implements OnInit {
     model: MenuItem[] = [];
     timeout: any; // Variable to store the timeout reference
-    inactivityLimit = 60000; // 1 minute in milliseconds
+    inactivityLimit = 360000; // 1 minute in milliseconds
 
     ngOnInit() {
         this.model = [
