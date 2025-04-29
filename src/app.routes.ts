@@ -17,7 +17,7 @@ export const appRoutes: Routes = [
         ]
     },
 
-    { path: '', redirectTo: '', pathMatch: 'full' },   // Default: Redirect to login
+    { path: '', redirectTo: '', pathMatch: 'full' }, // Default: Redirect to login
 
     { path: '**', redirectTo: '' }
 ];

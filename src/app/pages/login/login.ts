@@ -9,29 +9,23 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { md5 } from 'js-md5'; // MD5 library import
+import { md5 } from 'js-md5';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [
-        ButtonModule,
-        CheckboxModule,
-        InputTextModule,
-        PasswordModule,
-        FormsModule,
-        RouterModule,
-        RippleModule,
-        AppFloatingConfigurator
-    ],
-    templateUrl : "\login.component.html"
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
+    templateUrl: '\login.component.html'
 })
 export class Login {
     username: string = '';
     password: string = '';
     checked: boolean = false;
-    
-    constructor(private http: HttpClient, private router: Router) {}
+
+    constructor(
+        private http: HttpClient,
+        private router: Router
+    ) {}
 
     login() {
         // Hash the password using MD5
@@ -57,16 +51,15 @@ export class Login {
         console.log('Request Body:', body.toString());
 
         // Send the POST request
-        this.http.post<any>('http://192.168.0.230/QAEnvironment/OAuthServer/connect/token', body.toString(), { headers })
-            .subscribe({
-                next: (response) => {
-                    sessionStorage.setItem('access_token', response.access_token);
-                    this.router.navigate(['/dashboard']);
-                },
-                error: (error) => {
-                    console.error('Login Error:', error);
-                    alert('Login failed. Please check credentials.');
-                }
-            });
+        this.http.post<any>('http://192.168.0.230/QAEnvironment/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
+            next: (response) => {
+                sessionStorage.setItem('access_token', response.access_token);
+                this.router.navigate(['/dashboard']);
+            },
+            error: (error) => {
+                console.error('Login Error:', error);
+                alert('Login failed. Please check credentials.');
+            }
+        });
     }
 }
