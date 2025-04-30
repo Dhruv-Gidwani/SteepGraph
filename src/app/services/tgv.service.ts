@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ApiService {
-  private apiUrl = 'http://192.168.0.230/QAEnvironment/Server/odata/method.rb_GetTreeGridData';
+  private apiUrl = 'http://SGSLP221.SteepGraph.com/12sp9/Server/odata/method.rb_GetTreeGridData';
 
   constructor(private http: HttpClient) {}
 
