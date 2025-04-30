@@ -7,6 +7,8 @@ import { WorkContractService } from '../chart/service/chart.service';
 import { TableModule } from 'primeng/table';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { SortEvent } from 'primeng/api';
+import { ApiService } from '../../services/tgv.service';
+
 
 @Component({
     selector: 'app-chart-demo',
@@ -201,38 +203,70 @@ export class ChartDemo implements OnInit {
 
     constructor(
         private workContractService: WorkContractService,
+        private ApiService: ApiService,
         private cdr: ChangeDetectorRef
     ) {}
 
-    ngOnInit(): void {
-        this.allContracts = this.workContractService.getWorkContracts();
-        this.filteredContracts = [...this.allContracts];
-        this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
+    // ngOnInit(): void {
+    //     //this.allContracts = this.workContractService.getWorkContracts();
+    //     this.allContracts = this.workContractService.getWorkContracts();
+    //     this.filteredContracts = [...this.allContracts];
+    //     this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
 
-        // Set default project and index BEFORE rendering the pie chart
-        if (this.filteredContracts.length > 0) {
+    //     // Set default project and index BEFORE rendering the pie chart
+    //     if (this.filteredContracts.length > 0) {
+    //         const firstProject = this.filteredContracts[0].Project || 'Unknown';
+    //         this.selectedProject = firstProject;
+
+    //         // Temporarily create labels so we can get the correct index
+    //         const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
+    //         this.selectedProjectIndex = tempLabels.indexOf(firstProject);
+    //     }
+
+    //     this.renderPieChart(); // now uses correct selectedProjectIndex
+
+    //     // Handle project selection logic
+    //     const projectDataMap: { [project: string]: any[] } = {};
+    //     this.filteredContracts.forEach((contract) => {
+    //         const project = contract.Project || 'Unknown';
+    //         if (!projectDataMap[project]) projectDataMap[project] = [];
+    //         projectDataMap[project].push(contract);
+    //     });
+
+    //     if (this.selectedProject) {
+    //         this.handleProjectSelection(this.selectedProject, projectDataMap);
+    //     }
+    // }
+
+    ngOnInit(): void {
+        this.ApiService.getTreeGridData().subscribe((data) => {
+          this.allContracts = data;
+          this.filteredContracts = [...this.allContracts];
+          this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
+    
+          if (this.filteredContracts.length > 0) {
             const firstProject = this.filteredContracts[0].Project || 'Unknown';
             this.selectedProject = firstProject;
-
-            // Temporarily create labels so we can get the correct index
+    
             const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
             this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-        }
-
-        this.renderPieChart(); // now uses correct selectedProjectIndex
-
-        // Handle project selection logic
-        const projectDataMap: { [project: string]: any[] } = {};
-        this.filteredContracts.forEach((contract) => {
+          }
+    
+          this.renderPieChart();
+    
+          const projectDataMap: { [project: string]: any[] } = {};
+          this.filteredContracts.forEach((contract) => {
             const project = contract.Project || 'Unknown';
             if (!projectDataMap[project]) projectDataMap[project] = [];
             projectDataMap[project].push(contract);
-        });
-
-        if (this.selectedProject) {
+          });
+    
+          if (this.selectedProject) {
             this.handleProjectSelection(this.selectedProject, projectDataMap);
-        }
-    }
+          }
+        });
+      }
+    
 
     applyFilters(): void {
         const { startDate, endDate, status } = this.filters;
