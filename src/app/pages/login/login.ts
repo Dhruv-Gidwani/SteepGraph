@@ -49,7 +49,6 @@ export class Login {
         console.log('Username:', this.username);
         console.log('Hashed Password:', hashedPassword);
         console.log('Request Body:', body.toString());
-
         // Send the POST request
         this.http.post<any>('http://SGSLP221.SteepGraph.com/12sp9/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
             next: (response) => {

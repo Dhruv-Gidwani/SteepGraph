@@ -41,17 +41,6 @@ export class Dashboard implements OnInit {
             }
         });
           
-        this.arasService.fetchTgvdItem().subscribe((xml: string) => {
-            parseString(xml, { explicitArray: false }, (err, result) => {
-              if (err) {
-                console.error('XML Parse Error:', err);
-                return;
-              }
-              const item = result.AML?.Item;
-              const tgvdItem = item?.tgvd_item;
-              console.log('Extracted tgvd_item:', tgvdItem);
-            });
-          });
     }
     //    constructor(private arasService: ArasService) {
         
@@ -68,7 +57,7 @@ export class Dashboard implements OnInit {
     //         const tgvdItem = item?.tgvd_item;
     //         console.log('Extracted tgvd_item:', tgvdItem);
     //       });
-        // });
+    //     });
     //   }
     // }
 }
