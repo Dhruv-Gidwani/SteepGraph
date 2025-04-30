@@ -51,7 +51,7 @@ export class Login {
         console.log('Request Body:', body.toString());
 
         // Send the POST request
-        this.http.post<any>('http://SGSLP221.SteepGraph.com/12sp9/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
+        this.http.post<any>('http://192.168.0.230/QAEnvironment/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
             next: (response) => {
                 sessionStorage.setItem('access_token', response.access_token);
                 this.router.navigate(['/dashboard']);

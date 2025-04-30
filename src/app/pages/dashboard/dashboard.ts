@@ -33,49 +33,16 @@ export class Dashboard implements OnInit {
         private arasService: ArasService
     ) {}
 
-    // ngOnInit(): void {
-    //     this.apiService.getTreeGridData().subscribe({
-    //         next: (data) => {
-
-    //             console.log('Tree Grid Data:', data);
-    //         },
-    //         error: (error) => {
-    //             console.error('Error fetching data:', error);
-    //         }
-    //     });
-    // }
-
     rawTreeGridData: any;
     transformedTreeGridData: any;
 
-    ngOnInit(): void {
+        ngOnInit(): void {
         this.apiService.getTreeGridData().subscribe({
-            next: (data) => {
-                // 1. Show RAW tree grid data
-                this.rawTreeGridData = data;
-                console.log('Raw Tree Grid Data:', this.rawTreeGridData);
-
-                // 2. Extract headers and transform grid rows
-                const headers = data.HeaderResult.map((header: any) => header.label);
-                const gridRows = data.GridRows;
-
-                const transformedData = gridRows.map((row: any) => {
-                    const result: Record<string, any> = {};
-                    result['Level'] = '1';
-
-                    if (Array.isArray(row.cells)) {
-                        row.cells.forEach((cell: any, index: number) => {
-                            const key = headers[index] ?? `Unknown_${index}`;
-                            const value = cell?.value ?? null;
-                            result[key] = value;
-                        });
-                    }
-
-                    return result;
-                });
-
-                // 3. Save and log the transformed data
+            next: (transformedData) => {
+                // Save transformed data
                 this.transformedTreeGridData = transformedData;
+    
+                // Display in the console
                 console.log('Transformed Data:', this.transformedTreeGridData);
                 console.log('First Row Sample:', this.transformedTreeGridData[0]);
                 console.table(this.transformedTreeGridData);
@@ -85,4 +52,5 @@ export class Dashboard implements OnInit {
             }
         });
     }
+    
 }

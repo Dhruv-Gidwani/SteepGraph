@@ -97,7 +97,7 @@ import { ApiService } from '../../services/tgv.service';
                     scrollHeight="500px"
                     [customSort]="true"
                     (sortFunction)="customSort($event)"
-                    [globalFilterFields]="['Project', 'Work Contract Name', 'Project Manager', 'PWO Name', 'Role', 'Resource Name', 'Allocated Hrs.', 'Rem. Hrs.', 'Start Date', 'End Date']"
+                    [globalFilterFields]="['Project', 'Work Contract Name', 'Project Manager', 'PWO Name', 'Position Role', 'Resource Name', 'Allocated Hrs.', 'Rem. Hrs.', 'Start Date', 'End Date']"
                 >
                     <!-- Search Bar -->
                     <ng-template pTemplate="caption">
@@ -150,7 +150,7 @@ import { ApiService } from '../../services/tgv.service';
                             <td *ngIf="row.contractNameRowspan > 0" [attr.rowspan]="row.contractNameRowspan">{{ row['Work Contract Name'] }}</td>
                             <td *ngIf="row.projectManagerRowspan > 0" [attr.rowspan]="row.projectManagerRowspan">{{ row['Project Manager'] }}</td>
                             <td>{{ row['PWO Name'] }}</td>
-                            <td>{{ row['Role'] }}</td>
+                            <td>{{ row['Position Role'] }}</td>
                             <td>{{ row['Resource Name'] }}</td>
                             <td>{{ row['Allocated Hrs.'] }}</td>
                             <td>{{ row['Rem. Hrs.'] }}</td>
@@ -238,34 +238,89 @@ export class ChartDemo implements OnInit {
     //     }
     // }
 
+    // ngOnInit(): void {
+    //     this.ApiService.getTreeGridData().subscribe((data) => {
+    //       this.allContracts = data;
+    //       this.filteredContracts = [...this.allContracts];
+    //       this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
+    
+    //       if (this.filteredContracts.length > 0) {
+    //         const firstProject = this.filteredContracts[0].Project || 'Unknown';
+    //         this.selectedProject = firstProject;
+    
+    //         const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
+    //         this.selectedProjectIndex = tempLabels.indexOf(firstProject);
+    //       }
+    
+    //       this.renderPieChart();
+    
+    //       const projectDataMap: { [project: string]: any[] } = {};
+    //       this.filteredContracts.forEach((contract) => {
+    //         const project = contract.Project || 'Unknown';
+    //         if (!projectDataMap[project]) projectDataMap[project] = [];
+    //         projectDataMap[project].push(contract);
+    //       });
+    
+    //       if (this.selectedProject) {
+    //         this.handleProjectSelection(this.selectedProject, projectDataMap);
+    //       }
+    //     });
+    //   }
+
     ngOnInit(): void {
         this.ApiService.getTreeGridData().subscribe((data) => {
+          // 1. Assign all data
           this.allContracts = data;
+      
+          // 2. Don't filter yet — just clone
           this.filteredContracts = [...this.allContracts];
-          this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
-    
-          if (this.filteredContracts.length > 0) {
-            const firstProject = this.filteredContracts[0].Project || 'Unknown';
-            this.selectedProject = firstProject;
-    
-            const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
-            this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-          }
-    
+      
+          // 3. Extract unique statuses (including 'Unknown' if missing)
+          this.uniqueStatuses = [
+            ...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))
+          ];
+      
+          // 4. Build a clean, unique list of projects (handling missing/blank)
+          const projectNames = this.allContracts.map((c) =>
+            c.Project?.trim() && c.Project.trim().length > 0
+              ? c.Project.trim()
+              : `Unknown_${Math.random().toString(36).substring(2, 6)}`
+          );
+      
+          const tempLabels = [...new Set(projectNames)];
+          this.selectedProject = tempLabels[0];
+          this.selectedProjectIndex = 0;
+      
+          // 5. Render chart
           this.renderPieChart();
-    
+      
+          // 6. Build full projectDataMap using all contracts
           const projectDataMap: { [project: string]: any[] } = {};
-          this.filteredContracts.forEach((contract) => {
-            const project = contract.Project || 'Unknown';
-            if (!projectDataMap[project]) projectDataMap[project] = [];
-            projectDataMap[project].push(contract);
+          this.allContracts.forEach((contract) => {
+            const projectKey =
+              contract.Project?.trim() && contract.Project.trim().length > 0
+                ? contract.Project.trim()
+                : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+            if (!projectDataMap[projectKey]) {
+              projectDataMap[projectKey] = [];
+            }
+            projectDataMap[projectKey].push(contract);
           });
-    
-          if (this.selectedProject) {
+      
+          // 7. Handle the selected project data
+          if (this.selectedProject && projectDataMap[this.selectedProject]) {
             this.handleProjectSelection(this.selectedProject, projectDataMap);
           }
+      
+          // 8. Debug output
+          console.log('All Contracts:', this.allContracts);
+          console.table(this.allContracts.map(c => ({
+            Project: c.Project,
+            Status: c.Status
+          })));
         });
       }
+      
     
 
     applyFilters(): void {
@@ -452,7 +507,7 @@ export class ChartDemo implements OnInit {
 
     filterBarChartByRole(): void {
         // Filter the project data based on selected role
-        const filteredData = this.selectedRole ? this.selectedProjectData.filter((contract) => contract.Role === this.selectedRole) : this.selectedProjectData;
+        const filteredData = this.selectedRole ? this.selectedProjectData.filter((contract) => contract['Position Role'] === this.selectedRole) : this.selectedProjectData;
 
         // Call renderBarChart with the filtered data
         this.renderBarChart(filteredData);
@@ -626,7 +681,7 @@ export class ChartDemo implements OnInit {
         this.selectedProject = project;
         this.selectedProjectData = projectDataMap[project] || [];
         this.selectedRole = '';
-        this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c.Role).filter(Boolean))];
+        this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
 
         this.renderBarChart(this.selectedProjectData);
         this.renderProjectTable();
