@@ -127,6 +127,8 @@ export class Dashboard implements OnInit {
                 });
     
                 this.transformedTreeGridData = transformedData;
+    
+                // Display in the console
                 console.log('Transformed Data:', this.transformedTreeGridData);
                 console.log('First Row Sample:', this.transformedTreeGridData[0]);
                 console.table(this.transformedTreeGridData);
@@ -136,5 +138,6 @@ export class Dashboard implements OnInit {
             }
         });
     }
+    
     
 }
