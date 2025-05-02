@@ -8,12 +8,21 @@ import { TableModule } from 'primeng/table';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { SortEvent } from 'primeng/api';
 import { ApiService } from '../../services/tgv.service';
+import { ArasService } from '../../services/aras.service';
+import { ArasService1 } from '../../services/aras1.service';
+import { parseString } from 'xml2js';
+import { firstValueFrom } from 'rxjs';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { MenuItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { ExportService } from "../Excel/excel";
+
 
 
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
-    imports: [CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule],
+    imports: [CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule],
     template: `
         <div class="p-4">
             <!-- Filters -->
@@ -98,16 +107,48 @@ import { ApiService } from '../../services/tgv.service';
                     [customSort]="true"
                     (sortFunction)="customSort($event)"
                     [globalFilterFields]="['Project', 'Work Contract Name', 'Project Manager', 'PWO Name', 'Position Role', 'Resource Name', 'Allocated Hrs.', 'Rem. Hrs.', 'Start Date', 'End Date']"
-                >
+                    [paginator]="true"
+                    [rows]="5"
+                    [tableStyle]="{ 'min-width': '50rem' }"
+                    [rowsPerPageOptions]="[5, 10, 20]"
+                    >
                     <!-- Search Bar -->
                     <ng-template pTemplate="caption">
-                        <div class="flex justify-content-end">
-                            <span class="p-input-icon-left">
-                                <i class="pi pi-search"></i>
-                                <input #globalFilterInput pInputText type="text" (input)="onGlobalFilter($event, dt2)" placeholder="Search keyword" />
-                            </span>
-                        </div>
-                    </ng-template>
+  <!-- 
+    Flex container now uses justify-between 
+    to place the search on the left and the export button on the right 
+  -->
+  <div class="flex justify-between items-center w-full p-2">
+    
+    <!-- Search input on the left -->
+    <span class="p-input-icon-left">
+      <i class="pi pi-search" style="color: #007ad9; margin-right: 8px;"></i>
+      <input
+        #globalFilterInput
+        pInputText
+        type="text"
+        (input)="onGlobalFilter($event, dt2)"
+        placeholder="Search by keyword"
+        class="border p-2 rounded-full w-64 transition-all duration-300"
+      />
+    </span>
+
+    <!-- Export button on the right -->
+    <p-button
+      label="Export"
+      icon="pi pi-file-excel"
+      styleClass="p-button-success"
+      (click)="exportData()"
+    ></p-button>
+
+  </div>
+</ng-template>
+
+                    
+                    
+
+
+                    
 
                     <!-- Table Header -->
                     <ng-template pTemplate="header">
@@ -200,128 +241,109 @@ export class ChartDemo implements OnInit {
     uniqueStatuses: string[] = [];
     availableRoles: string[] = [];
     selectedRole: string = '';
+    exportOptions: MenuItem[] | undefined;
 
     constructor(
         private workContractService: WorkContractService,
         private ApiService: ApiService,
-        private cdr: ChangeDetectorRef
-    ) {}
+        private cdr: ChangeDetectorRef,
+        private arasService: ArasService,
+        private arasService1: ArasService1,
+        private exportService: ExportService
+    ) { }
 
-    // ngOnInit(): void {
-    //     //this.allContracts = this.workContractService.getWorkContracts();
-    //     this.allContracts = this.workContractService.getWorkContracts();
-    //     this.filteredContracts = [...this.allContracts];
-    //     this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
 
-    //     // Set default project and index BEFORE rendering the pie chart
-    //     if (this.filteredContracts.length > 0) {
-    //         const firstProject = this.filteredContracts[0].Project || 'Unknown';
-    //         this.selectedProject = firstProject;
 
-    //         // Temporarily create labels so we can get the correct index
-    //         const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
-    //         this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-    //     }
+    // Function to call exportToExcel from the service
+    exportData(): void {
+        this.exportService.exportToExcel(this.projectTableData);
+    }
 
-    //     this.renderPieChart(); // now uses correct selectedProjectIndex
 
-    //     // Handle project selection logic
-    //     const projectDataMap: { [project: string]: any[] } = {};
-    //     this.filteredContracts.forEach((contract) => {
-    //         const project = contract.Project || 'Unknown';
-    //         if (!projectDataMap[project]) projectDataMap[project] = [];
-    //         projectDataMap[project].push(contract);
-    //     });
 
-    //     if (this.selectedProject) {
-    //         this.handleProjectSelection(this.selectedProject, projectDataMap);
-    //     }
-    // }
+    async ngOnInit(): Promise<void> {
+        let tgvdXmlString: string = '';
+        let paramMapString: string = '';
 
-    // ngOnInit(): void {
-    //     this.ApiService.getTreeGridData().subscribe((data) => {
-    //       this.allContracts = data;
-    //       this.filteredContracts = [...this.allContracts];
-    //       this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
-    
-    //       if (this.filteredContracts.length > 0) {
-    //         const firstProject = this.filteredContracts[0].Project || 'Unknown';
-    //         this.selectedProject = firstProject;
-    
-    //         const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
-    //         this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-    //       }
-    
-    //       this.renderPieChart();
-    
-    //       const projectDataMap: { [project: string]: any[] } = {};
-    //       this.filteredContracts.forEach((contract) => {
-    //         const project = contract.Project || 'Unknown';
-    //         if (!projectDataMap[project]) projectDataMap[project] = [];
-    //         projectDataMap[project].push(contract);
-    //       });
-    
-    //       if (this.selectedProject) {
-    //         this.handleProjectSelection(this.selectedProject, projectDataMap);
-    //       }
-    //     });
-    //   }
+        try {
+            // 1st service: fetch TGVD XML
+            const tgvdResponse = await firstValueFrom(this.arasService.fetchTgvdItem());
+            tgvdXmlString = tgvdResponse.toString();
+            console.log('TGVD Response as String:', tgvdXmlString);
 
-    ngOnInit(): void {
-        this.ApiService.getTreeGridData().subscribe((data) => {
-          // 1. Assign all data
-          this.allContracts = data;
-      
-          // 2. Don't filter yet — just clone
-          this.filteredContracts = [...this.allContracts];
-      
-          // 3. Extract unique statuses (including 'Unknown' if missing)
-          this.uniqueStatuses = [
-            ...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))
-          ];
-      
-          // 4. Build a clean, unique list of projects (handling missing/blank)
-          const projectNames = this.allContracts.map((c) =>
-            c.Project?.trim() && c.Project.trim().length > 0
-              ? c.Project.trim()
-              : `Unknown_${Math.random().toString(36).substring(2, 6)}`
-          );
-      
-          const tempLabels = [...new Set(projectNames)];
-          this.selectedProject = tempLabels[0];
-          this.selectedProjectIndex = 0;
-      
-          // 5. Render chart
-          this.renderPieChart();
-      
-          // 6. Build full projectDataMap using all contracts
-          const projectDataMap: { [project: string]: any[] } = {};
-          this.allContracts.forEach((contract) => {
-            const projectKey =
-              contract.Project?.trim() && contract.Project.trim().length > 0
-                ? contract.Project.trim()
-                : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
-            if (!projectDataMap[projectKey]) {
-              projectDataMap[projectKey] = [];
+            // 2nd service: fetch QB values and parse XML
+            const qbResponse = await firstValueFrom(this.arasService1.fetchQBValueItem());
+
+            // Convert callback-style parseString to a promise
+            const paramMap = await new Promise<Record<string, string>>((resolve, reject) => {
+                parseString(qbResponse, { explicitArray: false }, (err: any, result: any) => {
+                    if (err) return reject(err);
+
+                    try {
+                        const items = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'].Result.Item.Relationships.Item;
+                        const itemArray = Array.isArray(items) ? items : [items];
+                        const map: Record<string, string> = {};
+
+                        itemArray.forEach((item: any) => {
+                            const key = item.qd_parameter_name;
+                            const value = item.user_input_default_value?._ || item.user_input_default_value;
+                            if (key) map[key] = value;
+                        });
+
+                        resolve(map);
+                    } catch (parseError) {
+                        reject(parseError);
+                    }
+                });
+            });
+
+            paramMapString = JSON.stringify(paramMap);
+            console.log('Extracted Parameter Map as String:', paramMapString);
+
+            // 3rd service: get TreeGrid data
+            const data = await firstValueFrom(this.ApiService.getTreeGridData(tgvdXmlString, paramMapString));
+
+            // Process received contract data
+            this.allContracts = data;
+            this.filteredContracts = [...this.allContracts];
+            this.uniqueStatuses = [...new Set(this.allContracts.map(c => c.Status?.trim() || 'Unknown'))];
+
+            const projectNames = this.allContracts.map(c =>
+                c.Project?.trim() && c.Project.trim().length > 0
+                    ? c.Project.trim()
+                    : `Unknown_${Math.random().toString(36).substring(2, 6)}`
+            );
+
+            const tempLabels = [...new Set(projectNames)];
+            this.selectedProject = tempLabels[0];
+            this.selectedProjectIndex = 0;
+
+            this.renderPieChart();
+
+            const projectDataMap: { [project: string]: any[] } = {};
+            this.allContracts.forEach(contract => {
+                const projectKey =
+                    contract.Project?.trim() && contract.Project.trim().length > 0
+                        ? contract.Project.trim()
+                        : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+
+                if (!projectDataMap[projectKey]) projectDataMap[projectKey] = [];
+                projectDataMap[projectKey].push(contract);
+            });
+
+            if (this.selectedProject && projectDataMap[this.selectedProject]) {
+                this.handleProjectSelection(this.selectedProject, projectDataMap);
             }
-            projectDataMap[projectKey].push(contract);
-          });
-      
-          // 7. Handle the selected project data
-          if (this.selectedProject && projectDataMap[this.selectedProject]) {
-            this.handleProjectSelection(this.selectedProject, projectDataMap);
-          }
-      
-          // 8. Debug output
-          console.log('All Contracts:', this.allContracts);
-          console.table(this.allContracts.map(c => ({
-            Project: c.Project,
-            Status: c.Status
-          })));
-        });
-      }
-      
-    
+
+            console.log('All Contracts:', this.allContracts);
+            console.table(this.allContracts);
+
+        } catch (error) {
+            console.error('Error in sequential service calls:', error);
+        }
+    }
+
+
 
     applyFilters(): void {
         const { startDate, endDate, status } = this.filters;
