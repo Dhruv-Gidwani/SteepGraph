@@ -9,7 +9,6 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { SortEvent } from 'primeng/api';
 import { ApiService } from '../../services/tgv.service';
 
-
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
@@ -17,7 +16,7 @@ import { ApiService } from '../../services/tgv.service';
     template: `
         <div class="p-4">
             <!-- Filters -->
-            <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="mb-4 grid grid-cols-1 md:grid-cols-7 gap-4">
                 <div>
                     <label class="block mb-1 font-medium">Start Date</label>
                     <input type="date" [(ngModel)]="filters.startDate" class="w-full border p-2 rounded" />
@@ -31,6 +30,34 @@ import { ApiService } from '../../services/tgv.service';
                     <select [(ngModel)]="filters.status" class="w-full border p-2 rounded">
                         <option value="">All</option>
                         <option *ngFor="let status of uniqueStatuses" [value]="status">{{ status }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-1 font-medium">Geography</label>
+                    <select [(ngModel)]="filters.geography" class="w-full border p-2 rounded">
+                        <option value="">All</option>
+                        <option *ngFor="let geography of uniqueGeographies" [value]="geography">
+                            {{ geography }}
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-1 font-medium">Billing Method</label>
+                    <select [(ngModel)]="filters.billingMethod" class="w-full border p-2 rounded">
+                        <option value="">All</option>
+                        <option *ngFor="let method of uniqueBillingMethods" [value]="method">
+                            {{ method }}
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium">Customer</label>
+                    <select [(ngModel)]="filters.customer" class="w-full border p-2 rounded">
+                        <option value="">All</option>
+                        <option *ngFor="let customer of uniqueCustomers" [value]="customer">
+                            {{ customer }}
+                        </option>
                     </select>
                 </div>
                 <div class="flex items-end">
@@ -69,16 +96,27 @@ import { ApiService } from '../../services/tgv.service';
                     </div>
                 </div>
 
-                <!-- Bar Chart and Role Filter -->
+                <!-- Bar Chart and Filters -->
                 <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="selectedProject && barChartData">
                     <div class="card flex flex-col h-[420px] justify-between">
                         <div>
                             <div class="font-semibold text-xl mb-2 text-center">Resources in {{ selectedProject }}</div>
-                            <label class="block mb-1 font-medium">Filter by Role</label>
-                            <select [(ngModel)]="selectedRole" (change)="filterBarChartByRole()" class="w-full border p-2 rounded">
-                                <option value="">All</option>
-                                <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
-                            </select>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block mb-1 font-medium">Filter by Role</label>
+                                    <select [(ngModel)]="selectedRole" (change)="filterBarChart()" class="w-full border p-2 rounded">
+                                        <option value="">All</option>
+                                        <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block mb-1 font-medium">Billing Status</label>
+                                    <select [(ngModel)]="selectedBillingStatus" (change)="filterBarChart()" class="w-full border p-2 rounded">
+                                        <option value="">All</option>
+                                        <option *ngFor="let status of uniqueBillingStatuses" [value]="status">{{ status }}</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="w-full overflow-x-auto">
                             <div class="min-w-[350px]" [style.width.px]="barChartData.labels.length * 60">
@@ -97,7 +135,25 @@ import { ApiService } from '../../services/tgv.service';
                     scrollHeight="500px"
                     [customSort]="true"
                     (sortFunction)="customSort($event)"
-                    [globalFilterFields]="['Project', 'Work Contract Name', 'Project Manager', 'PWO Name', 'Position Role', 'Resource Name', 'Allocated Hrs.', 'Rem. Hrs.', 'Start Date', 'End Date']"
+                    [globalFilterFields]="[
+                        'Project',
+                        'Work Contract Name',
+                        'Project Manager',
+                        'Billing Method',
+                        'PWO Name',
+                        'Position Role',
+                        'Resource Name',
+                        'TS Approver',
+                        'Position Title',
+                        'Billing Status',
+                        'Resource Utilization',
+                        'Hourly Rate',
+                        'Currency',
+                        'Allocated Hrs.',
+                        'Rem. Hrs.',
+                        'Start Date',
+                        'End Date'
+                    ]"
                 >
                     <!-- Search Bar -->
                     <ng-template pTemplate="caption">
@@ -115,12 +171,19 @@ import { ApiService } from '../../services/tgv.service';
                             <th>Project</th>
                             <th>Work Contract Name</th>
                             <th>Project Manager</th>
+                            <th>Billing Method</th>
                             <th>PWO Name</th>
                             <th>Role</th>
                             <th pSortableColumn="Resource Name">
                                 Resource Name
                                 <p-sortIcon field="Resource Name"></p-sortIcon>
                             </th>
+                            <th>TS Approver</th>
+                            <th>Position Title</th>
+                            <th>Billing Status</th>
+                            <th>Resource Utilization</th>
+                            <th>Hourly Rate</th>
+                            <th>Currency</th>
                             <th>Allocated Hrs.</th>
                             <th pSortableColumn="Rem. Hrs.">
                                 Rem. Hrs.
@@ -149,9 +212,16 @@ import { ApiService } from '../../services/tgv.service';
                             <td *ngIf="row.projectRowspan > 0" [attr.rowspan]="row.projectRowspan">{{ row.Project }}</td>
                             <td *ngIf="row.contractNameRowspan > 0" [attr.rowspan]="row.contractNameRowspan">{{ row['Work Contract Name'] }}</td>
                             <td *ngIf="row.projectManagerRowspan > 0" [attr.rowspan]="row.projectManagerRowspan">{{ row['Project Manager'] }}</td>
+                            <td *ngIf="row.billingMethodRowspan > 0" [attr.rowspan]="row.billingMethodRowspan">{{ row['Billing Method'] }}</td>
                             <td>{{ row['PWO Name'] }}</td>
                             <td>{{ row['Position Role'] }}</td>
                             <td>{{ row['Resource Name'] }}</td>
+                            <td *ngIf="row.tsApproverRowspan > 0" [attr.rowspan]="row.tsApproverRowspan">{{ row['TS Approver'] }}</td>
+                            <td>{{ row['Position Title'] }}</td>
+                            <td>{{ row['Billing Status'] }}</td>
+                            <td>{{ row['Resource Utilization'] }}</td>
+                            <td>{{ row['Hourly Rate'] }}</td>
+                            <td>{{ row['Currency'] }}</td>
                             <td>{{ row['Allocated Hrs.'] }}</td>
                             <td>{{ row['Rem. Hrs.'] }}</td>
                             <td>{{ row['Start Date'] }}</td>
@@ -182,8 +252,11 @@ export class ChartDemo implements OnInit {
     filteredContracts: any[] = [];
     selectedProject: string | null = null;
     selectedProjectData: any[] = [];
-    projectTableData: any[] = []; // Table data to show selected project details
+    projectTableData: any[] = [];
     selectedProjectIndex: number | null = null;
+    uniqueGeographies: string[] = [];
+    uniqueBillingMethods: string[] = [];
+    uniqueCustomers: string[] = [];
 
     barChartData: any;
     barChartOptions: any;
@@ -194,12 +267,17 @@ export class ChartDemo implements OnInit {
     filters = {
         startDate: '',
         endDate: '',
-        status: ''
+        status: '',
+        geography: '',
+        billingMethod: '',
+        customer: ''
     };
 
     uniqueStatuses: string[] = [];
     availableRoles: string[] = [];
     selectedRole: string = '';
+    uniqueBillingStatuses: string[] = [];
+    selectedBillingStatus: string = '';
 
     constructor(
         private workContractService: WorkContractService,
@@ -207,25 +285,83 @@ export class ChartDemo implements OnInit {
         private cdr: ChangeDetectorRef
     ) {}
 
-    // ngOnInit(): void {
-    //     //this.allContracts = this.workContractService.getWorkContracts();
-    //     this.allContracts = this.workContractService.getWorkContracts();
-    //     this.filteredContracts = [...this.allContracts];
-    //     this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
+    ngOnInit(): void {
+        this.ApiService.getTreeGridData().subscribe((data) => {
+            // 1. Assign all data
+            this.allContracts = data;
 
-    //     // Set default project and index BEFORE rendering the pie chart
-    //     if (this.filteredContracts.length > 0) {
-    //         const firstProject = this.filteredContracts[0].Project || 'Unknown';
-    //         this.selectedProject = firstProject;
+            // 2. Don't filter yet — just clone
+            this.filteredContracts = [...this.allContracts];
 
-    //         // Temporarily create labels so we can get the correct index
-    //         const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
-    //         this.selectedProjectIndex = tempLabels.indexOf(firstProject);
+            // 3. Extract unique statuses (including 'Unknown' if missing)
+            this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))];
+            this.uniqueGeographies = [...new Set(this.allContracts.map((c) => c.Geography?.trim() || 'Unknown'))];
+            this.uniqueBillingMethods = [...new Set(this.allContracts.map((c) => c['Billing Method']?.trim() || 'Unknown'))];
+            this.uniqueCustomers = [...new Set(this.allContracts.map((c) => c.Customer?.trim() || 'Unknown'))];
+
+            // 4. Build a clean, unique list of projects (handling missing/blank)
+            const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
+
+            const tempLabels = [...new Set(projectNames)];
+            this.selectedProject = tempLabels[0];
+            this.selectedProjectIndex = 0;
+
+            // 5. Render chart
+            this.renderPieChart();
+
+            // 6. Build full projectDataMap using all contracts
+            const projectDataMap: { [project: string]: any[] } = {};
+            this.allContracts.forEach((contract) => {
+                const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+                if (!projectDataMap[projectKey]) {
+                    projectDataMap[projectKey] = [];
+                }
+                projectDataMap[projectKey].push(contract);
+            });
+
+            // 7. Handle the selected project data
+            if (this.selectedProject && projectDataMap[this.selectedProject]) {
+                this.handleProjectSelection(this.selectedProject, projectDataMap);
+            }
+
+            // 8. Debug output
+            console.log('All Contracts:', this.allContracts);
+            console.table(this.allContracts);
+        });
+    }
+
+    // applyFilters(): void {
+    //     const { startDate, endDate, status, geography, billingMethod, customer } = this.filters;
+    //     const userStart = startDate ? new Date(startDate) : null;
+    //     const userEnd = endDate ? new Date(endDate) : null;
+
+    //     // Apply date and status filters
+    //     this.filteredContracts = this.allContracts.filter((item) => {
+    //         const itemStart = new Date(item['Start Date']);
+    //         const itemEnd = new Date(item['End Date']);
+    //         const isDateMatch = !userStart || !userEnd || (itemEnd >= userStart && itemStart <= userEnd);
+    //         const statusMatch = !status || item.Status?.toLowerCase() === status.toLowerCase();
+    //         const geographyMatch = !geography || item.Geography?.toLowerCase() === geography.toLowerCase();
+    //         const billingMethodMatch = !billingMethod || item.BillingMethod?.toLowerCase() === billingMethod.toLowerCase();
+    //         const customerMatch = !customer || item.Customer?.toLowerCase() === customer.toLowerCase();
+
+    //         return isDateMatch && statusMatch && geographyMatch && billingMethodMatch && customerMatch;
+    //     });
+
+    //     // If no contracts are found after filtering, reset everything
+    //     if (this.filteredContracts.length === 0) {
+    //         this.selectedProject = null;
+    //         this.selectedProjectIndex = null;
+    //         this.pieChartData = null;
+    //         this.barChartData = null;
+    //         this.projectTableData = [];
+    //         this.availableRoles = [];
+    //         this.selectedRole = '';
+    //         this.cdr.detectChanges();
+    //         return;
     //     }
 
-    //     this.renderPieChart(); // now uses correct selectedProjectIndex
-
-    //     // Handle project selection logic
+    //     // Rebuild the project data map
     //     const projectDataMap: { [project: string]: any[] } = {};
     //     this.filteredContracts.forEach((contract) => {
     //         const project = contract.Project || 'Unknown';
@@ -233,110 +369,52 @@ export class ChartDemo implements OnInit {
     //         projectDataMap[project].push(contract);
     //     });
 
-    //     if (this.selectedProject) {
-    //         this.handleProjectSelection(this.selectedProject, projectDataMap);
-    //     }
+    //     // Set the first available project after filtering
+    //     const tempLabels = Object.keys(projectDataMap);
+    //     const firstProject = tempLabels[0];
+
+    //     this.selectedProject = firstProject;
+    //     this.selectedProjectIndex = tempLabels.indexOf(firstProject);
+
+    //     // Handle project-specific data (bar chart, table, roles)
+    //     this.handleProjectSelection(firstProject, projectDataMap);
+
+    //     // Now re-render the pie chart (with correct highlighting)
+    //     this.renderPieChart();
     // }
 
-    // ngOnInit(): void {
-    //     this.ApiService.getTreeGridData().subscribe((data) => {
-    //       this.allContracts = data;
-    //       this.filteredContracts = [...this.allContracts];
-    //       this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status).filter(Boolean))];
-    
-    //       if (this.filteredContracts.length > 0) {
-    //         const firstProject = this.filteredContracts[0].Project || 'Unknown';
-    //         this.selectedProject = firstProject;
-    
-    //         const tempLabels = [...new Set(this.filteredContracts.map((c) => c.Project || 'Unknown'))];
-    //         this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-    //       }
-    
-    //       this.renderPieChart();
-    
-    //       const projectDataMap: { [project: string]: any[] } = {};
-    //       this.filteredContracts.forEach((contract) => {
-    //         const project = contract.Project || 'Unknown';
-    //         if (!projectDataMap[project]) projectDataMap[project] = [];
-    //         projectDataMap[project].push(contract);
-    //       });
-    
-    //       if (this.selectedProject) {
-    //         this.handleProjectSelection(this.selectedProject, projectDataMap);
-    //       }
-    //     });
-    //   }
-
-    ngOnInit(): void {
-        this.ApiService.getTreeGridData().subscribe((data) => {
-          // 1. Assign all data
-          this.allContracts = data;
-      
-          // 2. Don't filter yet — just clone
-          this.filteredContracts = [...this.allContracts];
-      
-          // 3. Extract unique statuses (including 'Unknown' if missing)
-          this.uniqueStatuses = [
-            ...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))
-          ];
-      
-          // 4. Build a clean, unique list of projects (handling missing/blank)
-          const projectNames = this.allContracts.map((c) =>
-            c.Project?.trim() && c.Project.trim().length > 0
-              ? c.Project.trim()
-              : `Unknown_${Math.random().toString(36).substring(2, 6)}`
-          );
-      
-          const tempLabels = [...new Set(projectNames)];
-          this.selectedProject = tempLabels[0];
-          this.selectedProjectIndex = 0;
-      
-          // 5. Render chart
-          this.renderPieChart();
-      
-          // 6. Build full projectDataMap using all contracts
-          const projectDataMap: { [project: string]: any[] } = {};
-          this.allContracts.forEach((contract) => {
-            const projectKey =
-              contract.Project?.trim() && contract.Project.trim().length > 0
-                ? contract.Project.trim()
-                : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
-            if (!projectDataMap[projectKey]) {
-              projectDataMap[projectKey] = [];
-            }
-            projectDataMap[projectKey].push(contract);
-          });
-      
-          // 7. Handle the selected project data
-          if (this.selectedProject && projectDataMap[this.selectedProject]) {
-            this.handleProjectSelection(this.selectedProject, projectDataMap);
-          }
-      
-          // 8. Debug output
-          console.log('All Contracts:', this.allContracts);
-          console.table(this.allContracts.map(c => ({
-            Project: c.Project,
-            Status: c.Status
-          })));
-        });
-      }
-      
-    
-
     applyFilters(): void {
-        const { startDate, endDate, status } = this.filters;
+        const { startDate, endDate, status, geography, billingMethod, customer } = this.filters;
         const userStart = startDate ? new Date(startDate) : null;
         const userEnd = endDate ? new Date(endDate) : null;
-
-        // Apply date and status filters
+    
+        // Apply filters
         this.filteredContracts = this.allContracts.filter((item) => {
+            // Date filtering
             const itemStart = new Date(item['Start Date']);
             const itemEnd = new Date(item['End Date']);
             const isDateMatch = !userStart || !userEnd || (itemEnd >= userStart && itemStart <= userEnd);
-            const statusMatch = !status || item.Status?.toLowerCase() === status.toLowerCase();
-            return isDateMatch && statusMatch;
+    
+            // Other filters - use bracket notation for field names with spaces
+            const statusMatch = !status || 
+                item.Status?.toString().toLowerCase() === status.toLowerCase();
+            
+            const geographyMatch = !geography || 
+                item.Geography?.toString().toLowerCase() === geography.toLowerCase();
+            
+            const billingMethodMatch = !billingMethod || 
+                item['Billing Method']?.toString().toLowerCase() === billingMethod.toLowerCase();
+            
+            const customerMatch = !customer || 
+                item.Customer?.toString().toLowerCase() === customer.toLowerCase();
+    
+            return isDateMatch && 
+                   statusMatch && 
+                   geographyMatch && 
+                   billingMethodMatch && 
+                   customerMatch;
         });
-
+    
         // If no contracts are found after filtering, reset everything
         if (this.filteredContracts.length === 0) {
             this.selectedProject = null;
@@ -349,26 +427,29 @@ export class ChartDemo implements OnInit {
             this.cdr.detectChanges();
             return;
         }
-
-        // Rebuild the project data map
+    
+        // Rebuild the project data map with filtered contracts
         const projectDataMap: { [project: string]: any[] } = {};
         this.filteredContracts.forEach((contract) => {
-            const project = contract.Project || 'Unknown';
-            if (!projectDataMap[project]) projectDataMap[project] = [];
-            projectDataMap[project].push(contract);
+            const projectKey = contract.Project?.trim() || 'Unknown';
+            if (!projectDataMap[projectKey]) {
+                projectDataMap[projectKey] = [];
+            }
+            projectDataMap[projectKey].push(contract);
         });
-
+    
         // Set the first available project after filtering
         const tempLabels = Object.keys(projectDataMap);
-        const firstProject = tempLabels[0];
-
-        this.selectedProject = firstProject;
-        this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-
-        // Handle project-specific data (bar chart, table, roles)
-        this.handleProjectSelection(firstProject, projectDataMap);
-
-        // Now re-render the pie chart (with correct highlighting)
+        if (tempLabels.length > 0) {
+            const firstProject = tempLabels[0];
+            this.selectedProject = firstProject;
+            this.selectedProjectIndex = tempLabels.indexOf(firstProject);
+    
+            // Handle project-specific data (bar chart, table, roles)
+            this.handleProjectSelection(firstProject, projectDataMap);
+        }
+    
+        // Re-render the pie chart with filtered data
         this.renderPieChart();
     }
 
@@ -505,14 +586,18 @@ export class ChartDemo implements OnInit {
         };
     }
 
-    filterBarChartByRole(): void {
-        // Filter the project data based on selected role
-        const filteredData = this.selectedRole ? this.selectedProjectData.filter((contract) => contract['Position Role'] === this.selectedRole) : this.selectedProjectData;
+    filterBarChart(): void {
+        // Filter the project data based on selected filters
+        const filteredData = this.selectedProjectData.filter((contract) => {
+            const roleMatch = !this.selectedRole || contract['Position Role'] === this.selectedRole;
+            const billingMatch = !this.selectedBillingStatus || contract['Billing Status'] === this.selectedBillingStatus;
+            return roleMatch && billingMatch;
+        });
 
         // Call renderBarChart with the filtered data
         this.renderBarChart(filteredData);
 
-        // Ensure change detection is triggered after updating bar chart data
+        // Ensure change detection is triggered
         this.cdr.detectChanges();
     }
 
@@ -607,27 +692,37 @@ export class ChartDemo implements OnInit {
         const projectCounts = new Map<string, number>();
         const contractCounts = new Map<string, number>();
         const managerCounts = new Map<string, number>();
-
+        const billingMethodCounts = new Map<string, number>();
+        const tsApproverCounts = new Map<string, number>();  // Add this line
+    
         // Precompute counts
         for (const row of this.projectTableData) {
             projectCounts.set(row.Project, (projectCounts.get(row.Project) || 0) + 1);
             contractCounts.set(row['Work Contract Name'], (contractCounts.get(row['Work Contract Name']) || 0) + 1);
             managerCounts.set(row['Project Manager'], (managerCounts.get(row['Project Manager']) || 0) + 1);
+            billingMethodCounts.set(row['Billing Method'], (billingMethodCounts.get(row['Billing Method']) || 0) + 1);
+            tsApproverCounts.set(row['TS Approver'], (tsApproverCounts.get(row['TS Approver']) || 0) + 1);  // Add this line
         }
-
+    
         // Apply counts with flags to track first appearance
         const seenProjects = new Set();
         const seenContracts = new Set();
         const seenManagers = new Set();
+        const seenBillingMethods = new Set();
+        const seenTsApprovers = new Set();  
 
         for (const row of this.projectTableData) {
             row.projectRowspan = seenProjects.has(row.Project) ? 0 : projectCounts.get(row.Project);
             row.contractNameRowspan = seenContracts.has(row['Work Contract Name']) ? 0 : contractCounts.get(row['Work Contract Name']);
             row.projectManagerRowspan = seenManagers.has(row['Project Manager']) ? 0 : managerCounts.get(row['Project Manager']);
-
+            row.billingMethodRowspan = seenBillingMethods.has(row['Billing Method']) ? 0 : billingMethodCounts.get(row['Billing Method']);
+            row.tsApproverRowspan = seenTsApprovers.has(row['TS Approver']) ? 0 : tsApproverCounts.get(row['TS Approver']);  // Add this line
+    
             seenProjects.add(row.Project);
             seenContracts.add(row['Work Contract Name']);
             seenManagers.add(row['Project Manager']);
+            seenBillingMethods.add(row['Billing Method']);
+            seenTsApprovers.add(row['TS Approver']);  
         }
     }
 
@@ -680,8 +775,14 @@ export class ChartDemo implements OnInit {
     handleProjectSelection(project: string, projectDataMap: { [project: string]: any[] }): void {
         this.selectedProject = project;
         this.selectedProjectData = projectDataMap[project] || [];
+
+        // Reset filters
         this.selectedRole = '';
+        this.selectedBillingStatus = '';
+
+        // Get unique values for filters
         this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
+        this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
 
         this.renderBarChart(this.selectedProjectData);
         this.renderProjectTable();
