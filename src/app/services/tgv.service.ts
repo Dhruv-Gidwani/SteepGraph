@@ -18,7 +18,6 @@ export class ApiService {
             'Content-Type': 'application/raw',
             Authorization: `Bearer ${token}`
         });
-        console.log({ token });
         const body = {
             startCondition: '{}',
             fetch: '10000',
