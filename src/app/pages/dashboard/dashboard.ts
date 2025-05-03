@@ -28,14 +28,13 @@ import { RevenueStreamWidget } from './components/revenuestreamwidget';
 })
 export class Dashboard implements OnInit {
     constructor(
-        
-    ) {}
+    ) { }
 
     rawTreeGridData: any;
     transformedTreeGridData: any;
 
     ngOnInit(): void {
-        
-        
+
+
     }
 }
