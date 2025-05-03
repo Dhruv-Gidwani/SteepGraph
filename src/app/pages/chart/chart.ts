@@ -15,9 +15,7 @@ import { firstValueFrom } from 'rxjs';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ExportService } from "../Excel/excel";
-
-
+import { ExportService } from '../Excel/excel';
 
 @Component({
     selector: 'app-chart-demo',
@@ -168,44 +166,21 @@ import { ExportService } from "../Excel/excel";
                     [rows]="5"
                     [tableStyle]="{ 'min-width': '50rem' }"
                     [rowsPerPageOptions]="[5, 10, 20]"
-                    >
+                >
                     <!-- Search Bar -->
                     <ng-template pTemplate="caption">
-  <!-- 
-    Flex container now uses justify-between 
-    to place the search on the left and the export button on the right 
-  -->
-  <div class="flex justify-between items-center w-full p-2">
-    
-    <!-- Search input on the left -->
-    <span class="p-input-icon-left">
-      <i class="pi pi-search" style="color: #007ad9; margin-right: 8px;"></i>
-      <input
-        #globalFilterInput
-        pInputText
-        type="text"
-        (input)="onGlobalFilter($event, dt2)"
-        placeholder="Search by keyword"
-        class="border p-2 rounded-full w-64 transition-all duration-300"
-      />
-    </span>
+                        <!-- Flex container now uses justify-between to place the search on the left and the export button on the right -->
+                        <div class="flex justify-between items-center w-full p-2">
+                            <!-- Search input on the left -->
+                            <span class="p-input-icon-left">
+                                <i class="pi pi-search" style="color: #007ad9; margin-right: 8px;"></i>
+                                <input #globalFilterInput pInputText type="text" (input)="onGlobalFilter($event, dt2)" placeholder="Search by keyword" class="border p-2 rounded-full w-64 transition-all duration-300" />
+                            </span>
 
-    <!-- Export button on the right -->
-    <p-button
-      label="Export"
-      icon="pi pi-file-excel"
-      styleClass="p-button-success"
-      (click)="exportData()"
-    ></p-button>
-
-  </div>
-</ng-template>
-
-                    
-                    
-
-
-                    
+                            <!-- Export button on the right -->
+                            <p-button label="Export" icon="pi pi-file-excel" styleClass="p-button-success" (click)="exportData()"></p-button>
+                        </div>
+                    </ng-template>
 
                     <!-- Table Header -->
                     <ng-template pTemplate="header">
@@ -329,16 +304,12 @@ export class ChartDemo implements OnInit {
         private arasService: ArasService,
         private arasService1: ArasService1,
         private exportService: ExportService
-    ) { }
-
-
+    ) {}
 
     // Function to call exportToExcel from the service
     exportData(): void {
         this.exportService.exportToExcel(this.projectTableData);
     }
-
-
 
     async ngOnInit(): Promise<void> {
         let tgvdXmlString: string = '';
@@ -385,13 +356,13 @@ export class ChartDemo implements OnInit {
             // Process received contract data
             this.allContracts = data;
             this.filteredContracts = [...this.allContracts];
-            this.uniqueStatuses = [...new Set(this.allContracts.map(c => c.Status?.trim() || 'Unknown'))];
 
-            const projectNames = this.allContracts.map(c =>
-                c.Project?.trim() && c.Project.trim().length > 0
-                    ? c.Project.trim()
-                    : `Unknown_${Math.random().toString(36).substring(2, 6)}`
-            );
+            this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))];
+            this.uniqueGeographies = [...new Set(this.allContracts.map((c) => c.Geography?.trim() || 'Unknown'))];
+            this.uniqueBillingMethods = [...new Set(this.allContracts.map((c) => c['Billing Method']?.trim() || 'Unknown'))];
+            this.uniqueCustomers = [...new Set(this.allContracts.map((c) => c.Customer?.trim() || 'Unknown'))];
+
+            const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
 
             const tempLabels = [...new Set(projectNames)];
             this.selectedProject = tempLabels[0];
@@ -400,11 +371,8 @@ export class ChartDemo implements OnInit {
             this.renderPieChart();
 
             const projectDataMap: { [project: string]: any[] } = {};
-            this.allContracts.forEach(contract => {
-                const projectKey =
-                    contract.Project?.trim() && contract.Project.trim().length > 0
-                        ? contract.Project.trim()
-                        : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+            this.allContracts.forEach((contract) => {
+                const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
 
                 if (!projectDataMap[projectKey]) projectDataMap[projectKey] = [];
                 projectDataMap[projectKey].push(contract);
@@ -416,46 +384,35 @@ export class ChartDemo implements OnInit {
 
             console.log('All Contracts:', this.allContracts);
             console.table(this.allContracts);
-
         } catch (error) {
             console.error('Error in sequential service calls:', error);
         }
     }
 
-
-
     applyFilters(): void {
         const { startDate, endDate, status, geography, billingMethod, customer } = this.filters;
         const userStart = startDate ? new Date(startDate) : null;
         const userEnd = endDate ? new Date(endDate) : null;
-    
+
         // Apply filters
         this.filteredContracts = this.allContracts.filter((item) => {
             // Date filtering
             const itemStart = new Date(item['Start Date']);
             const itemEnd = new Date(item['End Date']);
             const isDateMatch = !userStart || !userEnd || (itemEnd >= userStart && itemStart <= userEnd);
-    
+
             // Other filters - use bracket notation for field names with spaces
-            const statusMatch = !status || 
-                item.Status?.toString().toLowerCase() === status.toLowerCase();
-            
-            const geographyMatch = !geography || 
-                item.Geography?.toString().toLowerCase() === geography.toLowerCase();
-            
-            const billingMethodMatch = !billingMethod || 
-                item['Billing Method']?.toString().toLowerCase() === billingMethod.toLowerCase();
-            
-            const customerMatch = !customer || 
-                item.Customer?.toString().toLowerCase() === customer.toLowerCase();
-    
-            return isDateMatch && 
-                   statusMatch && 
-                   geographyMatch && 
-                   billingMethodMatch && 
-                   customerMatch;
+            const statusMatch = !status || item.Status?.toString().toLowerCase() === status.toLowerCase();
+
+            const geographyMatch = !geography || item.Geography?.toString().toLowerCase() === geography.toLowerCase();
+
+            const billingMethodMatch = !billingMethod || item['Billing Method']?.toString().toLowerCase() === billingMethod.toLowerCase();
+
+            const customerMatch = !customer || item.Customer?.toString().toLowerCase() === customer.toLowerCase();
+
+            return isDateMatch && statusMatch && geographyMatch && billingMethodMatch && customerMatch;
         });
-    
+
         // If no contracts are found after filtering, reset everything
         if (this.filteredContracts.length === 0) {
             this.selectedProject = null;
@@ -468,7 +425,7 @@ export class ChartDemo implements OnInit {
             this.cdr.detectChanges();
             return;
         }
-    
+
         // Rebuild the project data map with filtered contracts
         const projectDataMap: { [project: string]: any[] } = {};
         this.filteredContracts.forEach((contract) => {
@@ -478,18 +435,18 @@ export class ChartDemo implements OnInit {
             }
             projectDataMap[projectKey].push(contract);
         });
-    
+
         // Set the first available project after filtering
         const tempLabels = Object.keys(projectDataMap);
         if (tempLabels.length > 0) {
             const firstProject = tempLabels[0];
             this.selectedProject = firstProject;
             this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-    
+
             // Handle project-specific data (bar chart, table, roles)
             this.handleProjectSelection(firstProject, projectDataMap);
         }
-    
+
         // Re-render the pie chart with filtered data
         this.renderPieChart();
     }
@@ -734,36 +691,36 @@ export class ChartDemo implements OnInit {
         const contractCounts = new Map<string, number>();
         const managerCounts = new Map<string, number>();
         const billingMethodCounts = new Map<string, number>();
-        const tsApproverCounts = new Map<string, number>();  // Add this line
-    
+        const tsApproverCounts = new Map<string, number>(); // Add this line
+
         // Precompute counts
         for (const row of this.projectTableData) {
             projectCounts.set(row.Project, (projectCounts.get(row.Project) || 0) + 1);
             contractCounts.set(row['Work Contract Name'], (contractCounts.get(row['Work Contract Name']) || 0) + 1);
             managerCounts.set(row['Project Manager'], (managerCounts.get(row['Project Manager']) || 0) + 1);
             billingMethodCounts.set(row['Billing Method'], (billingMethodCounts.get(row['Billing Method']) || 0) + 1);
-            tsApproverCounts.set(row['TS Approver'], (tsApproverCounts.get(row['TS Approver']) || 0) + 1);  // Add this line
+            tsApproverCounts.set(row['TS Approver'], (tsApproverCounts.get(row['TS Approver']) || 0) + 1); // Add this line
         }
-    
+
         // Apply counts with flags to track first appearance
         const seenProjects = new Set();
         const seenContracts = new Set();
         const seenManagers = new Set();
         const seenBillingMethods = new Set();
-        const seenTsApprovers = new Set();  
+        const seenTsApprovers = new Set();
 
         for (const row of this.projectTableData) {
             row.projectRowspan = seenProjects.has(row.Project) ? 0 : projectCounts.get(row.Project);
             row.contractNameRowspan = seenContracts.has(row['Work Contract Name']) ? 0 : contractCounts.get(row['Work Contract Name']);
             row.projectManagerRowspan = seenManagers.has(row['Project Manager']) ? 0 : managerCounts.get(row['Project Manager']);
             row.billingMethodRowspan = seenBillingMethods.has(row['Billing Method']) ? 0 : billingMethodCounts.get(row['Billing Method']);
-            row.tsApproverRowspan = seenTsApprovers.has(row['TS Approver']) ? 0 : tsApproverCounts.get(row['TS Approver']);  // Add this line
-    
+            row.tsApproverRowspan = seenTsApprovers.has(row['TS Approver']) ? 0 : tsApproverCounts.get(row['TS Approver']); // Add this line
+
             seenProjects.add(row.Project);
             seenContracts.add(row['Work Contract Name']);
             seenManagers.add(row['Project Manager']);
             seenBillingMethods.add(row['Billing Method']);
-            seenTsApprovers.add(row['TS Approver']);  
+            seenTsApprovers.add(row['TS Approver']);
         }
     }
 
