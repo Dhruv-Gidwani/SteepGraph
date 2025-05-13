@@ -264,6 +264,7 @@ import { ExportService } from '../Excel/excel';
         </div>
     `
 })
+
 export class ChartDemo implements OnInit {
     allContracts: any[] = [];
     filteredContracts: any[] = [];
@@ -451,6 +452,7 @@ export class ChartDemo implements OnInit {
         this.renderPieChart();
     }
 
+   
     onGlobalFilter(event: Event, dt: any) {
         const input = event.target as HTMLInputElement;
         dt.filterGlobal(input.value, 'contains');

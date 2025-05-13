@@ -168,7 +168,7 @@
 //     }
 // }
 
-// logout works correctly below 
+// logout works correctly below
 // import { Component } from '@angular/core';
 // import { CommonModule } from '@angular/common';
 // import { RouterModule } from '@angular/router';
@@ -215,10 +215,10 @@
 //         sessionStorage.clear();
 //         // Optionally, redirect the user to the login page
 //         window.location.href = '/';
-        
+
 //     }
 // } -----------------------
-// code with auto logout 
+// code with auto logout
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -249,16 +249,12 @@ export class AppMenu implements OnInit {
             },
             {
                 label: 'WC Reports',
-                items: [
-                    { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] },
-                ]
+                items: [{ label: 'Chart', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] }]
             },
             {
                 label: 'Authentication',
-                items: [
-                    { label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logout() },
-                ]
-            },
+                items: [{ label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logout() }]
+            }
         ];
 
         // Initialize inactivity detection
@@ -301,4 +297,3 @@ export class AppMenu implements OnInit {
         window.location.href = '/';
     }
 }
-
