@@ -168,63 +168,13 @@
 //     }
 // }
 
-// logout works correctly below 
-// import { Component } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { RouterModule } from '@angular/router';
-// import { MenuItem } from 'primeng/api';
-// import { AppMenuitem } from './app.menuitem';
 
-// @Component({
-//     selector: 'app-menu',
-//     standalone: true,
-//     imports: [CommonModule, AppMenuitem, RouterModule],
-//     template: `<ul class="layout-menu">
-//         <ng-container *ngFor="let item of model; let i = index">
-//             <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
-//             <li *ngIf="item.separator" class="menu-separator"></li>
-//         </ng-container>
-//     </ul> `
-// })
-// export class AppMenu {
-//     model: MenuItem[] = [];
-
-//     ngOnInit() {
-//         this.model = [
-//             {
-//                 label: 'Home',
-//                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
-//             },
-//             {
-//                 label: 'WC Reports',
-//                 items: [
-//                     { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] },
-//                 ]
-//             },
-//             {
-//                 label: 'Authentication',
-//                 items: [
-//                     { label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logout() },
-//                 ]
-//             },
-//         ];
-//     }
-
-//     logout() {
-//         // Clear session storage to logout
-//         sessionStorage.clear();
-//         // Optionally, redirect the user to the login page
-//         window.location.href = '/';
-        
-//     }
-// } -----------------------
-// code with auto logout 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
-
+import { LogoutService } from '../../guards/logout/logout';
 @Component({
     selector: 'app-menu',
     standalone: true,
@@ -238,8 +188,8 @@ import { AppMenuitem } from './app.menuitem';
 })
 export class AppMenu implements OnInit {
     model: MenuItem[] = [];
-    timeout: any; // Variable to store the timeout reference
-    inactivityLimit = 360000; // 1 minute in milliseconds
+
+    constructor(private logoutService: LogoutService) {} // Inject service
 
     ngOnInit() {
         this.model = [
@@ -254,51 +204,17 @@ export class AppMenu implements OnInit {
                 ]
             },
             {
+                label: 'TS Reports',
+                items: [
+                    { label: 'TimeSheet', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/timeSheet'] },
+                ]
+            },
+            {
                 label: 'Authentication',
                 items: [
-                    { label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logout() },
+                    { label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logoutService.logout() },
                 ]
             },
         ];
-
-        // Initialize inactivity detection
-        this.startInactivityTimer();
-
-        // Add event listeners for user activity
-        this.addActivityListeners();
-    }
-
-    // Start or reset the inactivity timer
-    startInactivityTimer() {
-        if (this.timeout) {
-            clearTimeout(this.timeout); // Clear the previous timeout if any
-        }
-
-        // Set the timeout to log out after 1 minute of inactivity
-        this.timeout = setTimeout(() => {
-            this.logout(); // Call logout function after inactivity
-        }, this.inactivityLimit);
-    }
-
-    // Add event listeners for user activity
-    addActivityListeners() {
-        // Listen for mouse movement, key press, and scroll events
-        window.addEventListener('mousemove', () => this.resetInactivityTimer());
-        window.addEventListener('keydown', () => this.resetInactivityTimer());
-        window.addEventListener('scroll', () => this.resetInactivityTimer());
-    }
-
-    // Reset the inactivity timer when activity is detected
-    resetInactivityTimer() {
-        this.startInactivityTimer();
-    }
-
-    // Logout function
-    logout() {
-        // Clear session storage to logout
-        sessionStorage.clear();
-        // Optionally, redirect the user to the login page
-        window.location.href = '/';
     }
 }
-

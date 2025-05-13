@@ -1,0 +1,66 @@
+
+<app-loader *ngIf="isLoading" ></app-loader>
+<div class="p-4" *ngIf="!isLoading">
+
+    <!-- Filters -->
+    <div class="mb-4 grid grid-cols-1 md:grid-cols-7 gap-4" >
+        <div>
+            <label class="block mb-1 font-medium">TS Start Date</label>
+            <input type="date" [(ngModel)]="filters.startDate" class="w-full border p-2 rounded" />
+        </div>
+        <div>
+            <label class="block mb-1 font-medium">TS End Date</label>
+            <input type="date" [(ngModel)]="filters.endDate" class="w-full border p-2 rounded" />
+        </div>
+        <!-- <div>
+            <label class="block mb-1 font-medium">Status</label>
+            <select [(ngModel)]="filters.status" class="w-full border p-2 rounded">
+                <option value="">All</option>
+                <option *ngFor="let status of uniqueStatuses" [value]="status">{{ status }}</option>
+            </select>
+        </div> -->
+        <!-- <div>
+            <label class="block mb-1 font-medium">Geography</label>
+            <select [(ngModel)]="filters.geography" class="w-full border p-2 rounded">
+                <option value="">All</option>
+                <option *ngFor="let geography of uniqueGeographies" [value]="geography">
+                    {{ geography }}
+                </option>
+            </select>
+        </div>
+        <div>
+            <label class="block mb-1 font-medium">Billing Method</label>
+            <select [(ngModel)]="filters.billingMethod" class="w-full border p-2 rounded">
+                <option value="">All</option>
+                <option *ngFor="let method of uniqueBillingMethods" [value]="method">
+                    {{ method }}
+                </option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium">Customer</label>
+            <select [(ngModel)]="filters.customer" class="w-full border p-2 rounded">
+                <option value="">All</option>
+                <option *ngFor="let customer of uniqueCustomers" [value]="customer">
+                    {{ customer }}
+                </option>
+            </select>
+        </div> -->
+        <!-- <div class="flex items-end">
+            <button (click)="applyFilters()" class="bg-blue-500 text-white  py-2 rounded hover:bg-blue-600 w-full mr-2">Apply Filters</button>
+            <button (click)="resetFilters()" class="bg-blue-500 text-white  py-2 rounded hover:bg-blue-600 w-full">Reset Filters</button>
+        </div> -->
+        
+    </div>
+    
+        <!-- Data Table -->
+        <div class="p-mt-4" *ngIf="projectTableData.length">
+        <app-project-table
+        *ngIf="projectTableData.length"
+        [projectTableData]="projectTableData"
+        
+        [exportData]="exportData"
+        />
+        </div>
+</div>

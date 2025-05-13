@@ -1,0 +1,27 @@
+<div class="card flex flex-col h-[420px] justify-between">
+    <div>
+        <div class="font-semibold text-xl mb-2 text-center">Resources in {{ selectedProject }}</div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block mb-1 font-medium">Filter by Role</label>
+                <select [(ngModel)]="selectedRole" (ngModelChange)="onRoleChange($event)" class="w-full border p-2 rounded">
+                    <option value="">All</option>
+                    <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
+                </select>
+            </div>
+            <div>
+                <label class="block mb-1 font-medium">Billing Status</label>
+                <select [(ngModel)]="selectedBillingStatus" (ngModelChange)="onBillingStatusChange($event)" class="w-full border p-2 rounded">
+                    <option value="">All</option>
+                    <option *ngFor="let status of uniqueBillingStatuses" [value]="status">{{ status }}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="w-full overflow-x-auto">
+        <div class="min-w-[350px]" [style.width.px]="barChartData.labels.length * 60">
+            <p-chart type="bar" [data]="barChartData" [options]="barChartOptions"></p-chart>
+        </div>
+    </div>
+</div>
+

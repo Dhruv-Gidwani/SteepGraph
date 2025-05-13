@@ -5,16 +5,21 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class ArasService {
+export class timeSheetService {
   private baseUrl = 'http://192.168.0.230/QAEnvironment';
   // private arasUrl = 'http://192.168.0.230/QAEnvironment/Server/odata/method.rb_GetTreeGridData';
   
   constructor(private http: HttpClient) {}
 
-  fetchTgvdItem(): Observable<string> {
+  fetchtimeSheetItem(): Observable<string> {
     const token = sessionStorage.getItem('access_token');
-    const Name = "sg_work_contract_tgv";
-    const aml = `<AML><Item type="rb_TreeGridViewDefinition" action="get" levels="2"><name condition='eq'>${Name}</name></Item></AML>`;
+    // const Name = "sg_work_contract_tgv";
+    const aml = `<AML>
+                <Item type="sg_timesheet" action="get">
+                <sg_ts_date condition="le">2025-04-30T00:00:00</sg_ts_date>
+                <sg_ts_date condition="ge">2025-04-15T00:00:00</sg_ts_date>
+                </Item>
+                </AML>`;
     
   
     const body = {
