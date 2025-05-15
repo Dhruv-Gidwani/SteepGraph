@@ -23,39 +23,63 @@ export class timeSheetService {
   console.log("positionTitle", positionTitle);
   console.log("geography", geography);
   console.log("emp_name", emp_name);
-    const aml = `<AML>
-                <Item type="sg_timesheet" action="get">
-                <sg_ts_date condition="le">${formattedEnd}</sg_ts_date>
-                <sg_ts_date condition="ge">${formattedStart}</sg_ts_date>
-                <sg_employee_department>
-                <Item type="sg_Department" action="get">
-                <keyed_name condition="eq">${department}</keyed_name>
-                </Item>
-                </sg_employee_department>
-                <sg_position_title>
-                <Item type="sg_position_title" action="get">
-                <keyed_name condition="eq">${positionTitle}</keyed_name>
-                </Item>
-                </sg_position_title>
-                <sg_geography condition="eq">${geography}</sg_geography>
-                <sg_ts_task_project>
-                <Item type="Project" action="get">
-                <keyed_name condition="eq">${project}</keyed_name>
-                </Item>
-                </sg_ts_task_project>
-                <sg_employee>
-                <Item type="User" action="get">
-                <keyed_name condition="eq">${emp_name}</keyed_name>
-                </Item>
-                </sg_employee>
-                </Item>
-                </AML>`;
+  
+  let filters = `
+    <sg_ts_date condition="le">${formattedEnd}</sg_ts_date>
+    <sg_ts_date condition="ge">${formattedStart}</sg_ts_date>
+  `;
 
-        const body = {
-            parameters: {
-                AML: aml
-            }
-        };
+  if (department) {
+    filters += `
+      <sg_employee_department>
+        <Item type="sg_Department" action="get">
+          <keyed_name condition="eq">${department}</keyed_name>
+        </Item>
+      </sg_employee_department>
+    `;
+  }
+
+  if (positionTitle) {
+    filters += `
+      <sg_position_title>
+        <Item type="sg_position_title" action="get">
+          <keyed_name condition="eq">${positionTitle}</keyed_name>
+        </Item>
+      </sg_position_title>
+    `;
+  }
+
+  if (geography) {
+    filters += `<sg_geography condition="eq">${geography}</sg_geography>`;
+  }
+
+  if (project) {
+    filters += `
+      <sg_ts_task_project>
+        <Item type="Project" action="get">
+          <keyed_name condition="eq">${project}</keyed_name>
+        </Item>
+      </sg_ts_task_project>
+    `;
+  }
+
+  if (emp_name) {
+    filters += `
+      <sg_employee>
+        <Item type="User" action="get">
+          <keyed_name condition="eq">${emp_name}</keyed_name>
+        </Item>
+      </sg_employee>
+    `;
+  }
+  
+
+ const aml = `<AML>
+    <Item type="sg_timesheet" action="get">
+      ${filters}
+    </Item>
+  </AML>`;
+
 
         const headers = new HttpHeaders({
             'Content-Type': 'application/xml',
