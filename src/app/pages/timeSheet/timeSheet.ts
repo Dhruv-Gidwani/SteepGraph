@@ -1,24 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef ,NgZone  } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FluidModule } from 'primeng/fluid';
 import { FormsModule } from '@angular/forms';
-import { WorkContractService } from '../chart/service/chart.service';
 import { TableModule } from 'primeng/table';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { SortEvent } from 'primeng/api';
 import { ApiService } from '../../services/tgv.service';
-import { ArasService } from '../../services/aras.service';
-import { ArasService1 } from '../../services/aras1.service';
 import { parseString } from 'xml2js';
-import { firstValueFrom } from 'rxjs';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ExportService } from './components/project-table/Excel/excel';
 import { ProjectTableComponent } from './components/project-table/project-table.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import{LoaderComponent } from './components/loader/loader.component';
+import { LoaderComponent } from './components/loader/loader.component';
 import { timeSheetService } from '../../services/timeSheet.service';
 import{ PositionService } from '../../services/position_title.service';
 import { DepartmentService } from '../../services/department.service';
@@ -26,13 +21,13 @@ import { ProjectService } from '../../services/project.service';
 import { EmployeeService } from '../../services/employee.service';
 import{RegionService} from '../../services/region.service';
 import * as xmljs from 'xml-js';
-
+import { PieChartComponent } from './components/pie-chart/pie-chart.component';
+import { CardModule } from 'primeng/card';
+import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 @Component({
     selector: 'app-timeSheet-demo',
     standalone: true,
-    imports: [CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule,
-        
-        ProjectTableComponent ,ProgressSpinnerModule , LoaderComponent ],
+    imports: [CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
     templateUrl: './timeSheet.html'
 })
 
@@ -40,14 +35,18 @@ export class timeSheetDemo  {
     isLoading: boolean = false;
     allContracts: any[] = [];
     filteredContracts: any[] = [];
-    selectedProject: string | null = null;
     selectedProjectData: any[] = [];
     projectTableData: any[] = [];
-    selectedProjectIndex: number | null = null;;;
-    rawProjectData : any[] = [];
+    rawProjectData: any[] = [];
+    selectedProject: string | null = null;
+    selectedProjectIndex: number | null = null;
+    selectedGeography: string | null = null;
+    selectedGeographyIndex: number | null = null;
+    selectedDepartment: string | null = null;
+
     filters = {
         startDate: '',
-        endDate: '',
+        endDate: ''
     };
 
     exportOptions: MenuItem[] | undefined;
@@ -86,7 +85,7 @@ RegionList: string[] = [];
     // Function to call exportToExcel from the service
     exportData = () => {
         this.exportService.exportToExcel(this.projectTableData);
-      };
+    };
 
 ngOnInit(): void {
   this.PositionService.fetchRoleItem().subscribe({
@@ -298,21 +297,25 @@ applyFilters(): void {
               };
             });
 
-
-          this.groupProjectData(); // Call the grouping function here
-          console.log('raw projectTableData:', this.rawProjectData);
-          console.log('Mapped projectTableData:', this.projectTableData);
-          this.isLoading = false;
-          this.cdr.detectChanges();
+                        this.groupProjectData(); // Call the grouping function here
+                        console.log('raw projectTableData:', this.rawProjectData);
+                        console.log('Mapped projectTableData:', this.projectTableData);
+                        this.isLoading = false;
+                        this.cdr.detectChanges();
+                    });
+                });
+            },
+            error: (err) => {
+                console.error('Error fetching timesheet data', err);
+                this.isLoading = false;
+            }
         });
-    });
-      },
-      error: (err) => {
-        console.error('Error fetching timesheet data', err);
-        this.isLoading = false;
-      },
-    });
-  }
+    }
+
+    onGeographySelected(event: { geography: string; index: number }): void {
+        this.selectedGeography = event.geography;
+        this.selectedGeographyIndex = event.index;
+    }
 
 groupProjectData() {
   const result: {

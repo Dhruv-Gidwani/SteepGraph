@@ -1,4 +1,4 @@
-import { Component , Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -7,26 +7,22 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-project-table',
-  imports: [ChartModule,CommonModule, TableModule ,ButtonModule ,MultiSelectModule,FormsModule],
-  templateUrl: './project-table.component.html',
-  styleUrl: './project-table.component.scss'
+    selector: 'app-project-table',
+    imports: [ChartModule, CommonModule, TableModule, ButtonModule, MultiSelectModule, FormsModule],
+    templateUrl: './project-table.component.html',
+    styleUrl: './project-table.component.scss'
 })
 export class ProjectTableComponent implements OnInit {
-  @Input() projectTableData: any[] = [];
-  @Input() customSort!: (event: any) => void;
-  @Input() exportData!: () => void;
-  searchValue: string | undefined;
-  representativeNames: string[] = [];
-  displayedData: any[] = [];
+    @Input() projectTableData: any[] = [];
+    @Input() customSort!: (event: any) => void;
+    @Input() exportData!: () => void;
+    searchValue: string | undefined;
+    representativeNames: string[] = [];
+    displayedData: any[] = [];
 
-  ngOnInit() {
-    this.displayedData = this.projectTableData;
-  }
-  // getEmployeeRowspan(emp: any): number {
-  //   return emp.projects.reduce((total: number, project: { billingDetails: any[] }) =>     // function for merging rows of based on employee and project 
-  //     total + project.billingDetails.length, 0);
-  // }
+    ngOnInit() {
+        this.displayedData = this.projectTableData;
+    }
 
   flattenData(data: any[]): any[] {
     const flatData: any[] = [];

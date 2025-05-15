@@ -3,13 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root'
 })
 export class timeSheetService {
-  private baseUrl = 'http://192.168.0.230/QAEnvironment';
-  // private arasUrl = 'http://192.168.0.230/QAEnvironment/Server/odata/method.rb_GetTreeGridData';
-  
-  constructor(private http: HttpClient) {}
+    private baseUrl = 'http://192.168.0.230/QAEnvironment';
+    // private arasUrl = 'http://192.168.0.230/QAEnvironment/Server/odata/method.rb_GetTreeGridData';
+
+    constructor(private http: HttpClient) {}
 
   fetchtimeSheetItem(startDate: string, endDate: string,department: string,project:string,positionTitle:string,geography:string,emp_name:string): Observable<string> {
     const token = sessionStorage.getItem('access_token');
@@ -50,24 +50,22 @@ export class timeSheetService {
                 </sg_employee>
                 </Item>
                 </AML>`;
-    
-  
-    const body = {
-      parameters: {
-        AML: aml
-      }
-    };
-  
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/xml',
-      "SOAPAction": "ApplyAML",
-      'Authorization': `Bearer ${token}`
-    });
 
-    return this.http.post(this.baseUrl+"/Server/InnovatorServer.aspx", aml, {
-      headers,
-      responseType: 'text'
-    });
-  }
-  
+        const body = {
+            parameters: {
+                AML: aml
+            }
+        };
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/xml',
+            SOAPAction: 'ApplyAML',
+            Authorization: `Bearer ${token}`
+        });
+
+        return this.http.post(this.baseUrl + '/Server/InnovatorServer.aspx', aml, {
+            headers,
+            responseType: 'text'
+        });
+    }
 }
