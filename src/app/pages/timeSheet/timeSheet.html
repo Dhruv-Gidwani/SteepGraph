@@ -27,11 +27,6 @@
 
     <!-- Table Area -->
     <div class="p-mt-4" *ngIf="projectTableData.length">
-        <p-card class="dark:bg-gray-800 bg-white shadow rounded-lg">
-            <ng-template pTemplate="header">
-                <h2 class="text-xl font-bold mb-2">Project Table</h2>
-            </ng-template>
             <app-project-table [projectTableData]="projectTableData" [exportData]="exportData"> </app-project-table>
-        </p-card>
     </div>
 </div>
