@@ -20,6 +20,12 @@ import { ProjectTableComponent } from './components/project-table/project-table.
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import{LoaderComponent } from './components/loader/loader.component';
 import { timeSheetService } from '../../services/timeSheet.service';
+import{ PositionService } from '../../services/position_title.service';
+import { DepartmentService } from '../../services/department.service';
+import { ProjectService } from '../../services/project.service';
+import { EmployeeService } from '../../services/employee.service';
+import{RegionService} from '../../services/region.service';
+import * as xmljs from 'xml-js';
 
 @Component({
     selector: 'app-timeSheet-demo',
@@ -30,7 +36,7 @@ import { timeSheetService } from '../../services/timeSheet.service';
     templateUrl: './timeSheet.html'
 })
 
-export class timeSheetDemo implements OnInit {
+export class timeSheetDemo  {
     isLoading: boolean = false;
     allContracts: any[] = [];
     filteredContracts: any[] = [];
@@ -49,13 +55,32 @@ export class timeSheetDemo implements OnInit {
     cwoStartDate: string = '';
   cwoEndDate: string = '';
   cwoStatus: string = '';
+  startDate!: string;
+endDate!: string;
+department: string = '';
+project: string = '';
+positionTitle: string = '';
+geography: string = '';
+emp_name: string = '';
+selectedRole: string = '';
+rolesList: string[] = [];
+DepartmentList: string[] = [];
+ProjectList: string[] = [];
+EmployeeList: string[] = [];
+RegionList: string[] = [];
+
 
     constructor(
         private ApiService: ApiService,
         private cdr: ChangeDetectorRef,
         private exportService: ExportService,
         private timeSheetService: timeSheetService,
-        private ngZone: NgZone
+        private ngZone: NgZone,
+        private PositionService: PositionService,
+        private DepartmentService: DepartmentService,
+        private ProjectService: ProjectService,
+        private EmployeeService: EmployeeService,
+        private RegionService: RegionService,
     ) { }
 
     // Function to call exportToExcel from the service
@@ -64,9 +89,185 @@ export class timeSheetDemo implements OnInit {
       };
 
 ngOnInit(): void {
+  this.PositionService.fetchRoleItem().subscribe({
+  next: (response) => {
+    console.log('Service response:', response);
+
+    // const rolesList: string[] = [];
+    let parsedResponse: any = response;
+
+    // If response is a string, try to parse it as JSON
+    if (typeof response === 'string') {
+      try {
+        parsedResponse = JSON.parse(response);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        return;
+      }
+    }
+
+    // Loop through the array inside "value" and extract sg_role
+    if (parsedResponse && Array.isArray(parsedResponse.value)) {
+      for (const item of parsedResponse.value) {
+        if (item.keyed_name) {
+          this.rolesList.push(item.keyed_name);
+        }
+      }
+    }
+     this.rolesList.sort((a, b) => a.localeCompare(b));
+    console.log('Extracted sg_role list:', this.rolesList);
+  },
+  error: (error) => {
+    console.error('Error fetching role item:', error);
+  }
+});
+
+// 2nd service 
+this.DepartmentService.fetchDepartmentItem().subscribe({
+  next: (response) => {
+    console.log('Service response:', response);
+
+    // const rolesList: string[] = [];
+    let parsedResponse: any = response;
+
+    // If response is a string, try to parse it as JSON
+    if (typeof response === 'string') {
+      try {
+        parsedResponse = JSON.parse(response);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        return;
+      }
+    }
+
+    // Loop through the array inside "value" and extract sg_role
+    if (parsedResponse && Array.isArray(parsedResponse.value)) {
+      for (const item of parsedResponse.value) {
+        if (item.keyed_name) {
+          this.DepartmentList.push(item.keyed_name);
+        }
+      }
+    }
+     this.DepartmentList.sort((a, b) => a.localeCompare(b));
+    console.log('Extracted Department list:', this.DepartmentList);
+  },
+  error: (error) => {
+    console.error('Error fetching role item:', error);
+  }
+});
+
+// 3rd service
+this.ProjectService.fetchProjectItem().subscribe({
+  next: (response) => {
+    console.log('Service response:', response);
+
+    // const rolesList: string[] = [];
+    let parsedResponse: any = response;
+
+    // If response is a string, try to parse it as JSON
+    if (typeof response === 'string') {
+      try {
+        parsedResponse = JSON.parse(response);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        return;
+      }
+    }
+
+    // Loop through the array inside "value" and extract sg_role
+    if (parsedResponse && Array.isArray(parsedResponse.value)) {
+      for (const item of parsedResponse.value) {
+        if (item.keyed_name) {
+          this.ProjectList.push(item.keyed_name);
+        }
+      }
+    }
+     this.ProjectList.sort((a, b) => a.localeCompare(b));
+    console.log('Extracted Department list:', this.ProjectList);
+  },
+  error: (error) => {
+    console.error('Error fetching role item:', error);
+  }
+});
+
+//4th service
+ this.EmployeeService.fetchEmployeeItem().subscribe({
+  next: (response) => {
+    console.log('Service response:', response);
+
+    // const rolesList: string[] = [];
+    let parsedResponse: any = response;
+
+    // If response is a string, try to parse it as JSON
+    if (typeof response === 'string') {
+      try {
+        parsedResponse = JSON.parse(response);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        return;
+      }
+    }
+
+    // Loop through the array inside "value" and extract sg_role
+    if (parsedResponse && Array.isArray(parsedResponse.value)) {
+      for (const item of parsedResponse.value) {
+        if (item.keyed_name) {
+          this.EmployeeList.push(item.keyed_name);
+        }
+      }
+    }
+     this.EmployeeList.sort((a, b) => a.localeCompare(b));
+    console.log('Extracted sg_role list:', this.EmployeeList);
+  },
+  error: (error) => {
+    console.error('Error fetching role item:', error);
+  }
+}); 
+
+//5th service 
+this.RegionService.fetchRegionItem().subscribe({
+  next: (response) => {
+    console.log('Service response:', response);
+
+    // const rolesList: string[] = [];
+    let parsedResponse: any = response;
+
+    // If response is a string, try to parse it as JSON
+    if (typeof response === 'string') {
+      try {
+        parsedResponse = JSON.parse(response);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        return;
+      }
+    }
+
+    // Loop through the array inside "value" and extract sg_role
+    if (parsedResponse && Array.isArray(parsedResponse.value)) {
+      for (const item of parsedResponse.value) {
+        if (item.value) {
+          this.RegionList.push(item.value);
+        }
+      }
+    }
+     this.RegionList.sort((a, b) => a.localeCompare(b));
+    console.log('Extracted sg_role list:', this.RegionList);
+  },
+  error: (error) => {
+    console.error('Error fetching role item:', error);
+  }
+});
+
+}
+applyFilters(): void {
+  if (!this.startDate || !this.endDate) {
+    alert('Please select both start and end dates.');
+    return;
+  }
     this.isLoading = true;
-  
-    this.timeSheetService.fetchtimeSheetItem().subscribe({
+    console.log('Start Date:', this.startDate);
+    console.log('End Date:', this.endDate);
+    this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate,this.department, this.project,this.positionTitle,this.geography,this.emp_name).subscribe({
       next: (xmlData: string) => {
         parseString(xmlData, { explicitArray: false }, (err, result) => {
           if (err) {
@@ -112,54 +313,12 @@ ngOnInit(): void {
       },
     });
   }
-// working code --------------------------------------------------------------------------------------------------------------------------------
-  // groupProjectData() {
-  //   const result: { [employee: string]: { [project: string]: { billing_status: string, billableqty: number }[] } } = {};
-  
-  //   this.rawProjectData.forEach(entry => {
-  //     const employee = entry.sg_employee;
-  //     const project = entry.ts_task_project;
-  //     const billing_status = entry.billing_status;
-  //     const billableqty = parseFloat(entry.billableqty) || 0;
-  
-  //     if (!result[employee]) {
-  //       result[employee] = {};
-  //     }
-  
-  //     if (!result[employee][project]) {
-  //       result[employee][project] = [];
-  //     }
-  
-  //     result[employee][project].push({ billing_status, billableqty });
-  //   });
-  
-  //   // Convert to array format for easier iteration in HTML
-  //   this.projectTableData = Object.entries(result).map(([employee, projects]) => ({
-  //     employee,
-  //     projects: Object.entries(projects).map(([project, statuses]) => {
-  //       const aggregated = statuses.reduce((acc, item) => {
-  //         if (!acc[item.billing_status]) {
-  //           acc[item.billing_status] = 0;
-  //         }
-  //         acc[item.billing_status] += item.billableqty;
-  //         return acc;
-  //       }, {} as { [status: string]: number });
-  
-  //       return {
-  //         project,
-  //         billingDetails: Object.entries(aggregated).map(([status, total]) => ({
-  //           billing_status: status,
-  //           total_hours: total
-  //         }))
-  //       };
-  //     })
-  //   }));
-  // } ----------------------------------------------------
 
-  groupProjectData() {
+groupProjectData() {
   const result: {
-    [employee: string]: {
+    [employeeKey: string]: {
       employeeMeta: {
+        sg_employee: string;
         sg_position_title: string;
         sg_employee_department: string;
         sg_geography: string;
@@ -169,347 +328,105 @@ ngOnInit(): void {
         [project: string]: {
           billing_status: string;
           billableqty: number;
+          count: number;
+          sg_role: string;
         }[]
       }
     }
   } = {};
 
   this.rawProjectData.forEach(entry => {
-    const employee = entry.sg_employee;
+    const employeeKey = `${entry.sg_employee}___${entry.sg_geography}`;
     const project = entry.ts_task_project;
     const billing_status = entry.billing_status;
+    const sg_role = entry.sg_role;
     const billableqty = parseFloat(entry.billableqty) || 0;
 
-    if (!result[employee]) {
-      result[employee] = {
+    if (!result[employeeKey]) {
+      result[employeeKey] = {
         employeeMeta: {
+          sg_employee: entry.sg_employee,
           sg_position_title: entry.sg_position_title,
           sg_employee_department: entry.sg_employee_department,
           sg_geography: entry.sg_geography,
-          sg_role: entry.sg_role
+          sg_role
         },
         projects: {}
       };
     }
 
-    if (!result[employee].projects[project]) {
-      result[employee].projects[project] = [];
+    if (!result[employeeKey].projects[project]) {
+      result[employeeKey].projects[project] = [];
     }
 
-    result[employee].projects[project].push({ billing_status, billableqty });
+    const existing = result[employeeKey].projects[project].find(p =>
+      p.billing_status === billing_status && p.sg_role === sg_role
+    );
+
+    if (existing) {
+      existing.billableqty += billableqty;
+      existing.count += 1;
+    } else {
+      result[employeeKey].projects[project].push({
+        billing_status,
+        billableqty,
+        count: 1,
+        sg_role
+      });
+    }
   });
 
-  // Convert to array format for easier iteration in HTML
-  this.projectTableData = Object.entries(result).map(([employee, data]) => ({
-    employee,
+  // Convert to array format for HTML
+  this.projectTableData = Object.entries(result).map(([key, data]) => ({
+    employee: data.employeeMeta.sg_employee,
     sg_position_title: data.employeeMeta.sg_position_title,
     sg_employee_department: data.employeeMeta.sg_employee_department,
     sg_geography: data.employeeMeta.sg_geography,
     sg_role: data.employeeMeta.sg_role,
     projects: Object.entries(data.projects).map(([project, statuses]) => {
-      const aggregated = statuses.reduce((acc, item) => {
-        if (!acc[item.billing_status]) {
-          acc[item.billing_status] = 0;
-        }
-        acc[item.billing_status] += item.billableqty;
-        return acc;
-      }, {} as { [status: string]: number });
+      const billingDetails = statuses.map(item => ({
+        billing_status: item.billing_status,
+        total_hours: item.billableqty,
+        total_ts_fill_hrs: item.count * 8,
+        sg_role: item.sg_role,
+        total_billable_hr_company:
+        item.billing_status?.toLowerCase() === 'billable'
+          ? parseFloat(String(item.billableqty)) || 0
+          : 0,
+        total_non_billable_hr: (item.count * 8) - (parseFloat(String(item.billableqty)) || 0),
+      }));
+
+    const totalBillableHrs_company = billingDetails.reduce((sum, item) => sum + item.total_billable_hr_company, 0);
+    const totalTsFillHrs = billingDetails.reduce((sum, item) => sum + item.total_ts_fill_hrs, 0);
+
+    const totalBillableHrs_person = billingDetails.reduce((sum, item) => sum + item.total_hours, 0);
+    
+    // Calculate company_billability
+    const company_billability = totalTsFillHrs > 0 ? (totalBillableHrs_company * 100) / totalTsFillHrs : 0;
+    const person_billability = totalTsFillHrs > 0 ? (totalBillableHrs_person * 100) / totalTsFillHrs : 0;
 
       return {
         project,
-        billingDetails: Object.entries(aggregated).map(([status, total]) => ({
-          billing_status: status,
-          total_hours: total
-        }))
+        billingDetails,
+        company_billability : company_billability.toFixed(2) + '%',
+        person_billability : person_billability.toFixed(2) + '%'
+
       };
     })
   }));
 }
 
-  
-  
-  
-  
-
-    
-//     applyFilters(): void {
-//         const { startDate, endDate } = this.filters;
-//         const userStart = startDate ? new Date(startDate) : null;
-//         const userEnd = endDate ? new Date(endDate) : null;
-
-//         // Apply filters
-//         this.filteredContracts = this.allContracts.filter((item) => {
-//             // Date filtering
-//             const itemStart = new Date(item['Start Date']);
-//             const itemEnd = new Date(item['End Date']);
-//             const isDateMatch = !userStart || !userEnd || (itemEnd >= userStart && itemStart <= userEnd);
-
-//             // Other filters - use bracket notation for field names with spaces
-            
-
-//             return isDateMatch;
-//         });
-
-//         // If no contracts are found after filtering, reset everything
-//         if (this.filteredContracts.length === 0) {
-//             this.selectedProject = null;
-//             this.selectedProjectIndex = null;
-//             this.projectTableData = [];
-//             this.cdr.detectChanges();
-//             return;
-//         }
-
-       
-
-//         // Rebuild the project data map with filtered contracts
-//         const projectDataMap: { [project: string]: any[] } = {};
-//         this.filteredContracts.forEach((contract) => {
-//             const projectKey = contract.Project?.trim() || 'Unknown';
-//             if (!projectDataMap[projectKey]) {
-//                 projectDataMap[projectKey] = [];
-//             }
-//             projectDataMap[projectKey].push(contract);
-//         });
-
-//         // Set the first available project after filtering
-//         const tempLabels = Object.keys(projectDataMap);
-//         if (tempLabels.length > 0) {
-//             const firstProject = tempLabels[0];
-//             this.selectedProject = firstProject;
-//             this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-
-//             // Handle project-specific data (bar chart, table, roles)
-//             this.handleProjectSelection(firstProject, projectDataMap);
-//         }
-
-//         // Re-render the pie chart with filtered data
-//         // this.renderPieChart();
-//     }
-
-    // onGlobalFilter(event: Event, dt: any) {
-    //     const input = event.target as HTMLInputElement;
-    //     dt.filterGlobal(input.value, 'contains');
-    // }
-
-
-  
-//     renderProjectTable(): void {
-//         this.projectTableData = this.selectedProjectData.map((contract) => {
-//             const row = { ...contract }; // Deep clone the contract object
-
-//             // Helper function to format dates and validate them
-//             const formatDate = (dateString: string): string | null => {
-//                 const date = new Date(dateString);
-//                 if (isNaN(date.getTime())) {
-//                     // Check if it's a valid date
-//                     console.error('Invalid date:', dateString);
-//                     return ''; // Return empty string if the date is invalid
-//                 }
-//                 return date.toISOString().slice(0, 10); // Return formatted date (YYYY-MM-DD)
-//             };
-
-//             // Format Start Date and End Date to YYYY-MM-DD
-//             const formattedStartDate = formatDate(row['Start Date']);
-//             const formattedEndDate = formatDate(row['End Date']);
-
-//             if (!formattedStartDate && !formattedEndDate) {
-//                 console.warn('Both dates are invalid. Skipping project row.');
-//                 return row; // Skip this project row if both dates are invalid
-//             }
-
-//             row['Start Date'] = formattedStartDate;
-//             row['End Date'] = formattedEndDate;
-            
-//             // convert date string to date object for filtering
-//             row['Start Date Object'] = formattedStartDate ? new Date(formattedStartDate) : null;
-//             row['End Date Object'] = formattedEndDate ? new Date(formattedEndDate) : null;
-
-//             // Initialize month fields with empty values
-//             const monthMap: { [key: string]: { day: string; color: string } } = {
-//                 Jan: { day: '', color: '' },
-//                 Feb: { day: '', color: '' },
-//                 Mar: { day: '', color: '' },
-//                 Apr: { day: '', color: '' },
-//                 May: { day: '', color: '' },
-//                 Jun: { day: '', color: '' },
-//                 Jul: { day: '', color: '' },
-//                 Aug: { day: '', color: '' },
-//                 Sep: { day: '', color: '' },
-//                 Oct: { day: '', color: '' },
-//                 Nov: { day: '', color: '' },
-//                 Dec: { day: '', color: '' }
-//             };
-
-//             if (formattedStartDate && formattedEndDate) {
-//                 const startDate = new Date(formattedStartDate);
-//                 const endDate = new Date(formattedEndDate);
-//                 const currentYear = new Date().getFullYear();
-            
-//                 const startYear = startDate.getFullYear();
-//                 const endYear = endDate.getFullYear();
-            
-//                 // Adjusted start date only if in current year
-//                 const adjustedStartDate = new Date(Math.max(startDate.getTime(), new Date(currentYear, 0, 1).getTime()));
-//                 let currentDate = new Date(adjustedStartDate.getFullYear(), adjustedStartDate.getMonth(), 1);
-            
-//                 while (
-//                     currentDate.getFullYear() < endDate.getFullYear() ||
-//                     (currentDate.getFullYear() === endDate.getFullYear() && currentDate.getMonth() <= endDate.getMonth())
-//                 ) {
-//                     const monthAbbr = Object.keys(monthMap)[currentDate.getMonth()];
-//                     const currentMonth = currentDate.getMonth();
-//                     const currentYearInLoop = currentDate.getFullYear();
-            
-//                     // Set color for months in current year only
-//                     if (currentYearInLoop === currentYear) {
-//                         monthMap[monthAbbr].color = '#66bb6a';
-//                     }
-            
-//                     // 1. Start and End year are same, and equal to current year
-//                     if (startYear === endYear && startYear === currentYear) {
-//                         if (currentMonth === startDate.getMonth()) {
-//                             monthMap[monthAbbr].day = String(startDate.getDate());
-//                         }
-//                         if (currentMonth === endDate.getMonth()) {
-//                             monthMap[monthAbbr].day = String(endDate.getDate());
-//                         }
-//                     }
-            
-//                     // 2. Start year < End year, and End is current year → show only end date
-//                     else if (startYear < endYear && endYear === currentYear) {
-//                         if (currentMonth === endDate.getMonth() && currentYearInLoop === endYear) {
-//                             monthMap[monthAbbr].day = String(endDate.getDate());
-//                         }
-//                     }
-            
-//                     // 3. Start year < End year, and Start is current year → show only start date
-//                     else if (startYear < endYear && startYear === currentYear) {
-//                         if (currentMonth === startDate.getMonth() && currentYearInLoop === startYear) {
-//                             monthMap[monthAbbr].day = String(startDate.getDate());
-//                         }
-//                     }
-            
-//                     // 4. Start and End are different years and neither is current year → no day set
-            
-//                     // Move to next month
-//                     currentDate.setMonth(currentDate.getMonth() + 1);
-//                 }
-//             }
-            
-
-//             // Merge the month data with the row data
-//             return { ...row, ...monthMap };
-//         });
-       
-//         this.calculateRowspan(); // Update rowspan calculations
-//         this.cdr.detectChanges(); // Ensure UI updates
-//     }
-
-    
-
-//     private calculateRowspan(): void {
-//         const projectCounts = new Map<string, number>();
-//         const contractCounts = new Map<string, number>();
-//         const managerCounts = new Map<string, number>();
-//         const billingMethodCounts = new Map<string, number>();
-//         const tsApproverCounts = new Map<string, number>(); // Add this line
-
-//         // Precompute counts
-//         for (const row of this.projectTableData) {
-//             projectCounts.set(row.Project, (projectCounts.get(row.Project) || 0) + 1);
-//             contractCounts.set(row['Work Contract Name'], (contractCounts.get(row['Work Contract Name']) || 0) + 1);
-//             managerCounts.set(row['Project Manager'], (managerCounts.get(row['Project Manager']) || 0) + 1);
-//             billingMethodCounts.set(row['Billing Method'], (billingMethodCounts.get(row['Billing Method']) || 0) + 1);
-//             tsApproverCounts.set(row['TS Approver'], (tsApproverCounts.get(row['TS Approver']) || 0) + 1); // Add this line
-//         }
-
-//         // Apply counts with flags to track first appearance
-//         const seenProjects = new Set();
-//         const seenContracts = new Set();
-//         const seenManagers = new Set();
-//         const seenBillingMethods = new Set();
-//         const seenTsApprovers = new Set();
-
-//         for (const row of this.projectTableData) {
-//             row.projectRowspan = seenProjects.has(row.Project) ? 0 : projectCounts.get(row.Project);
-//             row.contractNameRowspan = seenContracts.has(row['Work Contract Name']) ? 0 : contractCounts.get(row['Work Contract Name']);
-//             row.projectManagerRowspan = seenManagers.has(row['Project Manager']) ? 0 : managerCounts.get(row['Project Manager']);
-//             row.billingMethodRowspan = seenBillingMethods.has(row['Billing Method']) ? 0 : billingMethodCounts.get(row['Billing Method']);
-//             row.tsApproverRowspan = seenTsApprovers.has(row['TS Approver']) ? 0 : tsApproverCounts.get(row['TS Approver']); // Add this line
-
-//             seenProjects.add(row.Project);
-//             seenContracts.add(row['Work Contract Name']);
-//             seenManagers.add(row['Project Manager']);
-//             seenBillingMethods.add(row['Billing Method']);
-//             seenTsApprovers.add(row['TS Approver']);
-//         }
-//     }
-
-//     customSort(event: SortEvent): void {
-//         const field = event.field!;
-//         const order = event.order ?? 1;
-
-//         this.projectTableData.sort((a, b) => {
-//             let value1 = a[field];
-//             let value2 = b[field];
-//             let result = 0;
-
-//             // Special handling for "Rem. Hrs." field
-//             if (field === 'Rem. Hrs.') {
-//                 value1 = parseFloat(value1);
-//                 value2 = parseFloat(value2);
-//             }
-
-//             if (value1 == null && value2 != null) result = -1;
-//             else if (value1 != null && value2 == null) result = 1;
-//             else if (value1 == null && value2 == null) result = 0;
-//             else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
-//             else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
-
-//             return order * result;
-//         });
+    resetFilters(): void {
         
-//         this.calculateRowspan();
-//         this.cdr.detectChanges();
-//     }
-
-//     onProjectClick(project: string): void {
-//         // Build the projectDataMap
-//         const projectDataMap: { [project: string]: any[] } = {};
-//         this.filteredContracts.forEach((contract) => {
-//             const proj = contract.Project || 'Unknown';
-//             if (!projectDataMap[proj]) projectDataMap[proj] = [];
-//             projectDataMap[proj].push(contract);
-//         });
-
-//         // Highlight selected project and trigger chart update
-//         // this.renderPieChart();
-
-//         // Handle project-specific logic
-//         this.handleProjectSelection(project, projectDataMap);
-//     }
-
-//     handleProjectSelection(project: string, projectDataMap: { [project: string]: any[] }): void {
-//         this.selectedProject = project;
-//         this.selectedProjectData = projectDataMap[project] || [];
-
-//         // Reset filters
-
-
-//         // this.renderBarChart(this.selectedProjectData);
-//         // this.renderProjectTable();
-//         this.cdr.detectChanges();
-//     }
-
-//     resetFilters(): void {
-//         this.filters = {
-//             startDate: this.cwoStartDate,
-//             endDate: this.cwoEndDate,
-//         };
-//         this.filteredContracts = this.allContracts;
-        
-//         this.applyFilters();
-//         this.cdr.detectChanges();
-//     }
-    
+            this.startDate = '';
+            this.endDate = '';
+            this.department = '';
+            this.project = '';
+            this.positionTitle = '';
+            this.geography = '';
+            this.emp_name = ''
+            this.rawProjectData = [];
+            this.projectTableData = [];
+            this.cdr.detectChanges();
+    }
 }
