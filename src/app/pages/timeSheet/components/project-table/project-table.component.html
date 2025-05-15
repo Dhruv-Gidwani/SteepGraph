@@ -46,14 +46,21 @@
         <th>Role</th>
         
         <th>Billing Status</th>
-        <th>Total Billable Hours</th>
+        <th>Total TimeSheet Fill Hrs.</th>
+        <th>Total Billable Hrs. (Company)</th>
+        <th>Total Billable Hrs. (person)</th>
+        <th>Total Non-Billable Hrs.</th>
+        <th>Company Billability %</th>
+        <th>Person Billability %</th>
+        
+        
       </tr>
     </ng-template>
 
     <!-- Table Body -->
     <ng-template pTemplate="body" let-emp>
       <ng-container *ngFor="let proj of emp.projects">
-        <ng-container *ngFor="let detail of proj.billingDetails">
+        <ng-container *ngFor="let detail of proj.billingDetails; let i = index">
           <tr>
             <td>{{ emp.employee }}</td>
             <td>{{ emp.sg_position_title }}</td>
@@ -61,10 +68,17 @@
             <td>{{ proj.project }}</td>
             <td>Yes</td>
             <td>{{ emp.sg_geography }}</td>
-            <td>{{ emp.sg_role }}</td>
+            <td>{{ detail.sg_role }}</td>
             
             <td>{{ detail.billing_status }}</td>
+            <td>{{ detail.total_ts_fill_hrs }}</td>
+            <td>{{ detail.total_billable_hr_company }}</td>
             <td>{{ detail.total_hours }}</td>
+            <td>{{detail.total_non_billable_hr}}</td>
+            <td *ngIf="i === 0" [attr.rowspan]="proj.billingDetails.length">{{proj.company_billability}}</td>
+            <td *ngIf="i === 0" [attr.rowspan]="proj.billingDetails.length">{{proj.person_billability}}</td>
+            
+            
           </tr>
         </ng-container>
       </ng-container>

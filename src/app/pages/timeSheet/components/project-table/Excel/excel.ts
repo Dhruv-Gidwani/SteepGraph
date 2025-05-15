@@ -17,9 +17,19 @@ export class ExportService {
               proj.billingDetails.forEach((detail:any) => {
                 exportData.push({
                   'Employee': emp.employee,
+                  'Position Title': emp.sg_position_title,
+                  'Department':emp.sg_employee_department,
                   'Project': proj.project,
+                  'Project Is Billable?':"Yes",
+                  'Region': emp.sg_geography,
+                  'Role': detail.sg_role,
                   'Billing Status': detail.billing_status,
-                  'Total Billable Hours': detail.total_hours
+                  'Total TimeSheet Fill Hrs.': detail.total_ts_fill_hrs,
+                  'Total Billable Hrs. (Company)': detail.total_billable_hr_company,
+                  'Total Billable Hrs. (person)': detail.total_hours,
+                  'Total Non-Billable Hrs.': detail.total_non_billable_hr,
+                  'Company Billability %': proj.company_billability,
+                  'Person Billability %': proj.person_billability
                 });
               });
             });
