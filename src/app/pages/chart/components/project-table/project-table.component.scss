@@ -1,0 +1,47 @@
+::ng-deep .custom-table .p-datatable-thead > tr > th {
+    background-color: #fcf9f9; /* Tailwind's blue-600 */
+    color: black;
+}
+::ng-deep .app-dark .custom-table .p-datatable-thead > tr > th {
+    background-color: #181717; /* Tailwind's blue-600 */
+    color: white;
+}
+
+// Light Theme (no .app-dark)
+::ng-deep .custom-table .p-datatable-caption input.p-inputtext {
+    background-color: #b61717; // Light background
+    color: #1f2937; // Tailwind gray-800
+    border-color: #d1d5db; // Tailwind gray-300
+}
+
+// Dark Theme (.app-dark present)
+::ng-deep .app-dark .custom-table .p-datatable-caption input.p-inputtext {
+    background-color: #18181b; // Tailwind zinc-900
+    color: #f9fafb; // Tailwind gray-50
+    border-color: #4b5563; // Tailwind gray-600
+}
+
+// Progress bar color
+:host ::ng-deep {
+    // Regular columns styling
+    .p-datatable .p-datatable-tbody > tr > td:not(:has(.month-cell)) {
+        padding: 0.5rem; // Add padding back for regular columns
+    }
+
+    // Month columns styling
+    .p-datatable .p-datatable-tbody > tr > td:has(.month-cell) {
+        padding: 0; // Keep padding removed for month cells
+    }
+}
+
+// Progress bar styling
+.month-cell {
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-weight: 500;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
+}

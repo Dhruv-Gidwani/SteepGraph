@@ -13,8 +13,9 @@ export class ArasService {
 
   fetchTgvdItem(): Observable<string> {
     const token = sessionStorage.getItem('access_token');
-  
-    const aml = `<AML><Item type="rb_TreeGridViewDefinition" id="4B14A4C5DF484F4BBB4C7927FC34A886" action="get" levels="2"></Item></AML>`;
+    const Name = "sg_work_contract_tgv";
+    const aml = `<AML><Item type="rb_TreeGridViewDefinition" action="get" levels="2"><name condition='eq'>${Name}</name></Item></AML>`;
+    
   
     const body = {
       parameters: {

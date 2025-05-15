@@ -2,8 +2,9 @@ import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { Dashboard } from './app/pages/dashboard/dashboard';
 import { ChartDemo } from './app/pages/chart/chart';
-import { Login } from './app/pages/login/login';
+import { Login } from './app/guards/login/login';
 import { AuthGuard } from './app/guards/auth.guard';
+import{timeSheetDemo} from './app/pages/timeSheet/timeSheet';
 export const appRoutes: Routes = [
     { path: '', component: Login },
 
@@ -13,6 +14,7 @@ export const appRoutes: Routes = [
         children: [
             { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
             { path: 'chart', component: ChartDemo },
+            { path: 'timeSheet', component: timeSheetDemo },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },

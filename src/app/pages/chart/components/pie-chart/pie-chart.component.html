@@ -1,0 +1,18 @@
+<div class="card flex flex-col h-[420px]">
+    <div class="font-semibold text-xl mb-4 text-center">Project Distribution</div>
+    <div class="flex h-full overflow-hidden">
+        <div class="w-[250px] h-[250px]">
+            <p-chart type="pie" [data]="pieChartData" [options]="pieChartOptions"></p-chart>
+        </div>
+        <div class="flex-1 overflow-y-auto ml-4 max-h-[350px] pr-2 hide-scrollbar">
+            <ul class="project-list">
+                <li *ngFor="let project of pieChartData?.labels" (click)="onProjectClick(project)" [ngClass]="{
+                        'bg-blue-100 text-blue-700 font-semibold': project === selectedProject,
+                        'hover:bg-gray-100 dark:hover:bg-surface-700': true
+                    }" class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200">
+                    {{ project }}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

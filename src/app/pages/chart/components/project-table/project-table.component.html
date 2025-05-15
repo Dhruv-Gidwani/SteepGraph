@@ -1,0 +1,164 @@
+<div class="p-mt-4" *ngIf="displayedData.length">
+    <p-table
+        class="custom-table"
+        #dt2
+        [value]="displayedData"
+        [scrollable]="true"
+        scrollHeight="500px"
+        [resizableColumns]="true"
+        [customSort]="true"
+        (sortFunction)="customSort($event)"
+        [paginator]="true"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        columnResizeMode="fit"
+        [globalFilterFields]="[
+            'Project',
+            'Work Contract Name',
+            'Project Manager',
+            'Billing Method',
+            'PWO Name',
+            'Position Role',
+            'Resource Name',
+            'TS Approver',
+            'Position Title',
+            'Billing Status',
+            'Resource Utilization',
+            'Hourly Rate',
+            'Currency',
+            'Allocated Hrs.',
+            'Rem. Hrs.',
+            'Start Date',
+            'End Date'
+        ]"
+    >
+        <!-- Search Bar -->
+        <ng-template pTemplate="caption">
+            <div class="flex justify-between items-center w-full p-2">
+                <div class="relative w-64">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <i class="pi pi-search text-gray-400"></i>
+                    </span>
+                    <input
+                        #globalFilterInput
+                        pInputText
+                        type="text"
+                        (input)="onGlobalFilter($event, dt2)"
+                        placeholder="Search keyword"
+                        class="w-full pl-10 pr-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                    />
+                </div>
+
+                <!-- Export button -->
+                <p-button label="Export" icon="pi pi-file-excel" styleClass="p-button-success" (click)="exportToExcel()"> </p-button>
+            </div>
+        </ng-template>
+
+        <!-- Table Header -->
+        <ng-template pTemplate="header">
+            <tr>
+                <!-- ... existing header columns ... -->
+                <th style="width: 150px">Project</th>
+                <th style="width: 150px">Work Contract Name</th>
+                <th style="width: 150px">Project Manager</th>
+                <th style="width: 150px">Billing Method</th>
+                <th style="width: 150px">PWO Name</th>
+                <th style="width: 150px">Role</th>
+                <th style="min-width: 15rem" pSortableColumn="Resource Name">
+                    Resource Name
+                    <p-sortIcon field="Resource Name"></p-sortIcon>
+                    <p-columnFilter field="Resource Name" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="representativeNames" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+
+                <th style="width: 150px">TS Approver</th>
+                <th style="width: 150px">Position Title</th>
+                <th style="width: 150px">Billing Status</th>
+                <th style="width: 150px">Resource Utilization</th>
+                <th style="width: 150px">Hourly Rate</th>
+                <th style="width: 150px">Currency</th>
+                <th style="width: 150px">Allocated Hrs.</th>
+                <th style="width: 150px" pSortableColumn="Rem. Hrs.">
+                    Rem. Hrs.
+                    <p-sortIcon field="Rem. Hrs."></p-sortIcon>
+                </th>
+                <th style="min-width: 10rem">Start Date <p-columnFilter type="date" field="Start Date Object" display="menu" ></p-columnFilter></th>
+                <th style="min-width: 10rem">End Date <p-columnFilter type="date" field="End Date Object" display="menu"></p-columnFilter></th>
+                <th style="width: 150px">Jan</th>
+                <th style="width: 150px">Feb</th>
+                <th style="width: 150px">Mar</th>
+                <th style="width: 150px">Apr</th>
+                <th style="width: 150px">May</th>
+                <th style="width: 150px">Jun</th>
+                <th style="width: 150px">Jul</th>
+                <th style="width: 150px">Aug</th>
+                <th style="width: 150px">Sep</th>
+                <th style="width: 150px">Oct</th>
+                <th style="width: 150px">Nov</th>
+                <th style="width: 150px">Dec</th>
+            </tr>
+        </ng-template>
+
+        <!-- Table Body -->
+        <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+                <!-- <td *ngIf="row.projectRowspan" [attr.rowspan]="row.projectRowspan">{{ row.Project }}</td>
+                <td *ngIf="row.contractNameRowspan" [attr.rowspan]="row.contractNameRowspan">{{ row['Work Contract Name'] }}</td>
+                <td *ngIf="row.projectManagerRowspan" [attr.rowspan]="row.projectManagerRowspan">{{ row['Project Manager'] }}</td>
+                <td *ngIf="row.billingMethodRowspan" [attr.rowspan]="row.billingMethodRowspan">{{ row['Billing Method'] }}</td>
+                <td>{{ row['PWO Name'] }}</td>
+                <td>{{ row['Position Role'] }}</td>
+                <td>{{ row['Resource Name'] }}</td>
+                <td *ngIf="row.tsApproverRowspan" [attr.rowspan]="row.tsApproverRowspan">{{ row['TS Approver'] }}</td>
+                <td>{{ row['Position Title'] }}</td>
+                <td>{{ row['Billing Status'] }}</td>
+                <td>{{ row['Resource Utilization'] }}</td>
+                <td>{{ row['Hourly Rate'] }}</td>
+                <td>{{ row['Currency'] }}</td>
+                <td>{{ row['Allocated Hrs.'] }}</td>
+                <td>{{ row['Rem. Hrs.'] }}</td>
+                <td>{{ row['Start Date'] }}</td>
+                <td>{{ row['End Date'] }}</td> -->
+                <td>{{ row.Project }}</td>
+                <td>{{ row['Work Contract Name'] }}</td>
+                <td>{{ row['Project Manager'] }}</td>
+                <td>{{ row['Billing Method'] }}</td>
+                <td>{{ row['PWO Name'] }}</td>
+                <td>{{ row['Position Role'] }}</td>
+                <td>{{ row['Resource Name'] }}</td>
+                <td>{{ row['TS Approver'] }}</td>
+                <td>{{ row['Position Title'] }}</td>
+                <td>{{ row['Billing Status'] }}</td>
+                <td>{{ row['Resource Utilization'] }}</td>
+                <td>{{ row['Hourly Rate'] }}</td>
+                <td>{{ row['Currency'] }}</td>
+                <td>{{ row['Allocated Hrs.'] }}</td>
+                <td>{{ row['Rem. Hrs.'] }}</td>
+                <td>{{ row['Start Date'] }}</td>
+                <td>{{ row['End Date'] }}</td>
+
+                <!-- Month Cells -->
+                <td *ngFor="let month of ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']">
+                    <ng-container *ngIf="row.monthData?.[month + '-' + currentYear]">
+                        <div class="month-cell" [style.background-color]="row.monthData[month + '-' + currentYear].color">
+                            {{ row.monthData[month + '-' + currentYear].day }}
+                        </div>
+                    </ng-container>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

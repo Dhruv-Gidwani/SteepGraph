@@ -53,6 +53,7 @@ export class Login {
         this.http.post<any>('http://192.168.0.230/QAEnvironment/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
             next: (response) => {
                 sessionStorage.setItem('access_token', response.access_token);
+                sessionStorage.setItem('expires_in', response.expires_in);
                 this.router.navigate(['/dashboard']);
             },
             error: (error) => {
