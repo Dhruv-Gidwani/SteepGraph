@@ -5,7 +5,7 @@ import { FluidModule } from 'primeng/fluid';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { parseString } from 'xml2js';
+import { XmlParserService } from '../../services/xml-parser.service';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -77,6 +77,7 @@ export class timeSheetDemo {
     private ProjectService: ProjectService,
     private EmployeeService: EmployeeService,
     private RegionService: RegionService,
+    private xmlParserService: XmlParserService
   ) { }
 
   // Function to call exportToExcel from the service
@@ -261,15 +262,11 @@ export class timeSheetDemo {
     console.log('Start Date:', this.startDate);
     console.log('End Date:', this.endDate);
     this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, this.department, this.project, this.positionTitle, this.geography, this.emp_name).subscribe({
-      next: (xmlData: string) => {
-        parseString(xmlData, { explicitArray: false }, (err, result) => {
-          if (err) {
-            console.error('Error parsing XML', err);
-            this.isLoading = false;
-            return;
-          }
-
-          console.log('Parsed result:', result);
+      next: async (xmlData: string) => {
+        
+        
+      const result = await this.xmlParserService.parseXml(xmlData);
+      console.log('Parsed result:', result);
           this.ngZone.run(() => {
             const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
             const flatItems = Array.isArray(items) ? items : [items];
@@ -297,7 +294,7 @@ export class timeSheetDemo {
             this.isLoading = false;
             this.cdr.detectChanges();
           });
-        });
+        
       },
       error: (err) => {
         console.error('Error fetching timesheet data', err);

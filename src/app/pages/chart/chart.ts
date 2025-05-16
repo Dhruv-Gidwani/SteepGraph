@@ -8,7 +8,6 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ApiService } from '../../services/tgv.service';
 import { ArasService } from '../../services/aras.service';
 import { ArasService1 } from '../../services/aras1.service';
-import { parseString } from 'xml2js';
 import { firstValueFrom } from 'rxjs';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
@@ -20,6 +19,7 @@ import { ProjectTableComponent } from './components/project-table/project-table.
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LoaderComponent } from './components/loader/loader.component';
 import { ProjectDataMap } from './components/interfaces/interface';
+import { XmlParserService } from '../../services/xml-parser.service';
 
 @Component({
     selector: 'app-chart-demo',
@@ -64,7 +64,8 @@ export class ChartDemo implements OnInit {
         private cdr: ChangeDetectorRef,
         private arasService: ArasService,
         private arasService1: ArasService1,
-        private exportService: ExportService
+        private exportService: ExportService,
+        private xmlParserService: XmlParserService
     ) {}
 
     // Function to call exportToExcel from the service
@@ -85,12 +86,9 @@ export class ChartDemo implements OnInit {
 
             // 2nd service: fetch QB values and parse XML
             const qbResponse = await firstValueFrom(this.arasService1.fetchQBValueItem());
-
+            const result = await this.xmlParserService.parseXml(qbResponse);
             // Convert callback-style parseString to a promise
             const paramMap = await new Promise<Record<string, string>>((resolve, reject) => {
-                parseString(qbResponse, { explicitArray: false }, (err: any, result: any) => {
-                    if (err) return reject(err);
-
                     try {
                         const items = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'].Result.Item.Relationships.Item;
                         const itemArray = Array.isArray(items) ? items : [items];
@@ -106,7 +104,6 @@ export class ChartDemo implements OnInit {
                     } catch (parseError) {
                         reject(parseError);
                     }
-                });
             });
             console.log('Parsed Parameter Map:', paramMap);
             this.cwoStartDate = paramMap['sg_cwo_start'].split('T')[0];
