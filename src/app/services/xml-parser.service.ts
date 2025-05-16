@@ -12,5 +12,4 @@ export class XmlParserService {
 
     return parser.parseStringPromise(xmlData);
   }
-
 }
