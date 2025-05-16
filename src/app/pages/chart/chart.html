@@ -12,9 +12,9 @@
         </div>
         <div>
             <label class="block mb-1 font-medium">Status</label>
-            <select [(ngModel)]="filters.status" class="w-full border p-2 rounded">
-                <option value="">All</option>
-                <option *ngFor="let status of uniqueStatuses" [value]="status">{{ status }}</option>
+            <select [(ngModel)]="filters.status" class="w-full border p-2 rounded"disabled>
+                <!-- <option value="">All</option> -->
+                <option *ngFor="let status of uniqueStatuses" [value]="status" [selected]="status === 'Active'">{{ status }}</option>
             </select>
         </div>
         <div>

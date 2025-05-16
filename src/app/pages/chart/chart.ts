@@ -42,7 +42,7 @@ export class ChartDemo implements OnInit {
     filters = {
         startDate: '',
         endDate: '',
-        status: '',
+        status: 'Active',
         geography: '',
         billingMethod: '',
         customer: ''
@@ -208,7 +208,7 @@ export class ChartDemo implements OnInit {
     private updateProjectsAfterFilter(): void {
         const projectDataMap = this.buildProjectDataMap();
         const tempLabels = Object.keys(projectDataMap);
-        
+
         if (tempLabels.length > 0) {
             const firstProject = tempLabels[0];
             this.selectedProject = firstProject;
@@ -248,31 +248,23 @@ export class ChartDemo implements OnInit {
         this.selectedProject = project;
         this.selectedProjectData = projectDataMap[project] || [];
         this.projectTableData = this.selectedProjectData;
-        
+
         // Get unique values for filters
-        this.availableRoles = [...new Set(
-            this.selectedProjectData
-                .map(c => c['Position Role'])
-                .filter(Boolean)
-        )];
-        this.uniqueBillingStatuses = [...new Set(
-            this.selectedProjectData
-                .map(c => c['Billing Status'])
-                .filter(Boolean)
-        )];
-    
+        this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
+        this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
+
         // Reset filters when changing projects
         this.selectedRole = '';
         this.selectedBillingStatus = '';
-        
+
         this.cdr.detectChanges();
     }
-    
+
     onRoleChanged(role: string): void {
         this.selectedRole = role;
         this.cdr.detectChanges();
     }
-    
+
     onBillingStatusChanged(status: string): void {
         this.selectedBillingStatus = status;
         this.cdr.detectChanges();
