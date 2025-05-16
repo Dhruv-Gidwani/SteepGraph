@@ -3,11 +3,11 @@
     <!-- Filters -->
     <div class="mb-4 grid grid-cols-1 md:grid-cols-8 gap-4" >
         <div>
-            <label class="block mb-1 font-medium">TS Start Date</label>
+            <label class="block mb-1 font-medium">Start Date</label>
             <input type="date" [(ngModel)]="startDate" class="w-full border p-2 rounded" />
         </div>
         <div>
-            <label class="block mb-1 font-medium">TS End Date</label>
+            <label class="block mb-1 font-medium">End Date</label>
             <input type="date" [(ngModel)]="endDate" class="w-full border p-2 rounded" />
         </div>
         <div>
@@ -26,7 +26,7 @@
             </select>
         </div>
         <div>
-            <label class="block mb-1 font-medium">Region</label>
+            <label class="block mb-1 font-medium">Geography</label>
             <select [(ngModel)]="geography" class="w-full border p-2 rounded">
                 <option value="">All</option>
                 <option *ngFor="let Region of RegionList" [value]="Region">{{ Region }}</option>
