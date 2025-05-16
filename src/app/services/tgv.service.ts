@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import {Dashboard} from '../pages/dashboard/dashboard';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ApiService {
-    //private apiUrl = 'http://SGSLP221.SteepGraph.com/12sp9/Server/odata/method.rb_GetTreeGridData';
-    private apiUrl = 'http://192.168.0.230/QAEnvironment/Server/odata/method.rb_GetTreeGridData';
+    private baseUrl = environment.apiUrl; // Use the environment variable for the base URL
+    private apiUrl = this.baseUrl + '/Server/odata/method.rb_GetTreeGridData';
     constructor(private http: HttpClient) {}
 
     getTreeGridData(tgvdXmlString: string, paramMapString: string): Observable<any> {

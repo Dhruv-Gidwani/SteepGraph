@@ -1,87 +1,75 @@
 <div class="p-mt-4" *ngIf="projectTableData.length">
   <p-table
-    class="custom-table"
-    #dt2
-    [value]="displayedData"
-    [scrollable]="true"
-    scrollHeight="500px"
-    [paginator]="true"
-    [rows]="5"
-    [tableStyle]="{ 'min-width': '50rem' }"
-    [rowsPerPageOptions]="[5, 10, 20]"
-  >
-    <!-- Search Bar -->
-    <ng-template pTemplate="caption">
-      <div class="flex justify-between items-center w-full p-2">
-        <div class="relative w-64">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-            <i class="pi pi-search text-gray-400"></i>
-          </span>
-          <input
-            type="text"
-            (input)="onGlobalFilter($event)"
-            placeholder="Search keyword"
-            class="w-full pl-10 pr-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-          />
-        </div>
-
-        <p-button
-          label="Export"
-          icon="pi pi-file-excel"
-          styleClass="p-button-success"
-          (click)="exportData()"
-        ></p-button>
+  [value]="flatData"
+  [paginator]="true"
+  [rows]="5"
+  [scrollable]="true"
+  scrollHeight="500px"
+  [rowsPerPageOptions]="[5,10,20]"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  class="custom-table"
+>
+  <!-- Caption with Search and Export -->
+  <ng-template pTemplate="caption">
+    <div class="flex justify-between items-center w-full p-2">
+      <div class="relative w-64">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+          <i class="pi pi-search text-gray-400"></i>
+        </span>
+        <input
+          type="text"
+          (input)="onGlobalFilter($event)"
+          placeholder="Search keyword"
+          class="w-full pl-10 pr-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+        />
       </div>
-    </ng-template>
 
-    <!-- Table Header -->
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Employee</th>
-        <th>Position Title</th>
-        <th>Department</th>
-        <th>Project</th>
-        <th>Project Is Billable?</th>
-        <th>Region</th>
-        <th>Role</th>
-        
-        <th>Billing Status</th>
-        <th>Total TimeSheet Fill Hrs.</th>
-        <th>Total Billable Hrs. (Company)</th>
-        <th>Total Billable Hrs. (person)</th>
-        <th>Total Non-Billable Hrs.</th>
-        <th>Company Billability %</th>
-        <th>Person Billability %</th>
-        
-        
-      </tr>
-    </ng-template>
+      <p-button
+        label="Export"
+        icon="pi pi-file-excel"
+        styleClass="p-button-success"
+        (click)="exportData()"
+      ></p-button>
+    </div>
+  </ng-template>
 
-    <!-- Table Body -->
-    <ng-template pTemplate="body" let-emp>
-      <ng-container *ngFor="let proj of emp.projects">
-        <ng-container *ngFor="let detail of proj.billingDetails; let i = index">
-          <tr>
-            <td>{{ emp.employee }}</td>
-            <td>{{ emp.sg_position_title }}</td>
-            <td>{{ emp.sg_employee_department }}</td>
-            <td>{{ proj.project }}</td>
-            <td>Yes</td>
-            <td>{{ emp.sg_geography }}</td>
-            <td>{{ detail.sg_role }}</td>
-            
-            <td>{{ detail.billing_status }}</td>
-            <td>{{ detail.total_ts_fill_hrs }}</td>
-            <td>{{ detail.total_billable_hr_company }}</td>
-            <td>{{ detail.total_hours }}</td>
-            <td>{{detail.total_non_billable_hr}}</td>
-            <td *ngIf="i === 0" [attr.rowspan]="proj.billingDetails.length">{{proj.company_billability}}</td>
-            <td *ngIf="i === 0" [attr.rowspan]="proj.billingDetails.length">{{proj.person_billability}}</td>
-            
-            
-          </tr>
-        </ng-container>
-      </ng-container>
-    </ng-template>
-  </p-table>
+  <!-- Table Header -->
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Employee</th>
+      <th>Position Title</th>
+      <th>Department</th>
+      <th>Project</th>
+      <th>Geography</th>
+      <th>Role</th>
+      <th>Billing Status</th>
+      <th>Total TimeSheet Fill Hrs.</th>
+      <th>Total Billable Hrs. (Company)</th>
+      <th>Total Billable Hrs. (person)</th>
+      <th>Total Non-Billable Hrs.</th>
+      <th>Company Billability %</th>
+      <th>Person Billability %</th>
+    </tr>
+  </ng-template>
+
+  <!-- Table Body -->
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      <td>{{ row.employee }}</td>
+      <td>{{ row.sg_position_title }}</td>
+      <td>{{ row.sg_employee_department }}</td>
+      <td>{{ row.project }}</td>
+      <td>{{ row.sg_geography }}</td>
+      <td>{{ row.sg_role }}</td>
+      <td>{{ row.billing_status }}</td>
+      <td>{{ row.total_ts_fill_hrs }}</td>
+      <td>{{ row.total_billable_hr_company }}</td>
+      <td>{{ row.total_hours }}</td>
+      <td>{{ row.total_non_billable_hr }}</td>
+      <td>{{ row.company_billability }}</td>
+      <td>{{ row.person_billability }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+
 </div>

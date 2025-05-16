@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ArasService {
-  private baseUrl = 'http://192.168.0.230/QAEnvironment';
-  // private arasUrl = 'http://192.168.0.230/QAEnvironment/Server/odata/method.rb_GetTreeGridData';
+  private baseUrl = environment.apiUrl; // Use the environment variable for the base URL
   
   constructor(private http: HttpClient) {}
 
