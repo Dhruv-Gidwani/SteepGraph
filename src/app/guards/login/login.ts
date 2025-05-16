@@ -26,7 +26,8 @@ export class Login {
         private http: HttpClient,
         private router: Router
     ) {}
-    private baseUrl = environment.apiUrl; 
+    private baseUrl = environment.apiUrl;
+    private database = environment.database; 
     login() {
         // Hash the password using MD5
         const hashedPassword = md5(this.password);
@@ -38,7 +39,7 @@ export class Login {
         body.set('scope', 'Innovator');
         body.set('username', this.username);
         body.set('password', hashedPassword);
-        body.set('database', 'OLM_QA');
+        body.set('database', this.database);
 
         // Prepare the headers to set Content-Type to x-www-form-urlencoded
         const headers = new HttpHeaders({

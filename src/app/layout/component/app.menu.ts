@@ -198,7 +198,7 @@ export class AppMenu implements OnInit {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
             },
             {
-                label: 'Contract Mgmt.',
+                label: 'Contract Management',
                 items: [
                     { label: 'WC Report', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] },
                 ]
