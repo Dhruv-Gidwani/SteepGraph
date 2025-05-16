@@ -10,7 +10,7 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { md5 } from 'js-md5';
-
+import { environment } from '../../../environments/environment';
 @Component({
     selector: 'app-login',
     standalone: true,
@@ -26,11 +26,11 @@ export class Login {
         private http: HttpClient,
         private router: Router
     ) {}
-
+    private baseUrl = environment.apiUrl; 
     login() {
         // Hash the password using MD5
         const hashedPassword = md5(this.password);
-
+        // Use the base URL from environment
         // Prepare the body using URLSearchParams
         const body = new URLSearchParams();
         body.set('client_id', 'IOMApp');
@@ -50,7 +50,7 @@ export class Login {
         console.log('Hashed Password:', hashedPassword);
         console.log('Request Body:', body.toString());
         // Send the POST request
-        this.http.post<any>('http://192.168.0.230/QAEnvironment/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
+        this.http.post<any>(this.baseUrl + '/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
             next: (response) => {
                 sessionStorage.setItem('access_token', response.access_token);
                 sessionStorage.setItem('expires_in', response.expires_in);
