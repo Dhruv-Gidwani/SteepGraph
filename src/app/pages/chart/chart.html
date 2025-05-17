@@ -12,7 +12,7 @@
         </div>
         <div>
             <label class="block mb-1 font-medium">Status</label>
-            <select [(ngModel)]="filters.status" class="w-full border p-2 rounded"disabled>
+            <select [(ngModel)]="filters.status" class="w-full border p-2 rounded" disabled>
                 <!-- <option value="">All</option> -->
                 <option *ngFor="let status of uniqueStatuses" [value]="status" [selected]="status === 'Active'">{{ status }}</option>
             </select>
@@ -50,7 +50,7 @@
         <div class="col-span-12 xl:col-span-6 mb-6">
             <app-pie-chart class="col-span-12 xl:col-span-6" [contracts]="filteredContracts" [selectedProject]="selectedProject" [selectedProjectIndex]="selectedProjectIndex" (projectSelected)="onProjectClick($event)"> </app-pie-chart>
         </div>
-        
+
         <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="selectedProject">
             <app-bar-chart
                 *ngIf="selectedProject"

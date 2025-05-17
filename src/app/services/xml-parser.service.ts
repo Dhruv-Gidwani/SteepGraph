@@ -1,5 +1,6 @@
 // xml-parser.service.ts
 import { Injectable } from '@angular/core';
+import { Parser } from 'xml2js';
 
 @Injectable({
   providedIn: 'root'
@@ -7,9 +8,7 @@ import { Injectable } from '@angular/core';
 export class XmlParserService {
 
   async parseXml(xmlData: string): Promise<any> {
-    const { Parser } = await import('xml2js');
     const parser = new Parser({ explicitArray: false });
-
     return parser.parseStringPromise(xmlData);
   }
 }

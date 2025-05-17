@@ -89,21 +89,21 @@ export class ChartDemo implements OnInit {
             const result = await this.xmlParserService.parseXml(qbResponse);
             // Convert callback-style parseString to a promise
             const paramMap = await new Promise<Record<string, string>>((resolve, reject) => {
-                    try {
-                        const items = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'].Result.Item.Relationships.Item;
-                        const itemArray = Array.isArray(items) ? items : [items];
-                        const map: Record<string, string> = {};
+                try {
+                    const items = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'].Result.Item.Relationships.Item;
+                    const itemArray = Array.isArray(items) ? items : [items];
+                    const map: Record<string, string> = {};
 
-                        itemArray.forEach((item: any) => {
-                            const key = item.qd_parameter_name;
-                            const value = item.user_input_default_value?._ || item.user_input_default_value;
-                            if (key) map[key] = value;
-                        });
+                    itemArray.forEach((item: any) => {
+                        const key = item.qd_parameter_name;
+                        const value = item.user_input_default_value?._ || item.user_input_default_value;
+                        if (key) map[key] = value;
+                    });
 
-                        resolve(map);
-                    } catch (parseError) {
-                        reject(parseError);
-                    }
+                    resolve(map);
+                } catch (parseError) {
+                    reject(parseError);
+                }
             });
             console.log('Parsed Parameter Map:', paramMap);
             this.cwoStartDate = paramMap['sg_cwo_start'].split('T')[0];
