@@ -39,10 +39,6 @@ import { LayoutService } from '../service/layout.service';
                     </button>
                     <app-configurator />
                 </div>
-                <button type="button" class="layout-topbar-action">
-                    <i class="pi pi-user"></i>
-                    <span>Profile</span>
-                </button>
             </div>
         </div>
     </div>`
