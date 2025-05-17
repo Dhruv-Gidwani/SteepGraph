@@ -11,17 +11,20 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { md5 } from 'js-md5';
 import { environment } from '../../../environments/environment';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { LoaderComponent } from './loader/loader.component';
+import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
+    imports: [CommonModule,ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator ,ProgressSpinnerModule, LoaderComponent],
     templateUrl: '\login.component.html'
 })
 export class Login {
     username: string = '';
     password: string = '';
     checked: boolean = false;
-
+    isLoading: boolean = false;
     constructor(
         private http: HttpClient,
         private router: Router
@@ -29,6 +32,7 @@ export class Login {
     private baseUrl = environment.apiUrl;
     private database = environment.database; 
     login() {
+        this.isLoading = true;
         // Hash the password using MD5
         const hashedPassword = md5(this.password);
         // Use the base URL from environment
@@ -55,6 +59,7 @@ export class Login {
             next: (response) => {
                 sessionStorage.setItem('access_token', response.access_token);
                 sessionStorage.setItem('expires_in', response.expires_in);
+                this.isLoading = false;
                 this.router.navigate(['/dashboard']);
             },
             error: (error) => {
