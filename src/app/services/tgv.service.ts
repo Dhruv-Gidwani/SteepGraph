@@ -29,7 +29,6 @@ export class ApiService {
             tgvdXmlString,
             qb_parameters_value_by_name:paramMapString
         };
-        console.log({body});
         return this.http.post<any>(this.apiUrl, body, { headers }).pipe(
             map((data) => {
                 const headers = data?.HeaderResult?.map((header: any) => header.label) ?? [];

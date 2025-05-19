@@ -88,7 +88,6 @@ export class timeSheetDemo {
   ngOnInit(): void {
     this.PositionService.fetchRoleItem().subscribe({
       next: (response) => {
-        console.log('Service response:', response);
 
         // const rolesList: string[] = [];
         let parsedResponse: any = response;
@@ -112,7 +111,6 @@ export class timeSheetDemo {
           }
         }
         this.rolesList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted sg_role list:', this.rolesList);
       },
       error: (error) => {
         console.error('Error fetching role item:', error);
@@ -122,7 +120,7 @@ export class timeSheetDemo {
     // 2nd service 
     this.DepartmentService.fetchDepartmentItem().subscribe({
       next: (response) => {
-        console.log('Service response:', response);
+
 
         // const rolesList: string[] = [];
         let parsedResponse: any = response;
@@ -146,7 +144,6 @@ export class timeSheetDemo {
           }
         }
         this.DepartmentList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted Department list:', this.DepartmentList);
       },
       error: (error) => {
         console.error('Error fetching role item:', error);
@@ -156,7 +153,6 @@ export class timeSheetDemo {
     // 3rd service
     this.ProjectService.fetchProjectItem().subscribe({
       next: (response) => {
-        console.log('Service response:', response);
 
         let parsedResponse: any = response;
 
@@ -179,7 +175,6 @@ export class timeSheetDemo {
           }
         }
         this.ProjectList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted Department list:', this.ProjectList);
       },
       error: (error) => {
         console.error('Error fetching role item:', error);
@@ -189,7 +184,6 @@ export class timeSheetDemo {
     //4th service
     this.EmployeeService.fetchEmployeeItem().subscribe({
       next: (response) => {
-        console.log('Service response:', response);
 
         let parsedResponse: any = response;
 
@@ -212,7 +206,6 @@ export class timeSheetDemo {
           }
         }
         this.EmployeeList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted sg_role list:', this.EmployeeList);
       },
       error: (error) => {
         console.error('Error fetching role item:', error);
@@ -222,7 +215,6 @@ export class timeSheetDemo {
     //5th service 
     this.RegionService.fetchRegionItem().subscribe({
       next: (response) => {
-        console.log('Service response:', response);
 
         let parsedResponse: any = response;
 
@@ -245,7 +237,6 @@ export class timeSheetDemo {
           }
         }
         this.RegionList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted sg_role list:', this.RegionList);
       },
       error: (error) => {
         console.error('Error fetching role item:', error);
@@ -259,19 +250,15 @@ export class timeSheetDemo {
       return;
     }
     this.isLoading = true;
-    console.log('Start Date:', this.startDate);
-    console.log('End Date:', this.endDate);
     this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, this.department, this.project, this.positionTitle, this.geography, this.emp_name).subscribe({
       next: async (xmlData: string) => {
         
         
       const result = await this.xmlParserService.parseXml(xmlData);
-      console.log('Parsed result:', result);
           this.ngZone.run(() => {
             const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
             const flatItems = Array.isArray(items) ? items : [items];
 
-            console.log('Raw items:', flatItems);
 
             this.rawProjectData = flatItems
               .filter(item => !!item)
@@ -289,8 +276,6 @@ export class timeSheetDemo {
               });
 
             this.groupProjectData(); // Call the grouping function here
-            console.log('raw projectTableData:', this.rawProjectData);
-            console.log('Mapped projectTableData:', this.projectTableData);
             this.isLoading = false;
             this.cdr.detectChanges();
           });

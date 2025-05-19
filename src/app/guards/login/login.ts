@@ -51,9 +51,6 @@ export class Login {
         });
 
         // Log the values to check
-        console.log('Username:', this.username);
-        console.log('Hashed Password:', hashedPassword);
-        console.log('Request Body:', body.toString());
         // Send the POST request
         this.http.post<any>(this.baseUrl + '/OAuthServer/connect/token', body.toString(), { headers }).subscribe({
             next: (response) => {
