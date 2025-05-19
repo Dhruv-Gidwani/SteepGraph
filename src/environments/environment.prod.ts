@@ -1,4 +1,5 @@
 export const environment = {
-  production: true,
-  apiUrl:'http://192.168.0.230/QAEnvironment'
+    production: true,
+    apiUrl: 'https://external.steepgraph.com/olm12',
+    database: 'OLM12'
 };

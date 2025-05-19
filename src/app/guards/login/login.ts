@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule,ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator ,ProgressSpinnerModule, LoaderComponent],
+    imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ProgressSpinnerModule, LoaderComponent],
     templateUrl: '\login.component.html'
 })
 export class Login {
@@ -30,7 +30,7 @@ export class Login {
         private router: Router
     ) {}
     private baseUrl = environment.apiUrl;
-    private database = environment.database; 
+    private database = environment.database;
     login() {
         this.isLoading = true;
         // Hash the password using MD5
@@ -64,6 +64,7 @@ export class Login {
             },
             error: (error) => {
                 console.error('Login Error:', error);
+                this.isLoading = false;
                 alert('Login failed. Please check credentials.');
             }
         });
