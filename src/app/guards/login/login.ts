@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
     selector: 'app-login',
     standalone: true,
     imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ProgressSpinnerModule, LoaderComponent],
-    templateUrl: '\login.component.html'
+    templateUrl: './login.component.html'
 })
 export class Login {
     username: string = '';
