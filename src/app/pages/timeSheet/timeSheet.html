@@ -57,18 +57,27 @@
     </div>
 
         <!-- Chart Section -->
-    <p-fluid class="grid grid-cols-12 gap-8">
-        <!-- Pie Chart Area -->
-        <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="projectTableData.length">
-            <app-pie-chart [data]="projectTableData" [selectedGeography]="selectedGeography" [selectedGeographyIndex]="selectedGeographyIndex" (geographySelected)="onGeographySelected($event)"> </app-pie-chart>
-        </div>
+<p-fluid class="grid grid-cols-12 gap-8">
+    <!-- Pie Chart Area -->
+    <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="projectTableData.length">
+        <app-pie-chart 
+            [data]="projectTableData" 
+            [selectedGeography]="selectedGeography" 
+            [selectedGeographyIndex]="selectedGeographyIndex"
+            (geographyClick)="handleGeographyClick($event)">
+        </app-pie-chart>
+    </div>
 
-        <!-- Bar Chart Area -->
-        <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="projectTableData.length">
-            <app-bar-chart [data]="projectTableData" [selectedDepartment]="selectedDepartment" [selectedGeography]="selectedGeography"> </app-bar-chart>
-        </div>
-    </p-fluid>
-    
+    <!-- Bar Chart Area -->
+    <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="projectTableData.length">
+        <app-bar-chart 
+            [data]="projectTableData" 
+            [selectedDepartment]="selectedDepartment" 
+            [selectedGeography]="selectedGeography"
+            (departmentClick)="handleDepartmentClick($event)">
+        </app-bar-chart>
+    </div>
+</p-fluid>
         <!-- Data Table -->
         <div class="p-mt-4" *ngIf="projectTableData.length">
         <app-project-table
