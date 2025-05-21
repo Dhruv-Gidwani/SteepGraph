@@ -1,5 +1,5 @@
 <div class="p-mt-4" *ngIf="projectTableData.length">
-    <p-table [value]="flatData" [paginator]="true" [rows]="10" [scrollable]="true" scrollHeight="500px" [rowsPerPageOptions]="[10, 15, 20]" [tableStyle]="{ 'min-width': '50rem' }" class="custom-table">
+    <p-table [value]="flatData" [resizableColumns]="true" [paginator]="true" [rows]="10" [scrollable]="true" scrollHeight="500px" [rowsPerPageOptions]="[10, 15, 20]" class="custom-table">
         <!-- Caption with Search and Export -->
         <ng-template pTemplate="caption">
             <div class="flex justify-between items-center w-full p-2">

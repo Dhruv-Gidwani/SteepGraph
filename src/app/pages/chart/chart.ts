@@ -20,6 +20,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LoaderComponent } from './components/loader/loader.component';
 import { ProjectDataMap } from './components/interfaces/interface';
 import { XmlParserService } from '../../services/xml-parser.service';
+import { RegionService } from '../../services/region.service';
+import{billingMethodWCService} from '../../services/billingMethod_wc';
+import{CustomerService} from '../../services/customer_wc';
 
 @Component({
     selector: 'app-chart-demo',
@@ -58,6 +61,9 @@ export class ChartDemo implements OnInit {
     cwoStartDate: string = '';
     cwoEndDate: string = '';
     cwoStatus: string = '';
+    RegionList: string[] = [];
+    BillingMethodList: string[] = [];
+    CustomerList: string[] = [];
 
     constructor(
         private ApiService: ApiService,
@@ -65,7 +71,10 @@ export class ChartDemo implements OnInit {
         private arasService: ArasService,
         private arasService1: ArasService1,
         private exportService: ExportService,
-        private xmlParserService: XmlParserService
+        private xmlParserService: XmlParserService,
+        private RegionService: RegionService,
+        private billingMethodWCService: billingMethodWCService,
+        private CustomerService: CustomerService
     ) {}
 
     // Function to call exportToExcel from the service
@@ -77,6 +86,106 @@ export class ChartDemo implements OnInit {
         this.isLoading = true;
         let tgvdXmlString: string = '';
         let paramMapString: string = '';
+
+        // service: fetch region item
+         this.RegionService.fetchRegionItem().subscribe({
+            next: (response) => {
+                console.log('Service response:', response);
+
+                let parsedResponse: any = response;
+
+                // If response is a string, try to parse it as JSON
+                if (typeof response === 'string') {
+                    try {
+                        parsedResponse = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return;
+                    }
+                }
+
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.value) {
+                            this.RegionList.push(item.value);
+                        }
+                    }
+                }
+                this.RegionList.sort((a, b) => a.localeCompare(b));
+                console.log('Extracted sg_role list:', this.RegionList);
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
+            }
+        });
+
+        // service: fetch Billing method item
+          this.billingMethodWCService.fetchBillingItem().subscribe({
+            next: (response) => {
+                console.log('Service response:', response);
+
+                let parsedResponse: any = response;
+
+                // If response is a string, try to parse it as JSON
+                if (typeof response === 'string') {
+                    try {
+                        parsedResponse = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return;
+                    }
+                }
+
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.value) {
+                            this.BillingMethodList.push(item.value);
+                        }
+                    }
+                }
+                this.BillingMethodList.sort((a, b) => a.localeCompare(b));
+                console.log('Extracted sg_role list:', this.BillingMethodList);
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
+            }
+        });
+
+        // serice: fetch customer item
+         this.CustomerService.fetchCustomerItem().subscribe({
+            next: (response) => {
+                // const rolesList: string[] = [];
+                let parsedResponse: any = response;
+
+                // If response is a string, try to parse it as JSON
+                if (typeof response === 'string') {
+                    try {
+                        parsedResponse = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return;
+                    }
+                }
+
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.keyed_name) {
+                            this.CustomerList.push(item.keyed_name);
+                        }
+                    }
+                }
+                this.CustomerList.sort((a, b) => a.localeCompare(b));
+                console.log('Extracted Department list:', this.CustomerList);
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
+            }
+        });
+
+
 
         try {
             // 1st service: fetch TGVD XML

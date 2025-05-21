@@ -23,6 +23,7 @@ import { PieChartComponent } from './components/pie-chart/pie-chart.component';
 import { CardModule } from 'primeng/card';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { MessageFormDemo } from '../../components/message-toast/message-toast.component';
+import { DropdownFilterDemo } from '../../components/dropdown/dropdown.component';
 @Component({
     selector: 'app-timeSheet-demo',
     standalone: true,

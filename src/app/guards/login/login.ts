@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -20,7 +20,7 @@ import { CommonModule } from '@angular/common';
     imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ProgressSpinnerModule, LoaderComponent],
     templateUrl: './login.component.html'
 })
-export class Login {
+export class Login implements AfterViewInit {
     username: string = '';
     password: string = '';
     checked: boolean = false;
@@ -31,6 +31,16 @@ export class Login {
     ) {}
     private baseUrl = environment.apiUrl;
     private database = environment.database;
+
+     @ViewChild('usernameInput') usernameInput!: ElementRef;
+
+  ngAfterViewInit() {
+    // Trick: Autofill detection (Chrome/WebKit)
+    setTimeout(() => {
+      this.usernameInput.nativeElement.dispatchEvent(new Event('input', { bubbles: true }));
+      this.usernameInput.nativeElement.focus(); // ensure focus so Enter works
+    });
+  }
     login() {
         this.isLoading = true;
         // Hash the password using MD5
