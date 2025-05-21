@@ -168,7 +168,6 @@
 //     }
 // }
 
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -198,23 +197,17 @@ export class AppMenu implements OnInit {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
             },
             {
-                label: 'Contract Management',
-                items: [
-                    { label: 'WC Report', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] },
-                ]
+                label: 'Contract Management Report',
+                items: [{ label: 'Work Contract', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] }]
             },
             {
                 label: 'Employee Report',
-                items: [
-                    { label: 'Timesheet', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/timeSheet'] },
-                ]
+                items: [{ label: 'Timesheet', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/timeSheet'] }]
             },
             {
                 label: 'Authentication',
-                items: [
-                    { label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logoutService.logout() },
-                ]
-            },
+                items: [{ label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logoutService.logout() }]
+            }
         ];
     }
 }

@@ -29,7 +29,6 @@ import { MessageFormDemo } from '../../components/message-toast/message-toast.co
   imports: [CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
   templateUrl: './timeSheet.html'
 })
-
 export class timeSheetDemo {
   isLoading: boolean = false;
   allContracts: any[] = [];
@@ -396,9 +395,7 @@ export class timeSheetDemo {
         result[employeeKey].projects[project] = [];
       }
 
-      const existing = result[employeeKey].projects[project].find(p =>
-        p.billing_status === billing_status && p.sg_role === sg_role
-      );
+      const existing = result[employeeKey].projects[project].find((p) => p.billing_status === billing_status && p.sg_role === sg_role);
 
       if (existing) {
         if (sg_ts_activity_type === 'Leave') {
@@ -473,26 +470,63 @@ export class timeSheetDemo {
           billingDetails,
           company_billability: company_billability.toFixed(2) + '%',
           person_billability: person_billability.toFixed(2) + '%'
-
         };
       })
     }));
   }
 
+  handleGeographyClick(selectedGeography: string): void {
+    this.ngZone.run(() => {
+      this.selectedGeography = selectedGeography;
 
+      // For "All", clear the filter
+      this.geography = selectedGeography === 'All' ? '' : selectedGeography;
+
+      if (this.startDate && this.endDate) {
+        this.applyFilters();
+      }
+    });
+  }
+
+  handleDepartmentClick(selectedDepartment: string): void {
+    this.ngZone.run(() => {
+      // Update the department filter
+      this.department = selectedDepartment;
+      this.selectedDepartment = selectedDepartment;
+
+      // Keep existing date values
+      if (this.startDate && this.endDate) {
+        this.applyFilters();
+      }
+    });
+  }
 
   resetFilters(): void {
+
+    // Reset filters
     this.startDate = '';
     this.endDate = '';
     this.department = '';
     this.project = '';
     this.positionTitle = '';
     this.geography = '';
-    this.emp_name = ''
+    this.emp_name = '';
+
+    // Reset selections
+    this.selectedGeography = null;
+    this.selectedGeographyIndex = null;
+    this.selectedDepartment = null;
+
+
+
+    // Clear data
     this.rawProjectData = [];
     this.projectTableData = [];
     this.showStartDateError = false;
     this.showEndDateError = false;
+
+
+
     this.cdr.detectChanges();
   }
 }

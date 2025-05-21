@@ -12,29 +12,71 @@ export class PieChartComponent implements OnChanges {
     @Input() data: any[] = [];
     @Input() selectedGeography: string | null = null;
     @Input() selectedGeographyIndex: number | null = null;
-
+    @Output() geographyClick = new EventEmitter<string>();
     @Output() geographySelected = new EventEmitter<{ geography: string; index: number }>();
 
+    firstGeography: string | null = null; //new
     pieChartData: any;
     pieChartOptions: any;
+    displayedGeographies: string[] = [];
     private isFirstLoad = true;
 
-   
+    // ngOnChanges(): void {
+    //     this.renderPieChart();
+
+    //     const labels = this.pieChartData?.labels || [];
+
+    //     if (labels.length > 1) {
+    //         this.displayedGeographies = ['All', ...labels];
+
+    //         if (this.isFirstLoad) {
+    //             this.geographySelected.emit({ geography: 'All', index: -1 });
+    //             this.isFirstLoad = false;
+    //         }
+    //     } else {
+    //         this.displayedGeographies = labels;
+
+    //         if (this.isFirstLoad && labels.length === 1) {
+    //             this.geographySelected.emit({ geography: labels[0], index: 0 });
+    //             this.isFirstLoad = false;
+    //         }
+    //     }
+    // }
     ngOnChanges(): void {
         this.renderPieChart();
 
-        // Auto-select first geography on first load
-        if (this.isFirstLoad && this.pieChartData?.labels?.length > 0) {
-            const firstGeography = this.pieChartData.labels[0];
-            this.geographySelected.emit({ geography: firstGeography, index: 0 });
-            this.isFirstLoad = false;
+        const labels = this.pieChartData?.labels || [];
+
+        if (labels.length > 1) {
+            this.displayedGeographies = ['All', ...labels];
+            // Set the first geography to be highlighted
+            this.firstGeography = 'All';
+
+            if (this.isFirstLoad) {
+                this.geographySelected.emit({ geography: 'All', index: -1 });
+                this.isFirstLoad = false;
+            }
+        } else {
+            this.displayedGeographies = labels;
+            // Set the first geography to be highlighted if available
+            this.firstGeography = labels[0] || null;
+
+            if (this.isFirstLoad && labels.length === 1) {
+                this.geographySelected.emit({ geography: labels[0], index: 0 });
+                this.isFirstLoad = false;
+            }
         }
     }
-    
+
+    //geographyClick for simple string-based filtering
+    //geographySelected for internal visual selection (like highlighting the selected item)
     onGeographyClick(geography: string): void {
-        const index = this.pieChartData.labels.indexOf(geography);
-        this.geographySelected.emit({ geography, index });
-    }
+    const index = geography === 'All' ? -1 : this.pieChartData.labels.indexOf(geography);
+
+    this.geographySelected.emit({ geography: geography === 'All' ? '' : geography, index });
+    this.geographyClick.emit(geography === 'All' ? '' : geography);
+}
+
 
     private renderPieChart(): void {
         const geographyCountMap = this.calculateGeographyCounts();
@@ -79,7 +121,7 @@ export class PieChartComponent implements OnChanges {
                     const chart = activeEls[0].element.$context.chart;
                     const index = activeEls[0].index;
                     const geography = chart.data.labels[index];
-                    this.geographySelected.emit({ geography, index });
+                    this.geographyClick.emit(geography);
                 }
             },
             plugins: {

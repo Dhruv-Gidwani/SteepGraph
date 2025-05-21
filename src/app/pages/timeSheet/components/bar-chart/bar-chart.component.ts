@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, OnChanges } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,8 +13,8 @@ import { FormsModule } from '@angular/forms';
 export class BarChartComponent implements OnChanges {
     @Input() data: any[] = [];
     @Input() selectedDepartment: string | null = null;
-    @Input() selectedGeography: string | null = null; 
-
+    @Input() selectedGeography: string | null = null;
+    @Output() departmentClick = new EventEmitter<string>(); //new
     barChartData: any;
     barChartOptions: any;
 
@@ -29,10 +29,7 @@ export class BarChartComponent implements OnChanges {
     }
 
     private calculateDepartmentData(): { [key: string]: number } {
-        const filteredData = this.selectedGeography
-            ? this.data.filter(item => item.sg_geography === this.selectedGeography)
-            : this.data;
-
+        let filteredData = [...this.data];
         return filteredData.reduce(
             (acc, item) => {
                 const department = item.sg_employee_department || 'Unknown';
@@ -64,6 +61,14 @@ export class BarChartComponent implements OnChanges {
             responsive: true,
             maintainAspectRatio: false,
             aspectRatio: 0.8,
+            onClick: (evt: any, activeEls: any[]) => {
+                if (activeEls.length > 0) {
+                    const chart = activeEls[0].element.$context.chart;
+                    const index = activeEls[0].index;
+                    const department = chart.data.labels[index];
+                    this.departmentClick.emit(department);
+                }
+            },
             plugins: {
                 legend: {
                     display: false
