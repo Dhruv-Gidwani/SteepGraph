@@ -43,6 +43,8 @@
       <th>Geography</th>
       <th>Role</th>
       <th>Billing Status</th>
+      <th>Total Leave</th>
+      <th>Missing TimeSheet Hrs.</th>
       <th>Total TimeSheet Fill Hrs.</th>
       <th>Total Billable Hrs. (Company)</th>
       <th>Total Billable Hrs. (person)</th>
@@ -62,6 +64,8 @@
       <td>{{ row.sg_geography }}</td>
       <td>{{ row.sg_role }}</td>
       <td>{{ row.billing_status }}</td>
+      <td>{{row.total_leave}}</td>
+      <td>{{ row.missing_timeSheet}}</td>
       <td>{{ row.total_ts_fill_hrs }}</td>
       <td>{{ row.total_billable_hr_company }}</td>
       <td>{{ row.total_hours }}</td>

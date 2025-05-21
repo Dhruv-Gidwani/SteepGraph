@@ -22,6 +22,7 @@ import { RegionService } from '../../services/region.service';
 import { PieChartComponent } from './components/pie-chart/pie-chart.component';
 import { CardModule } from 'primeng/card';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
+import { MessageFormDemo } from '../../components/message-toast/message-toast.component';
 @Component({
   selector: 'app-timeSheet-demo',
   standalone: true,
@@ -48,10 +49,6 @@ export class timeSheetDemo {
   };
 
   exportOptions: MenuItem[] | undefined;
-
-  cwoStartDate: string = '';
-  cwoEndDate: string = '';
-  cwoStatus: string = '';
   startDate!: string;
   endDate!: string;
   department: string = '';
@@ -65,7 +62,9 @@ export class timeSheetDemo {
   ProjectList: string[] = [];
   EmployeeList: string[] = [];
   RegionList: string[] = [];
-
+  showStartDateError: boolean = false;
+  showEndDateError: boolean = false;
+  totalDays: number = 0;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -244,42 +243,97 @@ export class timeSheetDemo {
     });
 
   }
-  applyFilters(): void {
-    if (!this.startDate || !this.endDate) {
-      alert('Please select both start and end dates.');
-      return;
+  validateDates() {
+    if (!this.startDate && !this.endDate) {
+      console.log('Please select both start and end dates.');
+      this.showStartDateError = true;
+      this.showEndDateError = true;
+    } else if (!this.startDate) {
+      console.log('Please select a start date.');
+      this.showStartDateError = true;
+      this.showEndDateError = false;
+    } else if (!this.endDate) {
+      console.log('Please select an end date.');
+      this.showStartDateError = false;
+      this.showEndDateError = true;
+    } else {
+      this.showStartDateError = false;
+      this.showEndDateError = false;
     }
+  }
+  onDateChange(field: 'start' | 'end') {
+    if (field === 'start') {
+      this.showStartDateError = !this.startDate;
+    } else {
+      this.showEndDateError = !this.endDate;
+    }
+  }
+
+
+  countWeekdays(startDateTs: Date, endDateTs: Date): number {
+    let count = 0;
+    let currentDate = new Date(startDateTs);
+
+    // Loop through each day in the date range
+    while (currentDate <= endDateTs) {
+      const day = currentDate.getDay();
+      // 0 = Sunday, 6 = Saturday
+      if (day !== 0 && day !== 6) {
+        count++;
+      }
+      // Move to next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return count;
+  }
+
+  applyFilters(): void {
+    this.validateDates();
     this.isLoading = true;
     this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, this.department, this.project, this.positionTitle, this.geography, this.emp_name).subscribe({
       next: async (xmlData: string) => {
-        
-        
-      const result = await this.xmlParserService.parseXml(xmlData);
-          this.ngZone.run(() => {
-            const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
-            const flatItems = Array.isArray(items) ? items : [items];
+
+        console.log(this.startDate)
+        console.log(this.endDate)
+        const startDateTs = new Date(this.startDate);
+        const endDateTs = new Date(this.endDate);
+
+        this.totalDays = this.countWeekdays(startDateTs, endDateTs);
+        console.log('Total weekdays:', this.totalDays);
+        const result = await this.xmlParserService.parseXml(xmlData);
+        console.log('Parsed XML result:', result);
+        this.ngZone.run(() => {
+          const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
+          const flatItems = Array.isArray(items) ? items : [items];
 
 
-            this.rawProjectData = flatItems
-              .filter(item => !!item)
-              .map((item: any) => {
-                return {
-                  sg_employee: item?.sg_employee?.$?.keyed_name || 'N/A',
-                  sg_position_title: item?.sg_position_title?.$?.keyed_name || 'N/A',
-                  sg_employee_department: item?.sg_employee_department?.$?.keyed_name || 'N/A',
-                  ts_task_project: item?.sg_ts_task_project?.$?.keyed_name || 'N/A',
-                  sg_geography: item?.sg_geography || 'N/A',
-                  sg_role: item?.sg_role || 'N/A',
-                  billing_status: item?.sg_billing_status || 'N/A',
-                  billableqty: item?.sg_billableqty || '0',
-                };
-              });
+          this.rawProjectData = flatItems
+            .filter(item => !!item)
+            .map((item: any) => {
+              return {
+                sg_employee: item?.sg_employee?.$?.keyed_name || 'N/A',
+                sg_position_title: item?.sg_position_title?.$?.keyed_name || 'N/A',
+                sg_employee_department: item?.sg_employee_department?.$?.keyed_name || 'N/A',
+                ts_task_project: item?.sg_ts_task_project?.$?.keyed_name || 'N/A',
+                sg_geography: item?.sg_geography || 'N/A',
+                sg_role: item?.sg_role || 'N/A',
+                billing_status: item?.sg_billing_status || 'N/A',
+                billableqty: item?.sg_billableqty || '0',
+                sg_ts_activity_type: item?.sg_ts_activity_type || 'N/A',
+                sg_ts_date: item?.sg_ts_date || 'N/A',
+                sg_billing_method: item?.sg_billing_method || 'N/A',
 
-            this.groupProjectData(); // Call the grouping function here
-            this.isLoading = false;
-            this.cdr.detectChanges();
-          });
-        
+              };
+            });
+          console.log('Raw Project Data:', this.rawProjectData);
+
+          this.groupProjectData(); // Call the grouping function here
+
+
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
+
       },
       error: (err) => {
         console.error('Error fetching timesheet data', err);
@@ -309,6 +363,8 @@ export class timeSheetDemo {
             billableqty: number;
             count: number;
             sg_role: string;
+            count_leave: number;
+            sg_billing_method: string;
           }[]
         }
       }
@@ -320,6 +376,8 @@ export class timeSheetDemo {
       const billing_status = entry.billing_status;
       const sg_role = entry.sg_role;
       const billableqty = parseFloat(entry.billableqty) || 0;
+      const sg_ts_activity_type = entry.sg_ts_activity_type;
+      const sg_billing_method = entry.sg_billing_method;
 
       if (!result[employeeKey]) {
         result[employeeKey] = {
@@ -343,6 +401,9 @@ export class timeSheetDemo {
       );
 
       if (existing) {
+        if (sg_ts_activity_type === 'Leave') {
+          existing.count_leave = (existing.count_leave || 0) + 1;
+        }
         existing.billableqty += billableqty;
         existing.count += 1;
       } else {
@@ -350,10 +411,31 @@ export class timeSheetDemo {
           billing_status,
           billableqty,
           count: 1,
-          sg_role
+          sg_role,
+          count_leave: 0,
+          sg_billing_method
         });
       }
     });
+
+    // Iterate through rawProjectData to collect unique dates for each employee
+    const employeeUniqueDates = new Map<string, Set<string>>();
+    this.rawProjectData.forEach(entry => {
+      const employee = entry.sg_employee;
+      const date = entry.sg_ts_date.split("T")[0]; // only use the date part
+      if (!employeeUniqueDates.has(employee)) {
+        employeeUniqueDates.set(employee, new Set());
+      }
+
+      employeeUniqueDates.get(employee)!.add(date);
+    });
+
+    // Prepare final result object with counts
+    const ans: { [employee: string]: number } = {};
+    employeeUniqueDates.forEach((dateSet, employee) => {
+      ans[employee] = this.totalDays - dateSet.size;
+    });
+    console.log("ans:", ans);
 
     // Convert to array format for HTML
     this.projectTableData = Object.entries(result).map(([key, data]) => ({
@@ -366,18 +448,20 @@ export class timeSheetDemo {
         const billingDetails = statuses.map(item => ({
           billing_status: item.billing_status,
           total_hours: item.billableqty,
-          total_ts_fill_hrs: item.count * 8,
+          total_ts_fill_hrs: (item.count * 8) - (item.count_leave * 8),
           sg_role: item.sg_role,
           total_billable_hr_company:
-            item.billing_status?.toLowerCase() === 'billable'
+            item.billing_status?.toLowerCase() === 'billable' &&
+              (item.sg_billing_method === "TM Billable - Rec" || item.sg_billing_method === "TM Billable" || item.sg_billing_method === "FC Billable")
               ? parseFloat(String(item.billableqty)) || 0
               : 0,
-          total_non_billable_hr: (item.count * 8) - (parseFloat(String(item.billableqty)) || 0),
+          total_non_billable_hr: ((item.count * 8) - (item.count_leave * 8)) - (parseFloat(String(item.billableqty)) || 0),
+          total_leave: item.count_leave,
+          missing_timeSheet: (ans[data.employeeMeta.sg_employee] || 0) * 8
         }));
 
         const totalBillableHrs_company = billingDetails.reduce((sum, item) => sum + item.total_billable_hr_company, 0);
         const totalTsFillHrs = billingDetails.reduce((sum, item) => sum + item.total_ts_fill_hrs, 0);
-
         const totalBillableHrs_person = billingDetails.reduce((sum, item) => sum + item.total_hours, 0);
 
         // Calculate company_billability
@@ -395,6 +479,8 @@ export class timeSheetDemo {
     }));
   }
 
+
+
   resetFilters(): void {
     this.startDate = '';
     this.endDate = '';
@@ -405,6 +491,8 @@ export class timeSheetDemo {
     this.emp_name = ''
     this.rawProjectData = [];
     this.projectTableData = [];
+    this.showStartDateError = false;
+    this.showEndDateError = false;
     this.cdr.detectChanges();
   }
 }
