@@ -1,5 +1,6 @@
 <div class="p-mt-4" *ngIf="projectTableData.length">
-    <p-table [value]="flatData" [resizableColumns]="true" [paginator]="true" [rows]="10" [scrollable]="true" scrollHeight="500px" [rowsPerPageOptions]="[10, 15, 20]" class="custom-table">
+    <p-table [value]="flatData" [paginator]="true" [rows]="10" [scrollable]="true" scrollHeight="500px" [rowsPerPageOptions]="[10, 15, 20]" [tableStyle]="{ 'min-width': '50rem' }" class="custom-table">
+
         <!-- Caption with Search and Export -->
         <ng-template pTemplate="caption">
             <div class="flex justify-between items-center w-full p-2">
@@ -17,21 +18,66 @@
         <!-- Table Header -->
         <ng-template pTemplate="header">
             <tr>
-                <th>Employee</th>
-                <th>Position Title</th>
-                <th>Department</th>
-                <th>Project</th>
-                <th>Geography</th>
-                <th>Role</th>
-                <th>Billing Status</th>
-                <th>Total Leave</th>
-                <th>Missing TimeSheet Hrs.</th>
-                <th>Total TimeSheet Fill Hrs.</th>
-                <th>Total Billable Hrs. (Company)</th>
-                <th>Total Billable Hrs. (person)</th>
-                <th>Total Non-Billable Hrs.</th>
-                <th>Company Billability %</th>
-                <th>Person Billability %</th>
+                <th pSortableColumn="employee">
+                    Employee
+                    <p-sortIcon field="employee"></p-sortIcon>
+                </th>
+                <th pSortableColumn="sg_position_title">
+                    Position Title
+                    <p-sortIcon field="sg_position_title"></p-sortIcon>
+                </th>
+                <th pSortableColumn="sg_employee_department">
+                    Department
+                    <p-sortIcon field="sg_employee_department"></p-sortIcon>
+                </th>
+                <th pSortableColumn="project">
+                    Project
+                    <p-sortIcon field="project"></p-sortIcon>
+                </th>
+                <th pSortableColumn="sg_geography">
+                    Geography
+                    <p-sortIcon field="sg_geography"></p-sortIcon>
+                </th>
+                <th pSortableColumn="sg_role">
+                    Role
+                    <p-sortIcon field="sg_role"></p-sortIcon>
+                </th>
+                <th pSortableColumn="billing_status">
+                    Billing Status
+                    <p-sortIcon field="billing_status"></p-sortIcon>
+                </th>
+                <th pSortableColumn="total_leave">
+                    Total Leave
+                    <p-sortIcon field="total_leave"></p-sortIcon>
+                </th>
+                <th pSortableColumn="missing_timeSheet">
+                    Missing TimeSheet Hrs.
+                    <p-sortIcon field="missing_timeSheet"></p-sortIcon>
+                </th>
+                <th pSortableColumn="total_ts_fill_hrs">
+                    Total TimeSheet Fill Hrs.
+                    <p-sortIcon field="total_ts_fill_hrs"></p-sortIcon>
+                </th>
+                <th pSortableColumn="total_billable_hr_company">
+                    Total Billable Hrs. (Company)
+                    <p-sortIcon field="total_billable_hr_company"></p-sortIcon>
+                </th>
+                <th pSortableColumn="total_hours">
+                    Total Billable Hrs. (person)
+                    <p-sortIcon field="total_hours"></p-sortIcon>
+                </th>
+                <th pSortableColumn="total_non_billable_hr">
+                    Total Non-Billable Hrs.
+                    <p-sortIcon field="total_non_billable_hr"></p-sortIcon>
+                </th>
+                <th pSortableColumn="company_billability">
+                    Company Billability %
+                    <p-sortIcon field="company_billability"></p-sortIcon>
+                </th>
+                <th pSortableColumn="person_billability">
+                    Person Billability %
+                    <p-sortIcon field="person_billability"></p-sortIcon>
+                </th>
             </tr>
         </ng-template>
 
