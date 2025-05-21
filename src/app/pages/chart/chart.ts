@@ -82,7 +82,6 @@ export class ChartDemo implements OnInit {
             // 1st service: fetch TGVD XML
             const tgvdResponse = await firstValueFrom(this.arasService.fetchTgvdItem());
             tgvdXmlString = tgvdResponse.toString();
-            console.log('TGVD Response as String:', tgvdXmlString);
 
             // 2nd service: fetch QB values and parse XML
             const qbResponse = await firstValueFrom(this.arasService1.fetchQBValueItem());
@@ -105,19 +104,15 @@ export class ChartDemo implements OnInit {
                     reject(parseError);
                 }
             });
-            console.log('Parsed Parameter Map:', paramMap);
+            
             this.cwoStartDate = paramMap['sg_cwo_start'].split('T')[0];
             this.cwoEndDate = paramMap['sg_cwo_end'].split('T')[0];
             this.cwoStatus = paramMap['sg_work_contract_state'];
-            console.log('Work Contract State:', this.cwoStatus);
             this.filters.startDate = this.cwoStartDate;
             this.filters.endDate = this.cwoEndDate;
             this.filters.status = this.cwoStatus;
 
-            console.log('CWO Start Date:', this.cwoStartDate);
-            console.log('CWO End Date:', this.cwoEndDate);
             paramMapString = JSON.stringify(paramMap);
-            console.log('Extracted Parameter Map as String:', paramMapString);
 
             // 3rd service: get TreeGrid data
             const data = await firstValueFrom(this.ApiService.getTreeGridData(tgvdXmlString, paramMapString));
@@ -151,8 +146,7 @@ export class ChartDemo implements OnInit {
                 this.handleProjectSelection(this.selectedProject, projectDataMap);
             }
 
-            console.log('All Contracts:', this.allContracts);
-            console.table(this.allContracts);
+            
         } catch (error) {
             console.error('Error in sequential service calls:', error);
         } finally {

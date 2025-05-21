@@ -13,7 +13,6 @@ export class ExportService {
 
         projectTableData.forEach(emp => {
             emp.projects.forEach((proj: any) => {
-              console.log('Project name:', proj.project);
               proj.billingDetails.forEach((detail:any) => {
                 exportData.push({
                   'Employee': emp.employee,

@@ -83,10 +83,9 @@ export class timeSheetDemo {
         this.exportService.exportToExcel(this.projectTableData);
     };
 
-    ngOnInit(): void {
-        this.PositionService.fetchRoleItem().subscribe({
-            next: (response) => {
-                console.log('Service response:', response);
+  ngOnInit(): void {
+    this.PositionService.fetchRoleItem().subscribe({
+      next: (response) => {
 
                 // const rolesList: string[] = [];
                 let parsedResponse: any = response;
@@ -101,172 +100,163 @@ export class timeSheetDemo {
                     }
                 }
 
-                // Loop through the array inside "value" and extract sg_role
-                if (parsedResponse && Array.isArray(parsedResponse.value)) {
-                    for (const item of parsedResponse.value) {
-                        if (item.keyed_name) {
-                            this.rolesList.push(item.keyed_name);
-                        }
-                    }
-                }
-                this.rolesList.sort((a, b) => a.localeCompare(b));
-                console.log('Extracted sg_role list:', this.rolesList);
-            },
-            error: (error) => {
-                console.error('Error fetching role item:', error);
+        // Loop through the array inside "value" and extract sg_role
+        if (parsedResponse && Array.isArray(parsedResponse.value)) {
+          for (const item of parsedResponse.value) {
+            if (item.keyed_name) {
+              this.rolesList.push(item.keyed_name);
             }
-        });
-
-        // 2nd service
-        this.DepartmentService.fetchDepartmentItem().subscribe({
-            next: (response) => {
-                console.log('Service response:', response);
-
-                // const rolesList: string[] = [];
-                let parsedResponse: any = response;
-
-                // If response is a string, try to parse it as JSON
-                if (typeof response === 'string') {
-                    try {
-                        parsedResponse = JSON.parse(response);
-                    } catch (e) {
-                        console.error('Failed to parse response as JSON:', e);
-                        return;
-                    }
-                }
-
-                // Loop through the array inside "value" and extract sg_role
-                if (parsedResponse && Array.isArray(parsedResponse.value)) {
-                    for (const item of parsedResponse.value) {
-                        if (item.keyed_name) {
-                            this.DepartmentList.push(item.keyed_name);
-                        }
-                    }
-                }
-                this.DepartmentList.sort((a, b) => a.localeCompare(b));
-                console.log('Extracted Department list:', this.DepartmentList);
-            },
-            error: (error) => {
-                console.error('Error fetching role item:', error);
-            }
-        });
-
-        // 3rd service
-        this.ProjectService.fetchProjectItem().subscribe({
-            next: (response) => {
-                console.log('Service response:', response);
-
-                let parsedResponse: any = response;
-
-                // If response is a string, try to parse it as JSON
-                if (typeof response === 'string') {
-                    try {
-                        parsedResponse = JSON.parse(response);
-                    } catch (e) {
-                        console.error('Failed to parse response as JSON:', e);
-                        return;
-                    }
-                }
-
-                // Loop through the array inside "value" and extract sg_role
-                if (parsedResponse && Array.isArray(parsedResponse.value)) {
-                    for (const item of parsedResponse.value) {
-                        if (item.keyed_name) {
-                            this.ProjectList.push(item.keyed_name);
-                        }
-                    }
-                }
-                this.ProjectList.sort((a, b) => a.localeCompare(b));
-                console.log('Extracted Department list:', this.ProjectList);
-            },
-            error: (error) => {
-                console.error('Error fetching role item:', error);
-            }
-        });
-
-        //4th service
-        this.EmployeeService.fetchEmployeeItem().subscribe({
-            next: (response) => {
-                console.log('Service response:', response);
-
-                let parsedResponse: any = response;
-
-                // If response is a string, try to parse it as JSON
-                if (typeof response === 'string') {
-                    try {
-                        parsedResponse = JSON.parse(response);
-                    } catch (e) {
-                        console.error('Failed to parse response as JSON:', e);
-                        return;
-                    }
-                }
-
-                // Loop through the array inside "value" and extract sg_role
-                if (parsedResponse && Array.isArray(parsedResponse.value)) {
-                    for (const item of parsedResponse.value) {
-                        if (item.keyed_name) {
-                            this.EmployeeList.push(item.keyed_name);
-                        }
-                    }
-                }
-                this.EmployeeList.sort((a, b) => a.localeCompare(b));
-                console.log('Extracted sg_role list:', this.EmployeeList);
-            },
-            error: (error) => {
-                console.error('Error fetching role item:', error);
-            }
-        });
-
-        //5th service
-        this.RegionService.fetchRegionItem().subscribe({
-            next: (response) => {
-                console.log('Service response:', response);
-
-                let parsedResponse: any = response;
-
-                // If response is a string, try to parse it as JSON
-                if (typeof response === 'string') {
-                    try {
-                        parsedResponse = JSON.parse(response);
-                    } catch (e) {
-                        console.error('Failed to parse response as JSON:', e);
-                        return;
-                    }
-                }
-
-                // Loop through the array inside "value" and extract sg_role
-                if (parsedResponse && Array.isArray(parsedResponse.value)) {
-                    for (const item of parsedResponse.value) {
-                        if (item.value) {
-                            this.RegionList.push(item.value);
-                        }
-                    }
-                }
-                this.RegionList.sort((a, b) => a.localeCompare(b));
-                console.log('Extracted sg_role list:', this.RegionList);
-            },
-            error: (error) => {
-                console.error('Error fetching role item:', error);
-            }
-        });
-    }
-    applyFilters(): void {
-        if (!this.startDate || !this.endDate) {
-            alert('Please select both start and end dates.');
-            return;
+          }
         }
-        this.isLoading = true;
-        console.log('Start Date:', this.startDate);
-        console.log('End Date:', this.endDate);
-        this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, this.department, this.project, this.positionTitle, this.geography, this.emp_name).subscribe({
-            next: async (xmlData: string) => {
-                const result = await this.xmlParserService.parseXml(xmlData);
-                console.log('Parsed result:', result);
-                this.ngZone.run(() => {
-                    const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
-                    const flatItems = Array.isArray(items) ? items : [items];
+        this.rolesList.sort((a, b) => a.localeCompare(b));
+      },
+      error: (error) => {
+        console.error('Error fetching role item:', error);
+      }
+    });
 
-                    console.log('Raw items:', flatItems);
+    // 2nd service 
+    this.DepartmentService.fetchDepartmentItem().subscribe({
+      next: (response) => {
+
+
+                // const rolesList: string[] = [];
+                let parsedResponse: any = response;
+
+                // If response is a string, try to parse it as JSON
+                if (typeof response === 'string') {
+                    try {
+                        parsedResponse = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return;
+                    }
+                }
+
+        // Loop through the array inside "value" and extract sg_role
+        if (parsedResponse && Array.isArray(parsedResponse.value)) {
+          for (const item of parsedResponse.value) {
+            if (item.keyed_name) {
+              this.DepartmentList.push(item.keyed_name);
+            }
+          }
+        }
+        this.DepartmentList.sort((a, b) => a.localeCompare(b));
+      },
+      error: (error) => {
+        console.error('Error fetching role item:', error);
+      }
+    });
+
+    // 3rd service
+    this.ProjectService.fetchProjectItem().subscribe({
+      next: (response) => {
+
+                let parsedResponse: any = response;
+
+                // If response is a string, try to parse it as JSON
+                if (typeof response === 'string') {
+                    try {
+                        parsedResponse = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return;
+                    }
+                }
+
+        // Loop through the array inside "value" and extract sg_role
+        if (parsedResponse && Array.isArray(parsedResponse.value)) {
+          for (const item of parsedResponse.value) {
+            if (item.keyed_name) {
+              this.ProjectList.push(item.keyed_name);
+            }
+          }
+        }
+        this.ProjectList.sort((a, b) => a.localeCompare(b));
+      },
+      error: (error) => {
+        console.error('Error fetching role item:', error);
+      }
+    });
+
+    //4th service
+    this.EmployeeService.fetchEmployeeItem().subscribe({
+      next: (response) => {
+
+                let parsedResponse: any = response;
+
+                // If response is a string, try to parse it as JSON
+                if (typeof response === 'string') {
+                    try {
+                        parsedResponse = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return;
+                    }
+                }
+
+        // Loop through the array inside "value" and extract sg_role
+        if (parsedResponse && Array.isArray(parsedResponse.value)) {
+          for (const item of parsedResponse.value) {
+            if (item.keyed_name) {
+              this.EmployeeList.push(item.keyed_name);
+            }
+          }
+        }
+        this.EmployeeList.sort((a, b) => a.localeCompare(b));
+      },
+      error: (error) => {
+        console.error('Error fetching role item:', error);
+      }
+    });
+
+    //5th service 
+    this.RegionService.fetchRegionItem().subscribe({
+      next: (response) => {
+
+                let parsedResponse: any = response;
+
+                // If response is a string, try to parse it as JSON
+                if (typeof response === 'string') {
+                    try {
+                        parsedResponse = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse response as JSON:', e);
+                        return;
+                    }
+                }
+
+        // Loop through the array inside "value" and extract sg_role
+        if (parsedResponse && Array.isArray(parsedResponse.value)) {
+          for (const item of parsedResponse.value) {
+            if (item.value) {
+              this.RegionList.push(item.value);
+            }
+          }
+        }
+        this.RegionList.sort((a, b) => a.localeCompare(b));
+      },
+      error: (error) => {
+        console.error('Error fetching role item:', error);
+      }
+    });
+
+  }
+  applyFilters(): void {
+    if (!this.startDate || !this.endDate) {
+      alert('Please select both start and end dates.');
+      return;
+    }
+    this.isLoading = true;
+    this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, this.department, this.project, this.positionTitle, this.geography, this.emp_name).subscribe({
+      next: async (xmlData: string) => {
+        
+        
+      const result = await this.xmlParserService.parseXml(xmlData);
+          this.ngZone.run(() => {
+            const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
+            const flatItems = Array.isArray(items) ? items : [items];
+
 
                     this.rawProjectData = flatItems
                         .filter((item) => !!item)
@@ -283,19 +273,18 @@ export class timeSheetDemo {
                             };
                         });
 
-                    this.groupProjectData(); // Call the grouping function here
-                    console.log('raw projectTableData:', this.rawProjectData);
-                    console.log('Mapped projectTableData:', this.projectTableData);
-                    this.isLoading = false;
-                    this.cdr.detectChanges();
-                });
-            },
-            error: (err) => {
-                console.error('Error fetching timesheet data', err);
-                this.isLoading = false;
-            }
-        });
-    }
+            this.groupProjectData(); // Call the grouping function here
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
+        
+      },
+      error: (err) => {
+        console.error('Error fetching timesheet data', err);
+        this.isLoading = false;
+      }
+    });
+  }
 
     onGeographySelected(event: { geography: string; index: number }): void {
         this.selectedGeography = event.geography;

@@ -15,13 +15,6 @@ export class timeSheetService {
     // const Name = "sg_work_contract_tgv";
   const formattedStart = `${startDate}T00:00:00`;
   const formattedEnd = `${endDate}T00:00:00`;
-  console.log("formattedStart", formattedStart);
-  console.log("formattedEnd", formattedEnd);
-  console.log("department", department);
-  console.log("project", project);
-  console.log("positionTitle", positionTitle);
-  console.log("geography", geography);
-  console.log("emp_name", emp_name);
   
   let filters = `
     <sg_ts_date condition="le">${formattedEnd}</sg_ts_date>
