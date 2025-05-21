@@ -1,7 +1,7 @@
 <app-loader *ngIf="isLoading"></app-loader>
-<div class="p-4" *ngIf="!isLoading">
+<div class="p-0" *ngIf="!isLoading">
     <!-- Filters -->
-    <div class="mb-4 grid grid-cols-1 md:grid-cols-7 gap-4">
+    <div class="mb-4 grid grid-cols-1 md:grid-cols-7 gap-2">
         <div>
             <label class="block mb-1 font-medium">CWO Start Date</label>
             <input type="date" [(ngModel)]="filters.startDate" class="w-full border p-2 rounded" />
@@ -31,7 +31,6 @@
                 <option *ngFor="let method of uniqueBillingMethods" [value]="method">{{ method }}</option>
             </select>
         </div>
-
         <div>
             <label class="block mb-1 font-medium">Customer</label>
             <select [(ngModel)]="filters.customer" class="w-full border p-2 rounded">

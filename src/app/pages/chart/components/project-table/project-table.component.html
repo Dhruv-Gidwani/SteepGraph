@@ -6,8 +6,6 @@
         [scrollable]="true"
         scrollHeight="500px"
         [resizableColumns]="true"
-        [customSort]="true"
-        (sortFunction)="customSort($event)"
         [paginator]="true"
         [rows]="10"
         [rowsPerPageOptions]="[10, 15, 20]"
@@ -58,13 +56,25 @@
         <ng-template pTemplate="header">
             <tr>
                 <!-- ... existing header columns ... -->
-                <th style="width: 150px">Project</th>
-                <th style="width: 150px">Work Contract Name</th>
-                <th style="width: 150px">Project Manager</th>
-                <th style="width: 150px">Billing Method</th>
-                <th style="width: 150px">PWO Name</th>
-                <th style="width: 150px">Role</th>
-                <th style="min-width: 15rem" pSortableColumn="Resource Name">
+                <th>Project</th>
+                <th pSortableColumn="Work Contract Name">
+                    Work Contract Name
+                    <p-sortIcon field="Work Contract Name"></p-sortIcon>
+                </th>
+                <th pSortableColumn="Project Manager">
+                    Project Manager
+                    <p-sortIcon field="Project Manager"></p-sortIcon>
+                </th>
+                <th>Billing Method</th>
+                <th pSortableColumn="PWO Name">
+                    PWO Name
+                    <p-sortIcon field="PWO Name"></p-sortIcon>
+                </th>
+                <th pSortableColumn="Position Role">
+                    Role
+                    <p-sortIcon field="Position Role"></p-sortIcon>
+                </th>
+                <th pSortableColumn="Resource Name">
                     Resource Name
                     <p-sortIcon field="Resource Name"></p-sortIcon>
                     <p-columnFilter field="Resource Name" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
@@ -84,31 +94,57 @@
                     </p-columnFilter>
                 </th>
 
-                <th style="width: 150px">TS Approver</th>
-                <th style="width: 150px">Position Title</th>
-                <th style="width: 150px">Billing Status</th>
-                <th style="width: 150px">Resource Utilization</th>
-                <th style="width: 150px">Hourly Rate</th>
-                <th style="width: 150px">Currency</th>
-                <th style="width: 150px">Allocated Hrs.</th>
-                <th style="width: 150px" pSortableColumn="Rem. Hrs.">
-                    Rem. Hrs.
-                    <p-sortIcon field="Rem. Hrs."></p-sortIcon>
+                <th pSortableColumn="TS Approver">
+                    TS Approver
+                    <p-sortIcon field="TS Approver"></p-sortIcon>
                 </th>
-                <th style="min-width: 10rem">Start Date <p-columnFilter type="date" field="Start Date Object" display="menu" ></p-columnFilter></th>
-                <th style="min-width: 10rem">End Date <p-columnFilter type="date" field="End Date Object" display="menu"></p-columnFilter></th>
-                <th style="width: 150px">Jan</th>
-                <th style="width: 150px">Feb</th>
-                <th style="width: 150px">Mar</th>
-                <th style="width: 150px">Apr</th>
-                <th style="width: 150px">May</th>
-                <th style="width: 150px">Jun</th>
-                <th style="width: 150px">Jul</th>
-                <th style="width: 150px">Aug</th>
-                <th style="width: 150px">Sep</th>
-                <th style="width: 150px">Oct</th>
-                <th style="width: 150px">Nov</th>
-                <th style="width: 150px">Dec</th>
+                <th pSortableColumn="Position Title">
+                    Position Title
+                    <p-sortIcon field="Position Title"></p-sortIcon>
+                </th>
+                <th pSortableColumn="Billing Status">
+                    Billing Status
+                    <p-sortIcon field="Billing Status"></p-sortIcon>
+                </th>
+                <th pSortableColumn="ResUti">
+                    Resource Utilization
+                    <p-sortIcon field="ResUti"></p-sortIcon>
+                </th>
+                <th pSortableColumn="HrRate">
+                    Hourly Rate
+                    <p-sortIcon field="HrRate"></p-sortIcon>
+                </th>
+                <th>Currency</th>
+                <th pSortableColumn="alloHrs">
+                    Allocated Hrs.
+                    <p-sortIcon field="alloHrs"></p-sortIcon>
+                </th>
+                <th pSortableColumn="remHrs">
+                    Rem. Hrs.
+                    <p-sortIcon field="remHrs"></p-sortIcon>
+                </th>
+                <th pSortableColumn="Start Date">
+                    Start Date
+                    <p-sortIcon field="Start Date"></p-sortIcon>
+                    <p-columnFilter type="date" field="Start Date Object" display="menu"></p-columnFilter>
+                </th>
+                <th pSortableColumn="End Date">
+                    End Date
+                    <p-sortIcon field="End Date"></p-sortIcon>
+                    <p-columnFilter type="date" field="End Date Object" display="menu"></p-columnFilter>
+                </th>
+                <th>Jan</th>
+                <th>Feb</th>
+                <th>Mar</th>
+                <th>Apr</th>
+                <th>May</th>
+                <th>Jun</th>
+                <th>Jul</th>
+                <th>Aug</th>
+                <th>Sep</th>
+                <th>Oct</th>
+                <th>Nov</th>
+                <th>Dec</th>
             </tr>
         </ng-template>
 

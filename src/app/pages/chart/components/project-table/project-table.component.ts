@@ -34,16 +34,16 @@ export class ProjectTableComponent implements OnChanges {
             this.updateRepresentativeNames();
         }
     }
-   
+
     public formatDates(row: TableData): { [key: string]: any } {
         const formatDate = (dateString: string): string => {
             const date = new Date(dateString);
             return !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '';
         };
-    
+
         const formattedStart = formatDate(row['Start Date']);
         const formattedEnd = formatDate(row['End Date']);
-    
+
         return {
             'Start Date': formattedStart,
             'End Date': formattedEnd,
@@ -51,44 +51,73 @@ export class ProjectTableComponent implements OnChanges {
             'End Date Object': formattedEnd ? new Date(formattedEnd) : null
         };
     }
-    
-    private processTableData(): void {
-        this.displayedData = this.data.map((row) => ({
-            ...row,
-            ...this.formatDates(row),
-            ...this.createMonthMap(row)
-        }));
-        //this.calculateRowspan();
-        this.updateRepresentativeNames();
-    }
 
+    // private processTableData(): void {
+    //     this.displayedData = this.data.map((row) => ({
+    //         ...row,
+    //         ...this.formatDates(row),
+    //         ...this.createMonthMap(row)
+    //     }));
+    //     //this.calculateRowspan();
+    //     this.updateRepresentativeNames();
+    // }
+    // private processTableData(): void {
+    //     this.displayedData = this.data.map((row) => {
+    //         const formatted = this.formatDates(row);
+    //         const monthMap = this.createMonthMap(row);
+
+    //         return {
+    //             ...row,
+    //             ...formatted,
+    //             ...monthMap,
+    //             // Convert dates to Date objects for sorting
+    //             'Start Date': new Date(row['Start Date']),
+    //             'End Date': new Date(row['End Date']),
+    //             // Maintain the existing numeric conversions
+    //             ResUti: Number(row['Resource Utilization']),
+    //             HrRate: Number(row['Hourly Rate']),
+    //             alloHrs: Number(row['Allocated Hrs.']),
+    //             remHrs: Number(row['Rem. Hrs.']),
+    //             // Add sortable date fields
+    //             startDateSort: new Date(row['Start Date']).getTime(),
+    //             endDateSort: new Date(row['End Date']).getTime()
+    //         };
+    //     });
+
+    //     this.updateRepresentativeNames();
+    // }
+    private processTableData(): void {
+    this.displayedData = this.data.map((row) => {
+        const formatted = this.formatDates(row);
+        const monthMap = this.createMonthMap(row);
+        const startDate = new Date(row['Start Date']);
+        const endDate = new Date(row['End Date']);
+
+        return {
+            ...row,
+            ...formatted,
+            ...monthMap,
+            // Keep original string dates for display
+            'Start Date': formatted['Start Date'],
+            'End Date': formatted['End Date'],
+            // Add date objects and timestamps for sorting
+            'Start Date Object': startDate,
+            'End Date Object': endDate,
+            startDateSort: startDate.getTime(),
+            endDateSort: endDate.getTime(),
+            // Maintain the existing numeric conversions
+            ResUti: Number(row['Resource Utilization']),
+            HrRate: Number(row['Hourly Rate']),
+            alloHrs: Number(row['Allocated Hrs.']),
+            remHrs: Number(row['Rem. Hrs.'])
+        };
+    });
+
+    this.updateRepresentativeNames();
+}
     onGlobalFilter(event: Event, table: Table): void {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
-    customSort(event: any): void {
-        const { field, order } = event;
-        this.displayedData.sort((a, b) => {
-            let value1 = a[field];
-            let value2 = b[field];
-            let result = 0;
-
-            if (field === 'Rem. Hrs.') {
-                value1 = parseFloat(value1);
-                value2 = parseFloat(value2);
-            }
-
-            if (value1 == null && value2 != null) result = -1;
-            else if (value1 != null && value2 == null) result = 1;
-            else if (value1 == null && value2 == null) result = 0;
-            else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
-            else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
-
-            return order * result;
-        });
-
-    }
-
 
     private createMonthMap(row: TableData): { monthData: { [key: string]: MonthData } } {
         const monthData: { [key: string]: MonthData } = {};
