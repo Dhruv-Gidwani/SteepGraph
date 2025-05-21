@@ -22,6 +22,7 @@ import { RegionService } from '../../services/region.service';
 import { PieChartComponent } from './components/pie-chart/pie-chart.component';
 import { CardModule } from 'primeng/card';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
+import { MessageFormDemo } from '../../components/message-toast/message-toast.component';
 @Component({
     selector: 'app-timeSheet-demo',
     standalone: true,
@@ -47,10 +48,6 @@ export class timeSheetDemo {
     };
 
     exportOptions: MenuItem[] | undefined;
-
-    cwoStartDate: string = '';
-    cwoEndDate: string = '';
-    cwoStatus: string = '';
     startDate!: string;
     endDate!: string;
     department: string = '';
@@ -64,6 +61,9 @@ export class timeSheetDemo {
     ProjectList: string[] = [];
     EmployeeList: string[] = [];
     RegionList: string[] = [];
+    showStartDateError: boolean = false;
+    showEndDateError: boolean = false;
+    totalDays: number = 0;
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -83,10 +83,9 @@ export class timeSheetDemo {
         this.exportService.exportToExcel(this.projectTableData);
     };
 
-  ngOnInit(): void {
-    this.PositionService.fetchRoleItem().subscribe({
-      next: (response) => {
-
+    ngOnInit(): void {
+        this.PositionService.fetchRoleItem().subscribe({
+            next: (response) => {
                 // const rolesList: string[] = [];
                 let parsedResponse: any = response;
 
@@ -100,26 +99,24 @@ export class timeSheetDemo {
                     }
                 }
 
-        // Loop through the array inside "value" and extract sg_role
-        if (parsedResponse && Array.isArray(parsedResponse.value)) {
-          for (const item of parsedResponse.value) {
-            if (item.keyed_name) {
-              this.rolesList.push(item.keyed_name);
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.keyed_name) {
+                            this.rolesList.push(item.keyed_name);
+                        }
+                    }
+                }
+                this.rolesList.sort((a, b) => a.localeCompare(b));
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
             }
-          }
-        }
-        this.rolesList.sort((a, b) => a.localeCompare(b));
-      },
-      error: (error) => {
-        console.error('Error fetching role item:', error);
-      }
-    });
+        });
 
-    // 2nd service 
-    this.DepartmentService.fetchDepartmentItem().subscribe({
-      next: (response) => {
-
-
+        // 2nd service
+        this.DepartmentService.fetchDepartmentItem().subscribe({
+            next: (response) => {
                 // const rolesList: string[] = [];
                 let parsedResponse: any = response;
 
@@ -133,26 +130,26 @@ export class timeSheetDemo {
                     }
                 }
 
-        // Loop through the array inside "value" and extract sg_role
-        if (parsedResponse && Array.isArray(parsedResponse.value)) {
-          for (const item of parsedResponse.value) {
-            if (item.keyed_name) {
-              this.DepartmentList.push(item.keyed_name);
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.keyed_name) {
+                            this.DepartmentList.push(item.keyed_name);
+                        }
+                    }
+                }
+                this.DepartmentList.sort((a, b) => a.localeCompare(b));
+                console.log('Extracted Department list:', this.DepartmentList);
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
             }
-          }
-        }
-        this.DepartmentList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted Department list:', this.DepartmentList);
-      },
-      error: (error) => {
-        console.error('Error fetching role item:', error);
-      }
-    });
+        });
 
-    // 3rd service
-    this.ProjectService.fetchProjectItem().subscribe({
-      next: (response) => {
-        console.log('Service response:', response);
+        // 3rd service
+        this.ProjectService.fetchProjectItem().subscribe({
+            next: (response) => {
+                console.log('Service response:', response);
 
                 let parsedResponse: any = response;
 
@@ -166,26 +163,26 @@ export class timeSheetDemo {
                     }
                 }
 
-        // Loop through the array inside "value" and extract sg_role
-        if (parsedResponse && Array.isArray(parsedResponse.value)) {
-          for (const item of parsedResponse.value) {
-            if (item.keyed_name) {
-              this.ProjectList.push(item.keyed_name);
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.keyed_name) {
+                            this.ProjectList.push(item.keyed_name);
+                        }
+                    }
+                }
+                this.ProjectList.sort((a, b) => a.localeCompare(b));
+                console.log('Extracted Department list:', this.ProjectList);
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
             }
-          }
-        }
-        this.ProjectList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted Department list:', this.ProjectList);
-      },
-      error: (error) => {
-        console.error('Error fetching role item:', error);
-      }
-    });
+        });
 
-    //4th service
-    this.EmployeeService.fetchEmployeeItem().subscribe({
-      next: (response) => {
-        console.log('Service response:', response);
+        //4th service
+        this.EmployeeService.fetchEmployeeItem().subscribe({
+            next: (response) => {
+                console.log('Service response:', response);
 
                 let parsedResponse: any = response;
 
@@ -199,26 +196,26 @@ export class timeSheetDemo {
                     }
                 }
 
-        // Loop through the array inside "value" and extract sg_role
-        if (parsedResponse && Array.isArray(parsedResponse.value)) {
-          for (const item of parsedResponse.value) {
-            if (item.keyed_name) {
-              this.EmployeeList.push(item.keyed_name);
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.keyed_name) {
+                            this.EmployeeList.push(item.keyed_name);
+                        }
+                    }
+                }
+                this.EmployeeList.sort((a, b) => a.localeCompare(b));
+                console.log('Extracted sg_role list:', this.EmployeeList);
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
             }
-          }
-        }
-        this.EmployeeList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted sg_role list:', this.EmployeeList);
-      },
-      error: (error) => {
-        console.error('Error fetching role item:', error);
-      }
-    });
+        });
 
-    //5th service 
-    this.RegionService.fetchRegionItem().subscribe({
-      next: (response) => {
-        console.log('Service response:', response);
+        //5th service
+        this.RegionService.fetchRegionItem().subscribe({
+            next: (response) => {
+                console.log('Service response:', response);
 
                 let parsedResponse: any = response;
 
@@ -232,42 +229,86 @@ export class timeSheetDemo {
                     }
                 }
 
-        // Loop through the array inside "value" and extract sg_role
-        if (parsedResponse && Array.isArray(parsedResponse.value)) {
-          for (const item of parsedResponse.value) {
-            if (item.value) {
-              this.RegionList.push(item.value);
+                // Loop through the array inside "value" and extract sg_role
+                if (parsedResponse && Array.isArray(parsedResponse.value)) {
+                    for (const item of parsedResponse.value) {
+                        if (item.value) {
+                            this.RegionList.push(item.value);
+                        }
+                    }
+                }
+                this.RegionList.sort((a, b) => a.localeCompare(b));
+                console.log('Extracted sg_role list:', this.RegionList);
+            },
+            error: (error) => {
+                console.error('Error fetching role item:', error);
             }
-          }
-        }
-        this.RegionList.sort((a, b) => a.localeCompare(b));
-        console.log('Extracted sg_role list:', this.RegionList);
-      },
-      error: (error) => {
-        console.error('Error fetching role item:', error);
-      }
-    });
-
-  }
-  applyFilters(): void {
-    if (!this.startDate || !this.endDate) {
-      alert('Please select both start and end dates.');
-      return;
+        });
     }
-    this.isLoading = true;
-    console.log('Start Date:', this.startDate);
-    console.log('End Date:', this.endDate);
-    this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, this.department, this.project, this.positionTitle, this.geography, this.emp_name).subscribe({
-      next: async (xmlData: string) => {
-        
-        
-      const result = await this.xmlParserService.parseXml(xmlData);
-      console.log('Parsed result:', result);
-          this.ngZone.run(() => {
-            const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
-            const flatItems = Array.isArray(items) ? items : [items];
+    validateDates() {
+        if (!this.startDate && !this.endDate) {
+            console.log('Please select both start and end dates.');
+            this.showStartDateError = true;
+            this.showEndDateError = true;
+        } else if (!this.startDate) {
+            console.log('Please select a start date.');
+            this.showStartDateError = true;
+            this.showEndDateError = false;
+        } else if (!this.endDate) {
+            console.log('Please select an end date.');
+            this.showStartDateError = false;
+            this.showEndDateError = true;
+        } else {
+            this.showStartDateError = false;
+            this.showEndDateError = false;
+        }
+    }
+    onDateChange(field: 'start' | 'end') {
+        if (field === 'start') {
+            this.showStartDateError = !this.startDate;
+        } else {
+            this.showEndDateError = !this.endDate;
+        }
+    }
 
-            console.log('Raw items:', flatItems);
+    countWeekdays(startDateTs: Date, endDateTs: Date): number {
+        let count = 0;
+        let currentDate = new Date(startDateTs);
+
+        // Loop through each day in the date range
+        while (currentDate <= endDateTs) {
+            const day = currentDate.getDay();
+            // 0 = Sunday, 6 = Saturday
+            if (day !== 0 && day !== 6) {
+                count++;
+            }
+            // Move to next day
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return count;
+    }
+
+    applyFilters(): void {
+        this.validateDates();
+        this.isLoading = true;
+        console.log('Start Date:', this.startDate);
+        console.log('End Date:', this.endDate);
+        this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, this.department, this.project, this.positionTitle, this.geography, this.emp_name).subscribe({
+            next: async (xmlData: string) => {
+                console.log(this.startDate);
+                console.log(this.endDate);
+                const startDateTs = new Date(this.startDate);
+                const endDateTs = new Date(this.endDate);
+
+                this.totalDays = this.countWeekdays(startDateTs, endDateTs);
+                console.log('Total weekdays:', this.totalDays);
+                const result = await this.xmlParserService.parseXml(xmlData);
+                console.log('Parsed XML result:', result);
+                this.ngZone.run(() => {
+                    const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
+                    const flatItems = Array.isArray(items) ? items : [items];
+
+                    console.log('Raw items:', flatItems);
 
                     this.rawProjectData = flatItems
                         .filter((item) => !!item)
@@ -280,24 +321,27 @@ export class timeSheetDemo {
                                 sg_geography: item?.sg_geography || 'N/A',
                                 sg_role: item?.sg_role || 'N/A',
                                 billing_status: item?.sg_billing_status || 'N/A',
-                                billableqty: item?.sg_billableqty || '0'
+                                billableqty: item?.sg_billableqty || '0',
+                                sg_ts_activity_type: item?.sg_ts_activity_type || 'N/A',
+                                sg_ts_date: item?.sg_ts_date || 'N/A',
+                                sg_billing_method: item?.sg_billing_method || 'N/A'
                             };
                         });
+                    console.log('Raw Project Data:', this.rawProjectData);
 
-            this.groupProjectData(); // Call the grouping function here
-            console.log('raw projectTableData:', this.rawProjectData);
-            console.log('Mapped projectTableData:', this.projectTableData);
-            this.isLoading = false;
-            this.cdr.detectChanges();
-          });
-        
-      },
-      error: (err) => {
-        console.error('Error fetching timesheet data', err);
-        this.isLoading = false;
-      }
-    });
-  }
+                    this.groupProjectData(); // Call the grouping function here
+                    console.log('raw projectTableData:', this.rawProjectData);
+                    console.log('Mapped projectTableData:', this.projectTableData);
+                    this.isLoading = false;
+                    this.cdr.detectChanges();
+                });
+            },
+            error: (err) => {
+                console.error('Error fetching timesheet data', err);
+                this.isLoading = false;
+            }
+        });
+    }
 
     onGeographySelected(event: { geography: string; index: number }): void {
         this.selectedGeography = event.geography;
@@ -320,6 +364,8 @@ export class timeSheetDemo {
                         billableqty: number;
                         count: number;
                         sg_role: string;
+                        count_leave: number;
+                        sg_billing_method: string;
                     }[];
                 };
             };
@@ -331,6 +377,8 @@ export class timeSheetDemo {
             const billing_status = entry.billing_status;
             const sg_role = entry.sg_role;
             const billableqty = parseFloat(entry.billableqty) || 0;
+            const sg_ts_activity_type = entry.sg_ts_activity_type;
+            const sg_billing_method = entry.sg_billing_method;
 
             if (!result[employeeKey]) {
                 result[employeeKey] = {
@@ -352,6 +400,9 @@ export class timeSheetDemo {
             const existing = result[employeeKey].projects[project].find((p) => p.billing_status === billing_status && p.sg_role === sg_role);
 
             if (existing) {
+                if (sg_ts_activity_type === 'Leave') {
+                    existing.count_leave = (existing.count_leave || 0) + 1;
+                }
                 existing.billableqty += billableqty;
                 existing.count += 1;
             } else {
@@ -359,10 +410,31 @@ export class timeSheetDemo {
                     billing_status,
                     billableqty,
                     count: 1,
-                    sg_role
+                    sg_role,
+                    count_leave: 0,
+                    sg_billing_method
                 });
             }
         });
+
+        // Iterate through rawProjectData to collect unique dates for each employee
+        const employeeUniqueDates = new Map<string, Set<string>>();
+        this.rawProjectData.forEach((entry) => {
+            const employee = entry.sg_employee;
+            const date = entry.sg_ts_date.split('T')[0]; // only use the date part
+            if (!employeeUniqueDates.has(employee)) {
+                employeeUniqueDates.set(employee, new Set());
+            }
+
+            employeeUniqueDates.get(employee)!.add(date);
+        });
+
+        // Prepare final result object with counts
+        const ans: { [employee: string]: number } = {};
+        employeeUniqueDates.forEach((dateSet, employee) => {
+            ans[employee] = this.totalDays - dateSet.size;
+        });
+        console.log('ans:', ans);
 
         // Convert to array format for HTML
         this.projectTableData = Object.entries(result).map(([key, data]) => ({
@@ -375,15 +447,19 @@ export class timeSheetDemo {
                 const billingDetails = statuses.map((item) => ({
                     billing_status: item.billing_status,
                     total_hours: item.billableqty,
-                    total_ts_fill_hrs: item.count * 8,
+                    total_ts_fill_hrs: item.count * 8 - item.count_leave * 8,
                     sg_role: item.sg_role,
-                    total_billable_hr_company: item.billing_status?.toLowerCase() === 'billable' ? parseFloat(String(item.billableqty)) || 0 : 0,
-                    total_non_billable_hr: item.count * 8 - (parseFloat(String(item.billableqty)) || 0)
+                    total_billable_hr_company:
+                        item.billing_status?.toLowerCase() === 'billable' && (item.sg_billing_method === 'TM Billable - Rec' || item.sg_billing_method === 'TM Billable' || item.sg_billing_method === 'FC Billable')
+                            ? parseFloat(String(item.billableqty)) || 0
+                            : 0,
+                    total_non_billable_hr: item.count * 8 - item.count_leave * 8 - (parseFloat(String(item.billableqty)) || 0),
+                    total_leave: item.count_leave,
+                    missing_timeSheet: (ans[data.employeeMeta.sg_employee] || 0) * 8
                 }));
 
                 const totalBillableHrs_company = billingDetails.reduce((sum, item) => sum + item.total_billable_hr_company, 0);
                 const totalTsFillHrs = billingDetails.reduce((sum, item) => sum + item.total_ts_fill_hrs, 0);
-
                 const totalBillableHrs_person = billingDetails.reduce((sum, item) => sum + item.total_hours, 0);
 
                 // Calculate company_billability
@@ -427,11 +503,9 @@ export class timeSheetDemo {
     }
 
     resetFilters(): void {
-        // Store current dates
-        const currentStartDate = this.startDate;
-        const currentEndDate = this.endDate;
-
         // Reset filters
+        this.startDate = '';
+        this.endDate = '';
         this.department = '';
         this.project = '';
         this.positionTitle = '';
@@ -443,18 +517,11 @@ export class timeSheetDemo {
         this.selectedGeographyIndex = null;
         this.selectedDepartment = null;
 
-        // Restore dates
-        this.startDate = currentStartDate;
-        this.endDate = currentEndDate;
-
         // Clear data
         this.rawProjectData = [];
         this.projectTableData = [];
-
-        // Apply filters if dates exist
-        if (this.startDate && this.endDate) {
-            this.applyFilters();
-        }
+        this.showStartDateError = false;
+        this.showEndDateError = false;
 
         this.cdr.detectChanges();
     }

@@ -20,8 +20,9 @@ export class ProjectTableComponent implements OnInit {
 
   searchValue: string | undefined;
   flatData: any[] = [];
-
+  
   ngOnInit() {
+    console.log('Project Table Data:', this.projectTableData);
     this.flatData = this.flattenData(this.projectTableData);
   }
 
@@ -45,7 +46,10 @@ export class ProjectTableComponent implements OnInit {
             total_hours: detail.total_hours,
             total_non_billable_hr: detail.total_non_billable_hr,
             company_billability:  proj.company_billability ,
-            person_billability:  proj.person_billability 
+            person_billability:  proj.person_billability,
+            total_leave: detail.total_leave,
+            missing_timeSheet: detail.missing_timeSheet
+
           });
         });
       });
