@@ -23,11 +23,12 @@ import { XmlParserService } from '../../services/xml-parser.service';
 import { RegionService } from '../../services/region.service';
 import { billingMethodWCService } from '../../services/billingMethod_wc';
 import { CustomerService } from '../../services/customer_wc';
+import { DropdownFilterDemo } from '../../components/dropdown/dropdown.component';
 
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
-    imports: [CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, PieChartComponent, BarChartComponent, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent],
+    imports: [DropdownFilterDemo,CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, PieChartComponent, BarChartComponent, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent],
     templateUrl: './chart.html'
 })
 export class ChartDemo implements OnInit {
@@ -66,6 +67,7 @@ export class ChartDemo implements OnInit {
     CustomerList: string[] = [];
     paramMap: Record<string, string> = {};
     tgvdXmlString: string = '';
+    geographyOptionswc: { label: string; value: string }[] = [];
     constructor(
         private ApiService: ApiService,
         private cdr: ChangeDetectorRef,
@@ -82,7 +84,10 @@ export class ChartDemo implements OnInit {
     exportData = () => {
         this.exportService.exportToExcel(this.projectTableData);
     };
-
+private buildOptions(list: string[]): { label: string; value: string }[] {
+  const sorted = [...list].filter(x => x !== 'All').sort((a, b) => a.localeCompare(b));
+  return [{ label: 'All', value: '' }, ...sorted.map(item => ({ label: item, value: item }))];
+}
     async ngOnInit(): Promise<void> {
         this.isLoading = true;
         // let tgvdXmlString: string = '';
@@ -116,6 +121,7 @@ export class ChartDemo implements OnInit {
                 }
                 this.RegionList.sort((a, b) => a.localeCompare(b));
                 console.log('Extracted sg_role list:', this.RegionList);
+                this.geographyOptionswc = this.buildOptions(this.RegionList);
             },
             error: (error) => {
                 console.error('Error fetching role item:', error);
