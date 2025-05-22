@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,Input ,EventEmitter,Output} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 
@@ -8,23 +8,26 @@ import { DropdownModule } from 'primeng/dropdown';
     standalone: true,
     imports: [FormsModule, DropdownModule]
 })
-export class DropdownFilterDemo implements OnInit {
-    countries: any[] | undefined;
+export class DropdownFilterDemo  {
+    // @Input() projectOptions: { label: string; value: string }[] = [];
+    //  @Input() selectedProject: string = '';
+    //  @Input() employeeOptions: { label: string; value: string }[] = [];
+    //  @Output() selectedProjectChange = new EventEmitter<string>();
+     @Input() options: { label: string; value: string }[] = [];
 
-    selectedCountry: string | undefined;
+  // Generic input for selected value
+  @Input() selectedValue: string = '';
 
-    ngOnInit() {
-        this.countries = [
-            { name: 'Australia', code: 'AU' },
-            { name: 'Brazil', code: 'BR' },
-            { name: 'China', code: 'CN' },
-            { name: 'Egypt', code: 'EG' },
-            { name: 'France', code: 'FR' },
-            { name: 'Germany', code: 'DE' },
-            { name: 'India', code: 'IN' },
-            { name: 'Japan', code: 'JP' },
-            { name: 'Spain', code: 'ES' },
-            { name: 'United States', code: 'US' }
-        ];
-    }
+  // Label input (for dynamic label text)
+  @Input() label: string = '';
+
+  // Output event to notify parent about selection changes
+  @Output() selectedValueChange = new EventEmitter<string>();
+
+  // Called when dropdown value changes
+  onChange(value: string) {
+    this.selectedValue = value;
+    this.selectedValueChange.emit(value);
+  }
+    
 }

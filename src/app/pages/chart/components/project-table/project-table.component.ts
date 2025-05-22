@@ -22,8 +22,12 @@ export class ProjectTableComponent implements OnChanges {
     @ViewChild('dt2') table!: Table;
 
     displayedData: TableData[] = [];
-    representativeNames: string[] = [];
-
+    ResourcesNames: string[] = [];
+    TSapproverNames: string[] = [];
+    BillingMethod: string[] = [];
+    Role: string[] = [];
+    PositionTitle: string[] = [];
+    BillingStatus: string[] = [];
     currentYear: number = new Date().getFullYear();
 
     constructor(private exportService: ExportService) {}
@@ -32,6 +36,11 @@ export class ProjectTableComponent implements OnChanges {
         if (changes['data']) {
             this.processTableData();
             this.updateRepresentativeNames();
+            this.updateTSapproverNames();
+            this.updateBillingMethodNames();
+            this.updateRoleNames();
+            this.updatePositionTitleNames();
+            this.updateBillingStatusNames();
         }
     }
 
@@ -114,6 +123,12 @@ export class ProjectTableComponent implements OnChanges {
     });
 
     this.updateRepresentativeNames();
+    this.updateTSapproverNames();
+    this.updateBillingMethodNames();
+    this.updateRoleNames();
+    this.updatePositionTitleNames();
+    this.updateBillingStatusNames();
+    
 }
     onGlobalFilter(event: Event, table: Table): void {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
@@ -149,7 +164,7 @@ export class ProjectTableComponent implements OnChanges {
             // Fill in the progress bar
             for (let i = yearStartDate; i <= yearEndDate; i++) {
                 const monthKey = `${months[i]}-${currentYear}`;
-                monthData[monthKey].color = '#4CAF50'; // Single green color
+                monthData[monthKey].color = '#22c55e'; // Single green color #4CAF50
             }
 
             // Add start date if it's in current year
@@ -174,7 +189,22 @@ export class ProjectTableComponent implements OnChanges {
     }
 
     private updateRepresentativeNames(): void {
-        this.representativeNames = [...new Set(this.displayedData.map((row) => row['Resource Name']).filter(Boolean))];
+        this.ResourcesNames = [...new Set(this.displayedData.map((row) => row['Resource Name']).filter(Boolean))];
+    }
+    private updateTSapproverNames(): void {
+        this.TSapproverNames = [...new Set(this.displayedData.map((row) => row['TS Approver']).filter(Boolean))];
+    }
+    private updateBillingMethodNames(): void {
+        this.BillingMethod = [...new Set(this.displayedData.map((row) => row['Billing Method']).filter(Boolean))];
+    }
+    private updateRoleNames(): void {
+        this.Role = [...new Set(this.displayedData.map((row) => row['Position Role']).filter(Boolean))];
+    }
+    private updatePositionTitleNames(): void {
+        this.PositionTitle = [...new Set(this.displayedData.map((row) => row['Position Title']).filter(Boolean))];
+    }
+    private updateBillingStatusNames(): void {
+        this.BillingStatus = [...new Set(this.displayedData.map((row) => row['Billing Status']).filter(Boolean))];
     }
 
     exportToExcel(): void {

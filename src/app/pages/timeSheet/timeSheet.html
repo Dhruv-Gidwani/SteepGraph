@@ -17,90 +17,56 @@
                     text="Date is required"></message-form-demo></div> -->
         </div>
         <div>
-            <label class="block mb-1 font-medium">Department</label>
-            <select [(ngModel)]="department" class="w-full border p-2 rounded">
-                <option value="">All</option>
-                <option *ngFor="let Department of DepartmentList" [value]="Department">{{ Department }}</option>
 
-            </select>
+            <dropdown-filter-demo *ngIf="departmentOptions.length" [options]="departmentOptions"
+                [(selectedValue)]="department" label="Department"></dropdown-filter-demo>
         </div>
         <div>
-            <label class="block mb-1 font-medium">Position Title</label>
-            <select [(ngModel)]="positionTitle" class="w-full border p-2 rounded">
-                <option value="">All</option>
-                <option *ngFor="let role of rolesList" [value]="role">{{ role }}</option>
-            </select>
+
+            <dropdown-filter-demo *ngIf="positionTitleOptions.length" [options]="positionTitleOptions"
+                [(selectedValue)]="positionTitle" label="Position Title"></dropdown-filter-demo>
         </div>
         <div>
-            <label class="block mb-1 font-medium">Geography</label>
-            <select [(ngModel)]="geography" class="w-full border p-2 rounded">
-                <option value="">All</option>
-                <option *ngFor="let Region of RegionList" [value]="Region">{{ Region }}</option>
-
-            </select>
+            <dropdown-filter-demo *ngIf="geographyOptions.length" [options]="geographyOptions"
+                [(selectedValue)]="geography" label="Geography"></dropdown-filter-demo>
         </div>
 
         <div>
-            <label class="block mb-1 font-medium">Project</label>
-            <select [(ngModel)]="project" class="w-full border p-2 rounded">
-                <option value="">All</option>
-                <option *ngFor="let Project of ProjectList" [value]="Project">{{ Project }}</option>
-
-            </select>
-            <!-- <dropdown-filter-demo ></dropdown-filter-demo> -->
+            <dropdown-filter-demo *ngIf="projectOptions.length" [options]="projectOptions" [(selectedValue)]="project"
+                label="Project"></dropdown-filter-demo>
         </div>
         <div>
-            <label class="block mb-1 font-medium">Employee</label>
-            <select [(ngModel)]="emp_name" class="w-full border p-2 rounded">
-                <option value="">All</option>
-                <option *ngFor="let Employee of EmployeeList" [value]="Employee">{{ Employee }}</option>
-            </select>
+            <dropdown-filter-demo *ngIf="employeeOptions.length" [options]="employeeOptions"
+                [(selectedValue)]="emp_name" label="Employee"></dropdown-filter-demo>
         </div>
-        <!-- <div>
-            <label class="block mb-1 font-medium invisible">Actions</label>
-            <div class="flex items-end ">
-                <button (click)="applyFilters()"
-                    class="bg-blue-500 text-white  py-2 rounded hover:bg-blue-600 w-full mr-2">Apply Filters</button>
-                <button (click)="resetFilters()"
-                    class="bg-blue-500 text-white  py-2 rounded hover:bg-blue-600 w-full">Reset Filters</button>
-            </div>
-        </div> -->
-         <div class="flex items-end">
-            <button (click)="applyFilters()" class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 w-full mr-2">Apply Filters</button>
-            <button (click)="resetFilters()" class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 w-full">Reset Filters</button>
+        <div class="flex items-end">
+            <button (click)="applyFilters()"
+                class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 w-full mr-2">Apply Filters</button>
+            <button (click)="resetFilters()" class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 w-full">Reset
+                Filters</button>
         </div>
 
     </div>
 
-        <!-- Chart Section -->
-<p-fluid class="grid grid-cols-12 gap-8">
-    <!-- Pie Chart Area -->
-    <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="projectTableData.length">
-        <app-pie-chart 
-            [data]="projectTableData" 
-            [selectedGeography]="selectedGeography" 
-            [selectedGeographyIndex]="selectedGeographyIndex"
-            (geographyClick)="handleGeographyClick($event)">
-        </app-pie-chart>
-    </div>
-
-    <!-- Bar Chart Area -->
-    <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="projectTableData.length">
-        <app-bar-chart 
-            [data]="projectTableData" 
-            [selectedDepartment]="selectedDepartment" 
-            [selectedGeography]="selectedGeography"
-            (departmentClick)="handleDepartmentClick($event)">
-        </app-bar-chart>
-    </div>
-</p-fluid>
-        <!-- Data Table -->
-        <div class="p-mt-4" *ngIf="projectTableData.length">
-        <app-project-table
-        *ngIf="projectTableData.length"
-        [projectTableData]="projectTableData"
-        
-        [exportData]="exportData"
-        />
+    <!-- Chart Section -->
+    <p-fluid class="grid grid-cols-12 gap-8">
+        <!-- Pie Chart Area -->
+        <div class="col-span-12 xl:col-span-6 mb-4" *ngIf="projectTableData.length">
+            <app-pie-chart [data]="projectTableData" [selectedGeography]="selectedGeography"
+                [selectedGeographyIndex]="selectedGeographyIndex" (geographyClick)="handleGeographyClick($event)">
+            </app-pie-chart>
         </div>
+
+        <!-- Bar Chart Area -->
+        <div class="col-span-12 xl:col-span-6 mb-4" *ngIf="projectTableData.length">
+            <app-bar-chart [data]="projectTableData" [selectedDepartment]="selectedDepartment"
+                [selectedGeography]="selectedGeography" (departmentClick)="handleDepartmentClick($event)">
+            </app-bar-chart>
+        </div>
+    </p-fluid>
+    <!-- Data Table -->
+    <div class="p-mt-4" *ngIf="projectTableData.length">
+        <app-project-table *ngIf="projectTableData.length" [projectTableData]="projectTableData"
+            [exportData]="exportData" />
+    </div>
 </div>

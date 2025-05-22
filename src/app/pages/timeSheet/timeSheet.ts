@@ -27,7 +27,7 @@ import { DropdownFilterDemo } from '../../components/dropdown/dropdown.component
 @Component({
     selector: 'app-timeSheet-demo',
     standalone: true,
-    imports: [CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
+    imports: [DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
     templateUrl: './timeSheet.html'
 })
 export class timeSheetDemo {
@@ -65,7 +65,11 @@ export class timeSheetDemo {
     showStartDateError: boolean = false;
     showEndDateError: boolean = false;
     totalDays: number = 0;
-
+    projectOptions: { label: string; value: string }[] = [];
+    employeeOptions: { label: string; value: string }[] = [];
+    departmentOptions: { label: string; value: string }[] = [];
+    geographyOptions: { label: string; value: string }[] = [];
+    positionTitleOptions: { label: string; value: string }[] = [];
     constructor(
         private cdr: ChangeDetectorRef,
         private exportService: ExportService,
@@ -77,13 +81,16 @@ export class timeSheetDemo {
         private EmployeeService: EmployeeService,
         private RegionService: RegionService,
         private xmlParserService: XmlParserService
-    ) {}
+    ) { }
 
     // Function to call exportToExcel from the service
     exportData = () => {
         this.exportService.exportToExcel(this.projectTableData);
     };
-
+private buildOptions(list: string[]): { label: string; value: string }[] {
+  const sorted = [...list].filter(x => x !== 'All').sort((a, b) => a.localeCompare(b));
+  return [{ label: 'All', value: '' }, ...sorted.map(item => ({ label: item, value: item }))];
+}
     ngOnInit(): void {
         this.PositionService.fetchRoleItem().subscribe({
             next: (response) => {
@@ -109,6 +116,7 @@ export class timeSheetDemo {
                     }
                 }
                 this.rolesList.sort((a, b) => a.localeCompare(b));
+                this.positionTitleOptions = this.buildOptions(this.rolesList);
             },
             error: (error) => {
                 console.error('Error fetching role item:', error);
@@ -140,6 +148,7 @@ export class timeSheetDemo {
                     }
                 }
                 this.DepartmentList.sort((a, b) => a.localeCompare(b));
+                this.departmentOptions = this.buildOptions(this.DepartmentList);
                 console.log('Extracted Department list:', this.DepartmentList);
             },
             error: (error) => {
@@ -173,6 +182,12 @@ export class timeSheetDemo {
                     }
                 }
                 this.ProjectList.sort((a, b) => a.localeCompare(b));
+                // this.projectOptions = [
+                //     { label: 'All', value: '' },
+                //     ...this.ProjectList.map(name => ({ label: name, value: name }))
+                // ];
+                 this.projectOptions = this.buildOptions(this.ProjectList);
+                this.cdr.detectChanges();
                 console.log('Extracted Department list:', this.ProjectList);
             },
             error: (error) => {
@@ -206,6 +221,7 @@ export class timeSheetDemo {
                     }
                 }
                 this.EmployeeList.sort((a, b) => a.localeCompare(b));
+                this.employeeOptions = this.buildOptions(this.EmployeeList);
                 console.log('Extracted sg_role list:', this.EmployeeList);
             },
             error: (error) => {
@@ -239,6 +255,7 @@ export class timeSheetDemo {
                     }
                 }
                 this.RegionList.sort((a, b) => a.localeCompare(b));
+                this.geographyOptions = this.buildOptions(this.RegionList);
                 console.log('Extracted sg_role list:', this.RegionList);
             },
             error: (error) => {

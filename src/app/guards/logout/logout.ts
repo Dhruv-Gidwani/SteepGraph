@@ -7,7 +7,14 @@ import { Injectable } from '@angular/core';
 export class LogoutService {
   private timeout: any;
   private readonly inactivityLimit = 600000; // 1 minute in milliseconds
+  ngOnInit(): void {
+  const expiry = sessionStorage.getItem('expires_in');
+  const currentTime = new Date().getTime();
 
+  if (expiry && currentTime > +expiry) {
+    this.logout(); // Call your logout logic
+  }
+}
   constructor() {
     this.startInactivityTimer();
     this.addActivityListeners();

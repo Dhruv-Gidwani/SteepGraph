@@ -21,8 +21,8 @@ import { LoaderComponent } from './components/loader/loader.component';
 import { ProjectDataMap } from './components/interfaces/interface';
 import { XmlParserService } from '../../services/xml-parser.service';
 import { RegionService } from '../../services/region.service';
-import{billingMethodWCService} from '../../services/billingMethod_wc';
-import{CustomerService} from '../../services/customer_wc';
+import { billingMethodWCService } from '../../services/billingMethod_wc';
+import { CustomerService } from '../../services/customer_wc';
 
 @Component({
     selector: 'app-chart-demo',
@@ -64,7 +64,8 @@ export class ChartDemo implements OnInit {
     RegionList: string[] = [];
     BillingMethodList: string[] = [];
     CustomerList: string[] = [];
-
+    paramMap: Record<string, string> = {};
+    tgvdXmlString: string = '';
     constructor(
         private ApiService: ApiService,
         private cdr: ChangeDetectorRef,
@@ -75,7 +76,7 @@ export class ChartDemo implements OnInit {
         private RegionService: RegionService,
         private billingMethodWCService: billingMethodWCService,
         private CustomerService: CustomerService
-    ) {}
+    ) { }
 
     // Function to call exportToExcel from the service
     exportData = () => {
@@ -84,11 +85,12 @@ export class ChartDemo implements OnInit {
 
     async ngOnInit(): Promise<void> {
         this.isLoading = true;
-        let tgvdXmlString: string = '';
+        // let tgvdXmlString: string = '';
         let paramMapString: string = '';
+        let newsStr: string = '';
 
         // service: fetch region item
-         this.RegionService.fetchRegionItem().subscribe({
+        this.RegionService.fetchRegionItem().subscribe({
             next: (response) => {
                 console.log('Service response:', response);
 
@@ -121,7 +123,7 @@ export class ChartDemo implements OnInit {
         });
 
         // service: fetch Billing method item
-          this.billingMethodWCService.fetchBillingItem().subscribe({
+        this.billingMethodWCService.fetchBillingItem().subscribe({
             next: (response) => {
                 console.log('Service response:', response);
 
@@ -154,7 +156,7 @@ export class ChartDemo implements OnInit {
         });
 
         // serice: fetch customer item
-         this.CustomerService.fetchCustomerItem().subscribe({
+        this.CustomerService.fetchCustomerItem().subscribe({
             next: (response) => {
                 // const rolesList: string[] = [];
                 let parsedResponse: any = response;
@@ -190,7 +192,7 @@ export class ChartDemo implements OnInit {
         try {
             // 1st service: fetch TGVD XML
             const tgvdResponse = await firstValueFrom(this.arasService.fetchTgvdItem());
-            tgvdXmlString = tgvdResponse.toString();
+            this.tgvdXmlString = tgvdResponse.toString();
 
             // 2nd service: fetch QB values and parse XML
             const qbResponse = await firstValueFrom(this.arasService1.fetchQBValueItem());
@@ -213,7 +215,7 @@ export class ChartDemo implements OnInit {
                     reject(parseError);
                 }
             });
-            
+
             this.cwoStartDate = paramMap['sg_cwo_start'].split('T')[0];
             this.cwoEndDate = paramMap['sg_cwo_end'].split('T')[0];
             this.cwoStatus = paramMap['sg_work_contract_state'];
@@ -221,41 +223,49 @@ export class ChartDemo implements OnInit {
             this.filters.endDate = this.cwoEndDate;
             this.filters.status = this.cwoStatus;
 
-            paramMapString = JSON.stringify(paramMap);
+            // paramMapString = JSON.stringify(paramMap);
 
-            // 3rd service: get TreeGrid data
-            const data = await firstValueFrom(this.ApiService.getTreeGridData(tgvdXmlString, paramMapString));
+            this.paramMap = paramMap; // Save for reuse
+            paramMapString = JSON.stringify(this.paramMap);
+            // 3rd service 
+            await this.fetchAndProcessContracts(paramMap, this.tgvdXmlString);
 
-            // Process received contract data
-            this.allContracts = data;
-            this.filteredContracts = [...this.allContracts];
+            // console.log('Parsed parameter map:', paramMapString);
+            // newsStr = JSON.stringify({"sg_work_contract_state":"Active","sg_wct_project":"*","sg_project_manager":"*","sg_pwo_start":"2024-04-01T00:00:00","sg_pwo_end":"2027-03-31T00:00:00","sg_rate_card":"*","sg_cwo_start":"2025-04-01T00:00:00","sg_cwo_end":"2027-03-31T00:00:00","sg_position_role":"*","sg_pwo_total":"0","sg_cwo_owner":"*","sg_billing_status":"*","sg_effort_type":"*"});
+            // // 3rd service: get TreeGrid data
 
-            this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))];
-            this.uniqueGeographies = [...new Set(this.allContracts.map((c) => c.Geography?.trim() || 'Unknown'))];
-            this.uniqueBillingMethods = [...new Set(this.allContracts.map((c) => c['Billing Method']?.trim() || 'Unknown'))];
-            this.uniqueCustomers = [...new Set(this.allContracts.map((c) => c.Customer?.trim() || 'Unknown'))];
+            // const data = await firstValueFrom(this.ApiService.getTreeGridData(this.tgvdXmlString, paramMapString));
 
-            const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
+            // // Process received contract data
+            // this.allContracts = data;
+            // this.filteredContracts = [...this.allContracts];
 
-            const tempLabels = [...new Set(projectNames)];
-            this.selectedProject = tempLabels[0];
-            this.selectedProjectIndex = 0;
+            // this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))];
+            // this.uniqueGeographies = [...new Set(this.allContracts.map((c) => c.Geography?.trim() || 'Unknown'))];
+            // this.uniqueBillingMethods = [...new Set(this.allContracts.map((c) => c['Billing Method']?.trim() || 'Unknown'))];
+            // this.uniqueCustomers = [...new Set(this.allContracts.map((c) => c.Customer?.trim() || 'Unknown'))];
 
-            //this.renderPieChart();
+            // const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
 
-            const projectDataMap: { [project: string]: any[] } = {};
-            this.allContracts.forEach((contract) => {
-                const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+            // const tempLabels = [...new Set(projectNames)];
+            // this.selectedProject = tempLabels[0];
+            // this.selectedProjectIndex = 0;
 
-                if (!projectDataMap[projectKey]) projectDataMap[projectKey] = [];
-                projectDataMap[projectKey].push(contract);
-            });
+            // //this.renderPieChart();
 
-            if (this.selectedProject && projectDataMap[this.selectedProject]) {
-                this.handleProjectSelection(this.selectedProject, projectDataMap);
-            }
+            // const projectDataMap: { [project: string]: any[] } = {};
+            // this.allContracts.forEach((contract) => {
+            //     const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
 
-            
+            //     if (!projectDataMap[projectKey]) projectDataMap[projectKey] = [];
+            //     projectDataMap[projectKey].push(contract);
+            // });
+
+            // if (this.selectedProject && projectDataMap[this.selectedProject]) {
+            //     this.handleProjectSelection(this.selectedProject, projectDataMap);
+            // }
+
+
         } catch (error) {
             console.error('Error in sequential service calls:', error);
         } finally {
@@ -264,11 +274,60 @@ export class ChartDemo implements OnInit {
         }
     }
 
-    applyFilters(): void {
+    async fetchAndProcessContracts(paramMap: Record<string, string>, tgvdXmlString: string): Promise<void> {
+        const paramMapString = JSON.stringify(paramMap);
+        const data = await firstValueFrom(this.ApiService.getTreeGridData(tgvdXmlString, paramMapString));
+
+        // Process received contract data
+        this.allContracts = data;
+        this.filteredContracts = [...this.allContracts];
+
+        this.uniqueStatuses = [...new Set(this.allContracts.map((c) => c.Status?.trim() || 'Unknown'))];
+        this.uniqueGeographies = [...new Set(this.allContracts.map((c) => c.Geography?.trim() || 'Unknown'))];
+        this.uniqueBillingMethods = [...new Set(this.allContracts.map((c) => c['Billing Method']?.trim() || 'Unknown'))];
+        this.uniqueCustomers = [...new Set(this.allContracts.map((c) => c.Customer?.trim() || 'Unknown'))];
+
+        const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
+
+        const tempLabels = [...new Set(projectNames)];
+        this.selectedProject = tempLabels[0];
+        this.selectedProjectIndex = 0;
+
+        //this.renderPieChart();
+
+        const projectDataMap: { [project: string]: any[] } = {};
+        this.allContracts.forEach((contract) => {
+            const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+
+            if (!projectDataMap[projectKey]) projectDataMap[projectKey] = [];
+            projectDataMap[projectKey].push(contract);
+        });
+
+        if (this.selectedProject && projectDataMap[this.selectedProject]) {
+            this.handleProjectSelection(this.selectedProject, projectDataMap);
+        }
+    }
+
+
+
+    async applyFilters(): Promise<void> {
         const { startDate, endDate, status, geography, billingMethod, customer } = this.filters;
         const userStart = startDate ? new Date(startDate) : null;
         const userEnd = endDate ? new Date(endDate) : null;
+        const updatedParamMap = { ...this.paramMap };
 
+        // Update date filters
+        if (startDate) {
+            const sd = new Date(startDate);
+            updatedParamMap['sg_cwo_start'] = `${sd.getFullYear()}-${(sd.getMonth() + 1).toString().padStart(2, '0')}-${sd.getDate().toString().padStart(2, '0')}T00:00:00`;
+        }
+
+        if (endDate) {
+            const ed = new Date(endDate);
+            updatedParamMap['sg_cwo_end'] = `${ed.getFullYear()}-${(ed.getMonth() + 1).toString().padStart(2, '0')}-${ed.getDate().toString().padStart(2, '0')}T00:00:00`;
+        }
+
+        await this.fetchAndProcessContracts(updatedParamMap, this.tgvdXmlString);
         // Apply filters
         this.filteredContracts = this.allContracts.filter((item) => {
             const itemStart = new Date(item['Start Date']);

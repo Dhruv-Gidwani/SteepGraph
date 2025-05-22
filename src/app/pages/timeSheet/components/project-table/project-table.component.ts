@@ -19,11 +19,20 @@ export class ProjectTableComponent implements OnInit {
 
     searchValue: string | undefined;
     flatData: any[] = [];
+    EmployeeNames: any[] = [];
+    PositionTitle: any[] = [];
+    Department: any[] = [];
+    Role: any[] = [];
 
     ngOnInit() {
         console.log('Project Table Data:', this.projectTableData);
         this.flatData = this.flattenData(this.projectTableData);
+        this.EmployeeNames = [...new Set(this.flatData.map(emp => emp.employee))].sort();
+        this.PositionTitle = [...new Set(this.flatData.map(emp => emp.sg_position_title))].sort();
+        this.Department = [...new Set(this.flatData.map(emp => emp.sg_employee_department))].sort();
+        this.Role = [...new Set(this.flatData.map(emp => emp.sg_role))].sort();
     }
+
 
     // Convert nested structure into flat array
     flattenData(data: any[]): any[] {

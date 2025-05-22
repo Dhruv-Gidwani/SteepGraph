@@ -48,7 +48,7 @@
                 </div>
 
                 <!-- Export button -->
-                <p-button label="Export" icon="pi pi-file-excel" styleClass="p-button-success" (click)="exportToExcel()"> </p-button>
+                <p-button label="Export" icon="pi pi-file-excel" styleClass="p-button-success " (click)="exportToExcel()"> </p-button>
             </div>
         </ng-template>
 
@@ -65,7 +65,23 @@
                     Project Manager
                     <p-sortIcon field="Project Manager"></p-sortIcon>
                 </th>
-                <th>Billing Method</th>
+                <th>Billing Method
+                    <p-columnFilter field="Billing Method" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="BillingMethod" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
                 <th pSortableColumn="PWO Name">
                     PWO Name
                     <p-sortIcon field="PWO Name"></p-sortIcon>
@@ -73,6 +89,21 @@
                 <th pSortableColumn="Position Role">
                     Role
                     <p-sortIcon field="Position Role"></p-sortIcon>
+                     <p-columnFilter field="Position Role" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="Role" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="Resource Name">
                     Resource Name
@@ -85,7 +116,7 @@
                         </ng-template>
 
                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="representativeNames" placeholder="Any" display="chip">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="ResourcesNames" placeholder="Any" display="chip">
                                 <ng-template let-option pTemplate="item">
                                     <span class="ml-1">{{ option }}</span>
                                 </ng-template>
@@ -97,14 +128,59 @@
                 <th pSortableColumn="TS Approver">
                     TS Approver
                     <p-sortIcon field="TS Approver"></p-sortIcon>
+                    <p-columnFilter field="TS Approver" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="TSapproverNames" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="Position Title">
                     Position Title
                     <p-sortIcon field="Position Title"></p-sortIcon>
+                     <p-columnFilter field="Position Title" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="PositionTitle" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="Billing Status">
                     Billing Status
                     <p-sortIcon field="Billing Status"></p-sortIcon>
+                     <p-columnFilter field="Billing Status" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="BillingStatus" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="ResUti">
                     Resource Utilization
@@ -151,23 +227,6 @@
         <!-- Table Body -->
         <ng-template pTemplate="body" let-row let-i="rowIndex">
             <tr>
-                <!-- <td *ngIf="row.projectRowspan" [attr.rowspan]="row.projectRowspan">{{ row.Project }}</td>
-                <td *ngIf="row.contractNameRowspan" [attr.rowspan]="row.contractNameRowspan">{{ row['Work Contract Name'] }}</td>
-                <td *ngIf="row.projectManagerRowspan" [attr.rowspan]="row.projectManagerRowspan">{{ row['Project Manager'] }}</td>
-                <td *ngIf="row.billingMethodRowspan" [attr.rowspan]="row.billingMethodRowspan">{{ row['Billing Method'] }}</td>
-                <td>{{ row['PWO Name'] }}</td>
-                <td>{{ row['Position Role'] }}</td>
-                <td>{{ row['Resource Name'] }}</td>
-                <td *ngIf="row.tsApproverRowspan" [attr.rowspan]="row.tsApproverRowspan">{{ row['TS Approver'] }}</td>
-                <td>{{ row['Position Title'] }}</td>
-                <td>{{ row['Billing Status'] }}</td>
-                <td>{{ row['Resource Utilization'] }}</td>
-                <td>{{ row['Hourly Rate'] }}</td>
-                <td>{{ row['Currency'] }}</td>
-                <td>{{ row['Allocated Hrs.'] }}</td>
-                <td>{{ row['Rem. Hrs.'] }}</td>
-                <td>{{ row['Start Date'] }}</td>
-                <td>{{ row['End Date'] }}</td> -->
                 <td>{{ row.Project }}</td>
                 <td>{{ row['Work Contract Name'] }}</td>
                 <td>{{ row['Project Manager'] }}</td>

@@ -46,11 +46,11 @@
 
     <p-fluid class="grid grid-cols-12 gap-8">
         <!-- Pie Chart Card -->
-        <div class="col-span-12 xl:col-span-6 mb-6">
+        <div class="col-span-12 xl:col-span-6 mb-4">
             <app-pie-chart class="col-span-12 xl:col-span-6" [contracts]="filteredContracts" [selectedProject]="selectedProject" [selectedProjectIndex]="selectedProjectIndex" (projectSelected)="onProjectClick($event)"> </app-pie-chart>
         </div>
 
-        <div class="col-span-12 xl:col-span-6 mb-6" *ngIf="selectedProject">
+        <div class="col-span-12 xl:col-span-6 mb-4" *ngIf="selectedProject">
             <app-bar-chart
                 *ngIf="selectedProject"
                 [contracts]="selectedProjectData"

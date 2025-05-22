@@ -1,5 +1,14 @@
 <div class="p-mt-4" *ngIf="projectTableData.length">
-    <p-table [value]="flatData" [resizableColumns]="true" [rows]="10" [scrollable]="true" scrollHeight="500px" [rowsPerPageOptions]="[10, 15, 20]" [paginator]="true" [tableStyle]="{ 'min-width': '50rem' }" class="custom-table">
+    <p-table [value]="flatData" 
+    [resizableColumns]="true" 
+    [rows]="10" 
+    [scrollable]="true" 
+    scrollHeight="500px" 
+    [rowsPerPageOptions]="[10, 15, 20]" 
+    [paginator]="true" 
+    columnResizeMode="fit"
+    [tableStyle]="{ 'min-width': '50rem' }" 
+    class="custom-table">
 
         <!-- Caption with Search and Export -->
         <ng-template pTemplate="caption">
@@ -21,14 +30,59 @@
                 <th pSortableColumn="employee">
                     Employee
                     <p-sortIcon field="employee"></p-sortIcon>
+                      <p-columnFilter field="employee" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="EmployeeNames" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="sg_position_title">
                     Position Title
                     <p-sortIcon field="sg_position_title"></p-sortIcon>
+                      <p-columnFilter field="sg_position_title" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="PositionTitle" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="sg_employee_department">
                     Department
                     <p-sortIcon field="sg_employee_department"></p-sortIcon>
+                    <p-columnFilter field="sg_employee_department" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="Department" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="project">
                     Project
@@ -41,6 +95,21 @@
                 <th pSortableColumn="sg_role">
                     Role
                     <p-sortIcon field="sg_role"></p-sortIcon>
+                    <p-columnFilter field="sg_role" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Name Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="Role" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="billing_status">
                     Billing Status
