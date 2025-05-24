@@ -1,0 +1,8 @@
+::ng-deep .datepicker-error .p-inputtext {
+  border: 1px solid #ef4444 !important;
+  border-radius: 0.375rem;
+}
+:host {
+  display: block;
+  width: 100%;
+}

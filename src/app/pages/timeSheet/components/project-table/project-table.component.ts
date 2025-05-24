@@ -27,6 +27,7 @@ export class ProjectTableComponent implements OnInit {
     ngOnInit() {
         console.log('Project Table Data:', this.projectTableData);
         this.flatData = this.flattenData(this.projectTableData);
+        this.flatData.sort((a, b) => a.employee.localeCompare(b.employee));
         this.EmployeeNames = [...new Set(this.flatData.map(emp => emp.employee))].sort();
         this.PositionTitle = [...new Set(this.flatData.map(emp => emp.sg_position_title))].sort();
         this.Department = [...new Set(this.flatData.map(emp => emp.sg_employee_department))].sort();
@@ -49,6 +50,7 @@ export class ProjectTableComponent implements OnInit {
                         project: proj.project,
                         sg_role: detail.sg_role,
                         billing_status: detail.billing_status,
+                        sg_billing_method: detail.sg_billing_method,
                         total_ts_fill_hrs: detail.total_ts_fill_hrs,
                         total_billable_hr_company: detail.total_billable_hr_company,
                         total_hours: detail.total_hours,
@@ -73,6 +75,6 @@ export class ProjectTableComponent implements OnInit {
 
         const filtered = this.flattenData(this.projectTableData).filter((item) => Object.values(item).some((val) => val?.toString().toLowerCase().includes(searchValue)));
 
-        this.flatData = filtered;
+        this.flatData = filtered.sort((a, b) => a.employee.localeCompare(b.employee));;
     }
 }

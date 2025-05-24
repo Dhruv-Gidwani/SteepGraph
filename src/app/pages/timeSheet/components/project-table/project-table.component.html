@@ -115,6 +115,10 @@
                     Billing Status
                     <p-sortIcon field="billing_status"></p-sortIcon>
                 </th>
+                 <th pSortableColumn="sg_billing_method">
+                    Billing Method
+                    <p-sortIcon field="sg_billing_method"></p-sortIcon>
+                </th>
                 <th pSortableColumn="total_leave">
                     Total Leave
                     <p-sortIcon field="total_leave"></p-sortIcon>
@@ -160,6 +164,7 @@
                 <td>{{ row.sg_geography }}</td>
                 <td>{{ row.sg_role }}</td>
                 <td>{{ row.billing_status }}</td>
+                <td>{{row.sg_billing_method}}</td>
                 <td>{{ row.total_leave }}</td>
                 <td>{{ row.missing_timeSheet }}</td>
                 <td>{{ row.total_ts_fill_hrs }}</td>

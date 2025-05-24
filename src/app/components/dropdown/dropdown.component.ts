@@ -20,7 +20,7 @@ export class DropdownFilterDemo  {
 
   // Label input (for dynamic label text)
   @Input() label: string = '';
-
+  @Input() isDisabled: boolean = false;
   // Output event to notify parent about selection changes
   @Output() selectedValueChange = new EventEmitter<string>();
 

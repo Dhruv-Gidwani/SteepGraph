@@ -24,11 +24,12 @@ import { RegionService } from '../../services/region.service';
 import { billingMethodWCService } from '../../services/billingMethod_wc';
 import { CustomerService } from '../../services/customer_wc';
 import { DropdownFilterDemo } from '../../components/dropdown/dropdown.component';
+import{DatePickerIconDemo} from '../../components/date/date.component';
 
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
-    imports: [DropdownFilterDemo,CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, PieChartComponent, BarChartComponent, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent],
+    imports: [DatePickerIconDemo,DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, PieChartComponent, BarChartComponent, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent],
     templateUrl: './chart.html'
 })
 export class ChartDemo implements OnInit {
@@ -68,6 +69,10 @@ export class ChartDemo implements OnInit {
     paramMap: Record<string, string> = {};
     tgvdXmlString: string = '';
     geographyOptionswc: { label: string; value: string }[] = [];
+    billingMethodOptionswc: { label: string; value: string }[] = [];
+    customerOptionswc: { label: string; value: string }[] = [];
+    statusoptionswc: { label: string; value: string }[] = [];
+
     constructor(
         private ApiService: ApiService,
         private cdr: ChangeDetectorRef,
@@ -84,10 +89,10 @@ export class ChartDemo implements OnInit {
     exportData = () => {
         this.exportService.exportToExcel(this.projectTableData);
     };
-private buildOptions(list: string[]): { label: string; value: string }[] {
-  const sorted = [...list].filter(x => x !== 'All').sort((a, b) => a.localeCompare(b));
-  return [{ label: 'All', value: '' }, ...sorted.map(item => ({ label: item, value: item }))];
-}
+    private buildOptions(list: string[]): { label: string; value: string }[] {
+        const sorted = [...list].filter(x => x !== 'All').sort((a, b) => a.localeCompare(b));
+        return [{ label: 'All', value: '' }, ...sorted.map(item => ({ label: item, value: item }))];
+    }
     async ngOnInit(): Promise<void> {
         this.isLoading = true;
         // let tgvdXmlString: string = '';
@@ -128,6 +133,11 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
             }
         });
 
+        // service: fetch status item
+        this.statusoptionswc = [
+            { label: 'Active', value: 'Active' }
+        ];
+
         // service: fetch Billing method item
         this.billingMethodWCService.fetchBillingItem().subscribe({
             next: (response) => {
@@ -154,6 +164,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                     }
                 }
                 this.BillingMethodList.sort((a, b) => a.localeCompare(b));
+                this.billingMethodOptionswc = this.buildOptions(this.BillingMethodList);
                 console.log('Extracted sg_role list:', this.BillingMethodList);
             },
             error: (error) => {
@@ -186,6 +197,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                     }
                 }
                 this.CustomerList.sort((a, b) => a.localeCompare(b));
+                this.customerOptionswc = this.buildOptions(this.CustomerList);
                 console.log('Extracted Department list:', this.CustomerList);
             },
             error: (error) => {

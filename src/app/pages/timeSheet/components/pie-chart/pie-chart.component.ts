@@ -20,6 +20,7 @@ export class PieChartComponent implements OnChanges {
     pieChartOptions: any;
     displayedGeographies: string[] = [];
     private isFirstLoad = true;
+    
 
     // ngOnChanges(): void {
     //     this.renderPieChart();
@@ -73,8 +74,22 @@ export class PieChartComponent implements OnChanges {
     onGeographyClick(geography: string): void {
     const index = geography === 'All' ? -1 : this.pieChartData.labels.indexOf(geography);
 
+    // this.geographySelected.emit({ geography: geography === 'All' ? '' : geography, index });
+    // this.geographyClick.emit(geography === 'All' ? '' : geography);
+     if (this.selectedGeography === geography) {
+    // User clicked the same geography again → toggle to 'All'
+    this.selectedGeography = 'All';
+    this.selectedGeographyIndex = -1;
+    this.geographySelected.emit({ geography: '', index: -1 });
+    this.geographyClick.emit('');
+  } else {
+    // User clicked a new geography
+    this.selectedGeography = geography;
+    this.selectedGeographyIndex = index;
     this.geographySelected.emit({ geography: geography === 'All' ? '' : geography, index });
     this.geographyClick.emit(geography === 'All' ? '' : geography);
+  }
+
 }
 
 

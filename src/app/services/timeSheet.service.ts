@@ -69,6 +69,8 @@ export class timeSheetService {
  const aml = `<AML>
     <Item type="sg_timesheet" action="get">
       ${filters}
+      <sg_ts_activity_type condition="ne">Holiday</sg_ts_activity_type>
+      <sg_ts_activity_type condition="ne">ClientHoliday</sg_ts_activity_type>
     </Item>
   </AML>`;
 

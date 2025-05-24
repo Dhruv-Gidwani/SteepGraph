@@ -24,10 +24,12 @@ import { CardModule } from 'primeng/card';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { MessageFormDemo } from '../../components/message-toast/message-toast.component';
 import { DropdownFilterDemo } from '../../components/dropdown/dropdown.component';
+import { DatePickerModule } from 'primeng/datepicker';
+import{DatePickerIconDemo} from '../../components/date/date.component';
 @Component({
     selector: 'app-timeSheet-demo',
     standalone: true,
-    imports: [DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
+    imports: [DatePickerIconDemo,DatePickerModule,DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
     templateUrl: './timeSheet.html'
 })
 export class timeSheetDemo {
@@ -281,14 +283,21 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
             this.showEndDateError = false;
         }
     }
-    onDateChange(field: 'start' | 'end') {
-        if (field === 'start') {
-            this.showStartDateError = !this.startDate;
-        } else {
-            this.showEndDateError = !this.endDate;
-        }
-    }
+    onDateChange(field: 'start' | 'end', value: string) {
+  if (field === 'start') {
+    this.startDate = value;
+    this.showStartDateError = !value;
+  } else {
+    this.endDate = value;
+    this.showEndDateError = !value;
+  }
+}
 
+    onEndDateChange(date: Date) {
+    this.endDate = date ? date.toISOString().split('T')[0] : '';
+    this.filters.endDate = this.endDate;
+    console.log('End Date:', this.endDate);
+  }
     countWeekdays(startDateTs: Date, endDateTs: Date): number {
         let count = 0;
         let currentDate = new Date(startDateTs);
@@ -464,6 +473,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
             projects: Object.entries(data.projects).map(([project, statuses]) => {
                 const billingDetails = statuses.map((item) => ({
                     billing_status: item.billing_status,
+                    sg_billing_method: item.sg_billing_method,
                     total_hours: item.billableqty,
                     total_ts_fill_hrs: item.count * 8 - item.count_leave * 8,
                     sg_role: item.sg_role,

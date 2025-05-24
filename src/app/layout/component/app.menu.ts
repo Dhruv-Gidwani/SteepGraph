@@ -204,10 +204,10 @@ export class AppMenu implements OnInit {
                 label: 'Employee Reports',
                 items: [{ label: 'Timesheet', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/timeSheet'] }]
             },
-            {
-                label: 'Authentication',
-                items: [{ label: 'LogOut', icon: 'pi pi-fw pi-sign-in', command: () => this.logoutService.logout() }]
-            }
+            // {
+            //     label: 'Authentication',
+            //     items: [{ label: 'LogOut', icon: 'pi pi-fw pi-sign-out', command: () => this.logoutService.logout() }]
+            // }
         ];
     }
 }
