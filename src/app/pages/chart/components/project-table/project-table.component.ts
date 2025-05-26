@@ -20,7 +20,7 @@ export class ProjectTableComponent implements OnChanges {
     @Input() data: TableData[] = [];
 
     @ViewChild('dt2') table!: Table;
-
+    
     displayedData: TableData[] = [];
     ResourcesNames: string[] = [];
     TSapproverNames: string[] = [];
@@ -41,6 +41,7 @@ export class ProjectTableComponent implements OnChanges {
             this.updateRoleNames();
             this.updatePositionTitleNames();
             this.updateBillingStatusNames();
+             console.log('Initial data:', this.data);
         }
     }
 
@@ -227,6 +228,7 @@ export class ProjectTableComponent implements OnChanges {
                 'Billing Method': row['Billing Method'],
                 'PWO Name': row['PWO Name'],
                 'Position Role': row['Position Role'],
+                'WCT Status': row['WCT Status'],
                 'Resource Name': row['Resource Name'],
                 'TS Approver': row['TS Approver'],
                 'Position Title': row['Position Title'],

@@ -8,7 +8,7 @@
         [resizableColumns]="true"
         [paginator]="true"
         [rows]="10"
-        [rowsPerPageOptions]="[10, 15, 20]"
+        [rowsPerPageOptions]="[10, 20, 50, 100]"
         columnResizeMode="fit"
         [globalFilterFields]="[
             'Project',
@@ -17,6 +17,7 @@
             'Billing Method',
             'PWO Name',
             'Position Role',
+            'WCT Status',
             'Resource Name',
             'TS Approver',
             'Position Title',
@@ -104,6 +105,10 @@
                             </p-multiSelect>
                         </ng-template>
                     </p-columnFilter>
+                </th>
+                <th pSortableColumn="WCT Status">
+                    CWO Status
+                    <p-sortIcon field="WCT Status"></p-sortIcon>
                 </th>
                 <th pSortableColumn="Resource Name">
                     Resource Name
@@ -233,6 +238,7 @@
                 <td>{{ row['Billing Method'] }}</td>
                 <td>{{ row['PWO Name'] }}</td>
                 <td>{{ row['Position Role'] }}</td>
+                <td>{{ row['WCT Status'] }}</td>
                 <td>{{ row['Resource Name'] }}</td>
                 <td>{{ row['TS Approver'] }}</td>
                 <td>{{ row['Position Title'] }}</td>

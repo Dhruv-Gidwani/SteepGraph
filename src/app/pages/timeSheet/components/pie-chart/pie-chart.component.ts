@@ -157,6 +157,6 @@ export class PieChartComponent implements OnChanges {
         const value = context.raw || 0;
         const total = context.chart.data.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
         const percentage = ((value / total) * 100).toFixed(1);
-        return `${label}: ${value} (${percentage}%)`;
+        return `${label}_Employee: ${value} (${percentage}%)`;
     }
 }

@@ -24,15 +24,17 @@ import { RegionService } from '../../services/region.service';
 import { billingMethodWCService } from '../../services/billingMethod_wc';
 import { CustomerService } from '../../services/customer_wc';
 import { DropdownFilterDemo } from '../../components/dropdown/dropdown.component';
-import{DatePickerIconDemo} from '../../components/date/date.component';
+import { DatePickerIconDemo } from '../../components/date/date.component';
+import { GlobalStateService } from '../../services/globalservicefilters';
 
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
-    imports: [DatePickerIconDemo,DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, PieChartComponent, BarChartComponent, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent],
+    imports: [DatePickerIconDemo, DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, PieChartComponent, BarChartComponent, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent],
     templateUrl: './chart.html'
 })
 export class ChartDemo implements OnInit {
+    pageKey: string = 'page2';
     isLoading: boolean = false;
     allContracts: any[] = [];
     filteredContracts: any[] = [];
@@ -52,7 +54,7 @@ export class ChartDemo implements OnInit {
         billingMethod: '',
         customer: ''
     };
-
+    filtersRestored = false;
     uniqueStatuses: string[] = [];
     availableRoles: string[] = [];
     selectedRole: string = '';
@@ -82,7 +84,8 @@ export class ChartDemo implements OnInit {
         private xmlParserService: XmlParserService,
         private RegionService: RegionService,
         private billingMethodWCService: billingMethodWCService,
-        private CustomerService: CustomerService
+        private CustomerService: CustomerService,
+        private globalState: GlobalStateService
     ) { }
 
     // Function to call exportToExcel from the service
@@ -98,6 +101,31 @@ export class ChartDemo implements OnInit {
         // let tgvdXmlString: string = '';
         let paramMapString: string = '';
         let newsStr: string = '';
+        const pageKey = 'page1';
+        // const savedFilters = this.globalState.getFilters(this.pageKey);
+        // const savedData = this.globalState.getFilteredData(this.pageKey);
+
+        // if (savedFilters && savedData.length > 0) {
+        //     this.filters = savedFilters;
+        //     this.allContracts = savedData;
+        //     this.filteredContracts = [...savedData];
+        //     this.updateProjectsAfterFilter(); // Reconstruct project-based data
+        //     this.isLoading = false;
+        //     return;
+        // }
+        const savedFilters = this.globalState.getFilters(this.pageKey);
+        const savedData = this.globalState.getFilteredData(this.pageKey);
+        
+        if (savedFilters && savedData.length > 0) {
+            this.filters = { ...savedFilters };
+            this.filteredContracts = savedData;
+            this.allContracts = savedData;
+            this.isLoading = false;
+            this.filtersRestored = true;
+            this.cdr.detectChanges();
+            // return;
+        }
+
 
         // service: fetch region item
         this.RegionService.fetchRegionItem().subscribe({
@@ -204,7 +232,9 @@ export class ChartDemo implements OnInit {
                 console.error('Error fetching role item:', error);
             }
         });
-
+        if (this.filtersRestored) {
+           return;  //  Only apply if nothing was restored
+        }
 
 
         try {
@@ -368,6 +398,10 @@ export class ChartDemo implements OnInit {
 
         // Continue with normal filter processing
         this.updateProjectsAfterFilter();
+
+        this.globalState.setFilters(this.pageKey, this.filters);
+        this.globalState.setFilteredData(this.pageKey, this.filteredContracts);
+
     }
 
     private resetComponentState(): void {
@@ -448,6 +482,7 @@ export class ChartDemo implements OnInit {
     }
 
     resetFilters(): void {
+        // this.globalState.resetPageData(this.pageKey);
         this.filters = {
             startDate: this.cwoStartDate,
             endDate: this.cwoEndDate,

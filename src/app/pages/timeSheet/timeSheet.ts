@@ -25,11 +25,12 @@ import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { MessageFormDemo } from '../../components/message-toast/message-toast.component';
 import { DropdownFilterDemo } from '../../components/dropdown/dropdown.component';
 import { DatePickerModule } from 'primeng/datepicker';
-import{DatePickerIconDemo} from '../../components/date/date.component';
+import { DatePickerIconDemo } from '../../components/date/date.component';
+import { GlobalStateService } from '../../services/globalservicefilters';
 @Component({
     selector: 'app-timeSheet-demo',
     standalone: true,
-    imports: [DatePickerIconDemo,DatePickerModule,DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
+    imports: [DatePickerIconDemo, DatePickerModule, DropdownFilterDemo, CommonModule, ChartModule, FluidModule, FormsModule, TableModule, ScrollPanelModule, SplitButtonModule, ButtonModule, ProjectTableComponent, ProgressSpinnerModule, LoaderComponent, PieChartComponent, CardModule, BarChartComponent],
     templateUrl: './timeSheet.html'
 })
 export class timeSheetDemo {
@@ -44,6 +45,7 @@ export class timeSheetDemo {
     selectedGeography: string | null = null;
     selectedGeographyIndex: number | null = null;
     selectedDepartment: string | null = null;
+    afterglobalfilter: any = null; // Variable to store the global filter state
 
     filters = {
         startDate: '',
@@ -82,18 +84,51 @@ export class timeSheetDemo {
         private ProjectService: ProjectService,
         private EmployeeService: EmployeeService,
         private RegionService: RegionService,
-        private xmlParserService: XmlParserService
+        private xmlParserService: XmlParserService,
+        private globalState: GlobalStateService
     ) { }
 
     // Function to call exportToExcel from the service
     exportData = () => {
         this.exportService.exportToExcel(this.projectTableData);
     };
-private buildOptions(list: string[]): { label: string; value: string }[] {
-  const sorted = [...list].filter(x => x !== 'All').sort((a, b) => a.localeCompare(b));
-  return [{ label: 'All', value: '' }, ...sorted.map(item => ({ label: item, value: item }))];
-}
+    private buildOptions(list: string[]): { label: string; value: string }[] {
+        const sorted = [...list].filter(x => x !== 'All').sort((a, b) => a.localeCompare(b));
+        return [{ label: 'All', value: '' }, ...sorted.map(item => ({ label: item, value: item }))];
+    }
     ngOnInit(): void {
+
+        // if (this.globalState.filter && this.globalState.filteredData.length > 0) {
+        //     this.afterglobalfilter = this.globalState.filter;
+        //     this.projectTableData = this.globalState.filteredData;
+
+
+        //     this.startDate = this.afterglobalfilter.startDate;
+        //     this.endDate = this.afterglobalfilter.endDate;
+        //     this.department = this.afterglobalfilter.department;
+        //     this.project = this.afterglobalfilter.project;
+        //     this.positionTitle = this.afterglobalfilter.positionTitle;
+        //     this.geography = this.afterglobalfilter.geography;
+        //     this.emp_name = this.afterglobalfilter.emp_name;
+        // }
+        const pageKey = 'page1';
+
+        const savedFilter = this.globalState.getFilters(pageKey);
+        const savedData = this.globalState.getFilteredData(pageKey);
+
+        if (savedFilter && savedData.length > 0) {
+            this.afterglobalfilter = savedFilter;
+            this.projectTableData = savedData;
+
+            this.startDate = savedFilter.startDate;
+            this.endDate = savedFilter.endDate;
+            this.department = savedFilter.department;
+            this.project = savedFilter.project;
+            this.positionTitle = savedFilter.positionTitle;
+            this.geography = savedFilter.geography;
+            this.emp_name = savedFilter.emp_name;
+        }
+
         this.PositionService.fetchRoleItem().subscribe({
             next: (response) => {
                 // const rolesList: string[] = [];
@@ -188,7 +223,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                 //     { label: 'All', value: '' },
                 //     ...this.ProjectList.map(name => ({ label: name, value: name }))
                 // ];
-                 this.projectOptions = this.buildOptions(this.ProjectList);
+                this.projectOptions = this.buildOptions(this.ProjectList);
                 this.cdr.detectChanges();
                 console.log('Extracted Department list:', this.ProjectList);
             },
@@ -264,6 +299,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                 console.error('Error fetching role item:', error);
             }
         });
+
     }
     validateDates() {
         if (!this.startDate && !this.endDate) {
@@ -284,20 +320,20 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
         }
     }
     onDateChange(field: 'start' | 'end', value: string) {
-  if (field === 'start') {
-    this.startDate = value;
-    this.showStartDateError = !value;
-  } else {
-    this.endDate = value;
-    this.showEndDateError = !value;
-  }
-}
+        if (field === 'start') {
+            this.startDate = value;
+            this.showStartDateError = !value;
+        } else {
+            this.endDate = value;
+            this.showEndDateError = !value;
+        }
+    }
 
     onEndDateChange(date: Date) {
-    this.endDate = date ? date.toISOString().split('T')[0] : '';
-    this.filters.endDate = this.endDate;
-    console.log('End Date:', this.endDate);
-  }
+        this.endDate = date ? date.toISOString().split('T')[0] : '';
+        this.filters.endDate = this.endDate;
+        console.log('End Date:', this.endDate);
+    }
     countWeekdays(startDateTs: Date, endDateTs: Date): number {
         let count = 0;
         let currentDate = new Date(startDateTs);
@@ -346,7 +382,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                                 sg_employee_department: item?.sg_employee_department?.$?.keyed_name || 'N/A',
                                 ts_task_project: item?.sg_ts_task_project?.$?.keyed_name || 'N/A',
                                 sg_geography: item?.sg_geography || 'N/A',
-                                sg_role: item?.sg_role || 'N/A',
+                                sg_position_role: item?.sg_position_role?.$?.keyed_name|| 'N/A',
                                 billing_status: item?.sg_billing_status || 'N/A',
                                 billableqty: item?.sg_billableqty || '0',
                                 sg_ts_activity_type: item?.sg_ts_activity_type || 'N/A',
@@ -356,7 +392,34 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                         });
                     console.log('Raw Project Data:', this.rawProjectData);
 
+                    // this.afterglobalfilter = {
+                    //     startDate: this.startDate,
+                    //     endDate: this.endDate,
+                    //     department: this.department,
+                    //     project: this.project,
+                    //     positionTitle: this.positionTitle,
+                    //     geography: this.geography,
+                    //     emp_name: this.emp_name
+                    // };
+                    const pageKey = 'page1';
+
+                    this.afterglobalfilter = {
+                        startDate: this.startDate,
+                        endDate: this.endDate,
+                        department: this.department,
+                        project: this.project,
+                        positionTitle: this.positionTitle,
+                        geography: this.geography,
+                        emp_name: this.emp_name
+                    };
+
+
                     this.groupProjectData(); // Call the grouping function here
+                    // this.globalState.filter = this.afterglobalfilter;
+                    // this.globalState.filteredData = this.projectTableData;
+                    this.globalState.setFilters(pageKey, this.afterglobalfilter);
+                    this.globalState.setFilteredData(pageKey, this.projectTableData);
+
                     console.log('raw projectTableData:', this.rawProjectData);
                     console.log('Mapped projectTableData:', this.projectTableData);
                     this.isLoading = false;
@@ -383,14 +446,14 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                     sg_position_title: string;
                     sg_employee_department: string;
                     sg_geography: string;
-                    sg_role: string;
+                    sg_position_role: string;
                 };
                 projects: {
                     [project: string]: {
                         billing_status: string;
                         billableqty: number;
                         count: number;
-                        sg_role: string;
+                        sg_position_role: string;
                         count_leave: number;
                         sg_billing_method: string;
                     }[];
@@ -402,7 +465,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
             const employeeKey = `${entry.sg_employee}___${entry.sg_geography}`;
             const project = entry.ts_task_project;
             const billing_status = entry.billing_status;
-            const sg_role = entry.sg_role;
+            const sg_position_role = entry.sg_position_role;
             const billableqty = parseFloat(entry.billableqty) || 0;
             const sg_ts_activity_type = entry.sg_ts_activity_type;
             const sg_billing_method = entry.sg_billing_method;
@@ -414,7 +477,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                         sg_position_title: entry.sg_position_title,
                         sg_employee_department: entry.sg_employee_department,
                         sg_geography: entry.sg_geography,
-                        sg_role
+                        sg_position_role
                     },
                     projects: {}
                 };
@@ -424,7 +487,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                 result[employeeKey].projects[project] = [];
             }
 
-            const existing = result[employeeKey].projects[project].find((p) => p.billing_status === billing_status && p.sg_role === sg_role);
+            const existing = result[employeeKey].projects[project].find((p) => p.billing_status === billing_status && p.sg_position_role === sg_position_role);
 
             if (existing) {
                 if (sg_ts_activity_type === 'Leave') {
@@ -437,7 +500,7 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
                     billing_status,
                     billableqty,
                     count: 1,
-                    sg_role,
+                    sg_position_role,
                     count_leave: 0,
                     sg_billing_method
                 });
@@ -469,21 +532,25 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
             sg_position_title: data.employeeMeta.sg_position_title,
             sg_employee_department: data.employeeMeta.sg_employee_department,
             sg_geography: data.employeeMeta.sg_geography,
-            sg_role: data.employeeMeta.sg_role,
+            sg_position_role: data.employeeMeta.sg_position_role,
             projects: Object.entries(data.projects).map(([project, statuses]) => {
                 const billingDetails = statuses.map((item) => ({
                     billing_status: item.billing_status,
                     sg_billing_method: item.sg_billing_method,
                     total_hours: item.billableqty,
                     total_ts_fill_hrs: item.count * 8 - item.count_leave * 8,
-                    sg_role: item.sg_role,
+                    sg_position_role: item.sg_position_role,
                     total_billable_hr_company:
                         item.billing_status?.toLowerCase() === 'billable' && (item.sg_billing_method === 'TM Billable - Rec' || item.sg_billing_method === 'TM Billable' || item.sg_billing_method === 'FC Billable')
                             ? parseFloat(String(item.billableqty)) || 0
                             : 0,
                     total_non_billable_hr: item.count * 8 - item.count_leave * 8 - (parseFloat(String(item.billableqty)) || 0),
                     total_leave: item.count_leave,
-                    missing_timeSheet: (ans[data.employeeMeta.sg_employee] || 0) * 8
+                    missing_timeSheet: Math.max(ans[data.employeeMeta.sg_employee] || 0, 0) * 8,
+                    GCW_hrs: ans[data.employeeMeta.sg_employee] < 0
+                        ? Math.abs(ans[data.employeeMeta.sg_employee]) * 8
+                        : 0
+
                 }));
 
                 const totalBillableHrs_company = billingDetails.reduce((sum, item) => sum + item.total_billable_hr_company, 0);
@@ -550,6 +617,11 @@ private buildOptions(list: string[]): { label: string; value: string }[] {
         this.projectTableData = [];
         this.showStartDateError = false;
         this.showEndDateError = false;
+        const pageKey = 'page1';
+        this.globalState.resetPageData(pageKey);
+        this.afterglobalfilter = {};
+        // this.globalState.filter = null;
+        // this.globalState.filteredData = [];
 
         this.cdr.detectChanges();
     }

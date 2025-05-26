@@ -31,7 +31,7 @@ export class ProjectTableComponent implements OnInit {
         this.EmployeeNames = [...new Set(this.flatData.map(emp => emp.employee))].sort();
         this.PositionTitle = [...new Set(this.flatData.map(emp => emp.sg_position_title))].sort();
         this.Department = [...new Set(this.flatData.map(emp => emp.sg_employee_department))].sort();
-        this.Role = [...new Set(this.flatData.map(emp => emp.sg_role))].sort();
+        this.Role = [...new Set(this.flatData.map(emp => emp.sg_position_role))].sort();
     }
 
 
@@ -48,7 +48,7 @@ export class ProjectTableComponent implements OnInit {
                         sg_employee_department: emp.sg_employee_department,
                         sg_geography: emp.sg_geography,
                         project: proj.project,
-                        sg_role: detail.sg_role,
+                        sg_position_role: detail.sg_position_role,
                         billing_status: detail.billing_status,
                         sg_billing_method: detail.sg_billing_method,
                         total_ts_fill_hrs: detail.total_ts_fill_hrs,
@@ -58,7 +58,8 @@ export class ProjectTableComponent implements OnInit {
                         company_billability: proj.company_billability,
                         person_billability: proj.person_billability,
                         total_leave: detail.total_leave,
-                        missing_timeSheet: detail.missing_timeSheet
+                        missing_timeSheet: detail.missing_timeSheet,
+                        GCW_hrs: detail.GCW_hrs,
                     });
                 });
             });

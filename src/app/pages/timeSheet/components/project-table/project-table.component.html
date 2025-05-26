@@ -4,7 +4,7 @@
     [rows]="10" 
     [scrollable]="true" 
     scrollHeight="500px" 
-    [rowsPerPageOptions]="[10, 15, 20]" 
+    [rowsPerPageOptions]="[10, 20, 50,100]" 
     [paginator]="true" 
     columnResizeMode="fit"
     [tableStyle]="{ 'min-width': '50rem' }" 
@@ -92,10 +92,10 @@
                     Geography
                     <p-sortIcon field="sg_geography"></p-sortIcon>
                 </th>
-                <th pSortableColumn="sg_role">
+                <th pSortableColumn="sg_position_role">
                     Role
-                    <p-sortIcon field="sg_role"></p-sortIcon>
-                    <p-columnFilter field="sg_role" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                    <p-sortIcon field="sg_position_role"></p-sortIcon>
+                    <p-columnFilter field="sg_position_role" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                         <ng-template pTemplate="header">
                             <div class="px-3 pt-3 pb-0">
                                 <span class="font-bold">Name Picker</span>
@@ -122,6 +122,10 @@
                 <th pSortableColumn="total_leave">
                     Total Leave
                     <p-sortIcon field="total_leave"></p-sortIcon>
+                </th>
+                <th pSortableColumn="GCW_hrs">
+                    GCW Hrs.
+                    <p-sortIcon field="GCW_hrs"></p-sortIcon>
                 </th>
                 <th pSortableColumn="missing_timeSheet">
                     Missing TimeSheet Hrs.
@@ -162,10 +166,11 @@
                 <td>{{ row.sg_employee_department }}</td>
                 <td>{{ row.project }}</td>
                 <td>{{ row.sg_geography }}</td>
-                <td>{{ row.sg_role }}</td>
+                <td>{{ row.sg_position_role }}</td>
                 <td>{{ row.billing_status }}</td>
                 <td>{{row.sg_billing_method}}</td>
                 <td>{{ row.total_leave }}</td>
+                <td>{{row.GCW_hrs}}</td>
                 <td>{{ row.missing_timeSheet }}</td>
                 <td>{{ row.total_ts_fill_hrs }}</td>
                 <td>{{ row.total_billable_hr_company }}</td>
