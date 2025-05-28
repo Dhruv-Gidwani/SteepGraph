@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DropdownComponent } from './dropdown.component';
+import { MultiselectFilterDemo  } from './multiselect.component';
 
-describe('DropdownComponent', () => {
-  let component: DropdownComponent;
-  let fixture: ComponentFixture<DropdownComponent>;
+describe('MultiselectComponent', () => {
+  let component: MultiselectFilterDemo;
+  let fixture: ComponentFixture<MultiselectFilterDemo>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DropdownComponent]
+      imports: [MultiselectFilterDemo]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DropdownComponent);
+    fixture = TestBed.createComponent(MultiselectFilterDemo);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

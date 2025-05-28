@@ -198,11 +198,11 @@ export class AppMenu implements OnInit {
             },
             {
                 label: 'Contract Mgmt. Reports',
-                items: [{ label: 'Work Contract', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/chart'] }]
+                items: [{ label: 'Work Contract', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/workcontract'] }]
             },
             {
                 label: 'Employee Reports',
-                items: [{ label: 'Timesheet', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/timeSheet'] }]
+                items: [{ label: 'Timesheet', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/timesheet'] }]
             },
             // {
             //     label: 'Authentication',

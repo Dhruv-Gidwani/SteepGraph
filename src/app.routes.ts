@@ -13,8 +13,8 @@ export const appRoutes: Routes = [
         component: AppLayout,
         children: [
             { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
-            { path: 'chart', component: ChartDemo },
-            { path: 'timeSheet', component: timeSheetDemo },
+            { path: 'workcontract', component: ChartDemo },
+            { path: 'timesheet', component: timeSheetDemo },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },

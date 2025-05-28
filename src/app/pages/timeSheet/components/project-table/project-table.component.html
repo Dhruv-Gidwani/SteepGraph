@@ -176,8 +176,8 @@
                 <td>{{ row.total_billable_hr_company }}</td>
                 <td>{{ row.total_hours }}</td>
                 <td>{{ row.total_non_billable_hr }}</td>
-                <td>{{ row.company_billability }}</td>
-                <td>{{ row.person_billability }}</td>
+                <td>{{ row.company_billability.toFixed(2)}}%</td>
+                <td>{{ row.person_billability.toFixed(2)}}%</td>
             </tr>
         </ng-template>
     </p-table>

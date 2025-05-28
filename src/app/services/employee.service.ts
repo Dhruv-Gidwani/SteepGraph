@@ -17,7 +17,7 @@ export class EmployeeService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get(this.baseUrl+"/Server/odata/User",  {
+    return this.http.get(this.baseUrl+"/Server/odata/User?$filter=logon_enabled eq 1",  {
       headers,
       responseType: 'text'
     });

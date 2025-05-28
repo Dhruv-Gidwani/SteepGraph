@@ -17,6 +17,7 @@ export class DatePickerIconDemo {
   @Output() dateStrChange = new EventEmitter<string>(); // emit string back
   @Input() showError: boolean = false;
   date: Date | undefined;
+  @Input() minDate: Date | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
   if (changes['dateStr']) {
