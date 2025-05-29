@@ -29,5 +29,10 @@ export class MultiselectFilterDemo  {
     this.selectedValue = value;
     this.selectedValueChange.emit(value);
   }
-    
+
+  // called when dropdown filter remove by showclear icon 
+  onClear(): void {
+  this.selectedValue = [];
+  this.onChange(this.selectedValue); 
+}
 }

@@ -55,7 +55,16 @@ export class BarChartComponent implements OnChanges {
             ]
         };
     }
-
+    onDepartmentClick(department: string): void {
+    if (this.selectedDepartment === department) {
+        // Toggle off (reset to All/default)
+        this.selectedDepartment = null;
+        this.departmentClick.emit('');
+    } else {
+        this.selectedDepartment = department;
+        this.departmentClick.emit(department);
+    }
+}
     private initializeChartOptions(): void {
         this.barChartOptions = {
             responsive: true,
@@ -66,7 +75,8 @@ export class BarChartComponent implements OnChanges {
                     const chart = activeEls[0].element.$context.chart;
                     const index = activeEls[0].index;
                     const department = chart.data.labels[index];
-                    this.departmentClick.emit(department);
+                    // this.departmentClick.emit(department);
+                    this.onDepartmentClick(department);
                 }
             },
             plugins: {

@@ -86,8 +86,8 @@ export class PieChartComponent implements OnChanges {
     // User clicked a new geography
     this.selectedGeography = geography;
     this.selectedGeographyIndex = index;
-    this.geographySelected.emit({ geography: geography === 'All' ? '' : geography, index });
-    this.geographyClick.emit(geography === 'All' ? '' : geography);
+    this.geographySelected.emit({  geography, index });    // geography: geography === 'All' ? '' : removed 
+    this.geographyClick.emit( geography);    // geography === 'All' ? '' : removed
   }
 
 }
@@ -136,7 +136,8 @@ export class PieChartComponent implements OnChanges {
                     const chart = activeEls[0].element.$context.chart;
                     const index = activeEls[0].index;
                     const geography = chart.data.labels[index];
-                    this.geographyClick.emit(geography);
+                    // this.geographyClick.emit(geography);
+                    this.onGeographyClick(geography);
                 }
             },
             plugins: {

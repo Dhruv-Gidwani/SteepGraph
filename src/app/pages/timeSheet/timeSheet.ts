@@ -57,7 +57,7 @@ export class timeSheetDemo {
     endDate!: string;
     department: string[] = [];
     project: string[] = [];
-    positionTitle: string [] = [];
+    positionTitle: string[] = [];
     geography: string[] = [];
     emp_name: string[] = [];
     selectedRole: string = '';
@@ -95,7 +95,8 @@ export class timeSheetDemo {
     };
     private buildOptions(list: string[]): { label: string; value: string }[] {
         const sorted = [...list].filter(x => x !== 'All').sort((a, b) => a.localeCompare(b));
-        return [ ...sorted.map(item => ({ label: item, value: item }))];    // { label: 'All', value: '' },
+        console.log("everytime sorted", sorted);
+        return [...sorted.map(item => ({ label: item, value: item }))];    // { label: 'All', value: '' },
     }
     ngOnInit(): void {
 
@@ -128,6 +129,8 @@ export class timeSheetDemo {
             this.positionTitle = savedFilter.positionTitle;
             this.geography = savedFilter.geography;
             this.emp_name = savedFilter.emp_name;
+            this.selectedGeography = (this.geography && this.geography.length === 1) ? this.geography[0] : 'All';
+            this.selectedDepartment = (this.department && this.department.length === 1) ? this.department[0] : 'All';
         }
 
         this.PositionService.fetchRoleItem().subscribe({
@@ -326,10 +329,10 @@ export class timeSheetDemo {
             this.showStartDateError = !value;
             this.minEndDate = new Date(value);
 
-    // Reset end date if it is earlier than the new start date
-    if (this.endDate && new Date(this.endDate) < this.minEndDate) {
-      this.endDate = '';
-    }
+            // Reset end date if it is earlier than the new start date
+            if (this.endDate && new Date(this.endDate) < this.minEndDate) {
+                this.endDate = '';
+            }
         } else {
             this.endDate = value;
             this.showEndDateError = !value;
@@ -397,7 +400,7 @@ export class timeSheetDemo {
                                 sg_employee_department: item?.sg_employee_department?.$?.keyed_name || 'N/A',
                                 ts_task_project: item?.sg_ts_task_project?.$?.keyed_name || 'N/A',
                                 sg_geography: item?.sg_geography || 'N/A',
-                                sg_position_role: item?.sg_position_role?.$?.keyed_name|| 'N/A',
+                                sg_position_role: item?.sg_position_role?.$?.keyed_name || 'N/A',
                                 billing_status: item?.sg_billing_status || 'N/A',
                                 billableqty: item?.sg_billableqty || '0',
                                 sg_ts_activity_type: item?.sg_ts_activity_type || 'N/A',
@@ -421,13 +424,18 @@ export class timeSheetDemo {
                     this.afterglobalfilter = {
                         startDate: this.startDate,
                         endDate: this.endDate,
-                        department: this.department,
-                        project: this.project,
-                        positionTitle: this.positionTitle,
-                        geography: this.geography,
-                        emp_name: this.emp_name
+                        // department: this.department,
+                        // project: this.project,
+                        // positionTitle: this.positionTitle,
+                        // geography: this.geography,
+                        // emp_name: this.emp_name
+                        department: this.department && this.department.length ? this.department : [],
+        project: this.project && this.project.length ? this.project : [],
+        positionTitle: this.positionTitle && this.positionTitle.length ? this.positionTitle : [],
+        geography: this.geography && this.geography.length ? this.geography : [],
+        emp_name: this.emp_name && this.emp_name.length ? this.emp_name : []
                     };
-
+                    console.log("values filtering:",this.afterglobalfilter)
 
                     this.groupProjectData(); // Call the grouping function here
                     // this.globalState.filter = this.afterglobalfilter;
@@ -591,7 +599,7 @@ export class timeSheetDemo {
             this.selectedGeography = selectedGeography;
 
             // For "All", clear the filter
-            this.geography = selectedGeography === 'All' ? [] : [selectedGeography];
+            this.geography = !selectedGeography ? [] : [selectedGeography];
 
             if (this.startDate && this.endDate) {
                 this.applyFilters();
@@ -602,10 +610,17 @@ export class timeSheetDemo {
     handleDepartmentClick(selectedDepartment: string): void {
         this.ngZone.run(() => {
             // Update the department filter
-            this.department = [selectedDepartment];
-            this.selectedDepartment = selectedDepartment;
 
-            // Keep existing date values
+            if (!selectedDepartment) {
+                // Reset department filter
+                this.department = [];
+                this.selectedDepartment = null;
+            } else {
+                // Apply department filter
+                this.department = [selectedDepartment];
+                this.selectedDepartment = selectedDepartment;
+            }
+
             if (this.startDate && this.endDate) {
                 this.applyFilters();
             }
@@ -616,7 +631,7 @@ export class timeSheetDemo {
         // Reset filters
         this.startDate = '';
         this.endDate = '';
-        this.minEndDate=null;
+        this.minEndDate = null;
         this.department = [];
         this.project = [];
         this.positionTitle = [];
@@ -641,4 +656,5 @@ export class timeSheetDemo {
 
         this.cdr.detectChanges();
     }
+    
 }

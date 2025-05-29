@@ -10,10 +10,11 @@
     [options]="options" 
     [(ngModel)]="selectedValue" 
     (onChange)="onChange($event.value)" 
+    (onClear)="onClear()"
     placeholder="All"
     [filter]="true"
     class="w-full"
     [disabled]="isDisabled"
-    
+   [showClear]="true"
   ></p-multiSelect>
 </div>
