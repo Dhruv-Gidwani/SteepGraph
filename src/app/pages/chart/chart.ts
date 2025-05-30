@@ -569,7 +569,6 @@ export class ChartDemo implements OnInit {
         };
         this.selectedRole = '';
         this.selectedBillingStatus = '';
-        this.filteredContracts = this.allContracts;
 
         this.applyFilters();
         // this.cdr.detectChanges();
