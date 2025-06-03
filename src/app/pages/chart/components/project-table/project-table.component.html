@@ -187,6 +187,10 @@
                         </ng-template>
                     </p-columnFilter>
                 </th>
+                <th pSortableColumn="Rate Card">
+                    Rate Card
+                    <p-sortIcon field="Rate Card"></p-sortIcon>
+                </th>
                 <th pSortableColumn="ResUti">
                     Resource Utilization
                     <p-sortIcon field="ResUti"></p-sortIcon>
@@ -214,9 +218,7 @@
                     <p-sortIcon field="End Date"></p-sortIcon>
                     <p-columnFilter type="date" field="End Date Object" display="menu"></p-columnFilter>
                 </th>
-                <th>Jan</th>
-                <th>Feb</th>
-                <th>Mar</th>
+                
                 <th>Apr</th>
                 <th>May</th>
                 <th>Jun</th>
@@ -226,6 +228,9 @@
                 <th>Oct</th>
                 <th>Nov</th>
                 <th>Dec</th>
+                <th>Jan</th>
+                <th>Feb</th>
+                <th>Mar</th>
             </tr>
         </ng-template>
 
@@ -243,6 +248,7 @@
                 <td>{{ row['TS Approver'] }}</td>
                 <td>{{ row['Position Title'] }}</td>
                 <td>{{ row['Billing Status'] }}</td>
+                <td>{{row['Rate Card']}}</td>
                 <td>{{ row['Resource Utilization'] }}</td>
                 <td>{{ row['Hourly Rate'] }}</td>
                 <td>{{ row['Currency'] }}</td>
@@ -252,7 +258,7 @@
                 <td>{{ row['End Date'] }}</td>
 
                 <!-- Month Cells -->
-                <td *ngFor="let month of ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']">
+                <td *ngFor="let month of [ 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec','Jan', 'Feb', 'Mar']">
                     <ng-container *ngIf="row.monthData?.[month + '-' + currentYear]">
                         <div class="month-cell" [style.background-color]="row.monthData[month + '-' + currentYear].color">
                             {{ row.monthData[month + '-' + currentYear].day }}

@@ -147,7 +147,7 @@ export class ProjectTableComponent implements OnChanges {
         const startDate = new Date(formattedStartDate);
         const endDate = new Date(formattedEndDate);
         const currentYear = new Date().getFullYear();
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [ 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec','Jan', 'Feb', 'Mar'];
 
         // Initialize all months with empty values and default background
         months.forEach((month) => {
@@ -210,7 +210,7 @@ export class ProjectTableComponent implements OnChanges {
 
     exportToExcel(): void {
         const exportData = this.displayedData.map((row) => {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec','Jan', 'Feb', 'Mar'];
 
             // Define proper type for monthValues
             const monthValues: { [key: string]: string } = {};

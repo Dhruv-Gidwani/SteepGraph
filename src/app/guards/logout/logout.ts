@@ -1,12 +1,13 @@
 // logout.ts
 import { Injectable } from '@angular/core';
-
+import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
 export class LogoutService {
   private timeout: any;
   private readonly inactivityLimit = 600000; // 1 minute in milliseconds
+  
   ngOnInit(): void {
   const expiry = sessionStorage.getItem('expires_in');
   const currentTime = new Date().getTime();
@@ -15,7 +16,7 @@ export class LogoutService {
     this.logout(); // Call your logout logic
   }
 }
-  constructor() {
+  constructor(private router: Router) {
     this.startInactivityTimer();
     this.addActivityListeners();
   }
@@ -42,6 +43,7 @@ export class LogoutService {
 
   public logout(): void {
     sessionStorage.clear();
-    window.location.href = '/';
+    // window.location.href = '/';
+    this.router.navigate(['/login']);
   }
 }
