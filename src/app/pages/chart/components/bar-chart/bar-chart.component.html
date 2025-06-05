@@ -1,40 +1,45 @@
-<div class="card flex flex-col h-[420px] justify-between">
-    <div>
-        <div class="font-semibold text-xl mb-2 text-center">
-            Resources in {{ selectedProject }}
-        </div>
+<div
+    class="card flex flex-col relative"
+    [ngClass]="{
+        'h-[420px]': !(isExpanded && expandedComponent === 'bar'),
+        'h-full': isExpanded && expandedComponent === 'bar'
+    }"
+>
+    <!-- Header with expand button -->
+    <div class="flex justify-between items-center mb-4 px-2 relative">
+        <div class="font-semibold text-xl text-center w-full">Resources in {{ selectedProject }}</div>
+        <button
+            class="absolute top-2 right-2 text-gray-600 hover:text-black z-10"
+            pButton
+            [icon]="isExpanded && expandedComponent === 'bar' ? 'pi pi-compress' : 'pi pi-expand'"
+            (click)="toggleExpand.emit('bar')"
+            styleClass="p-button-text p-0"
+        ></button>
+    </div>
+
+    <!-- Combined Filters + Chart wrapper -->
+    <div class="flex flex-col px-2 gap-4 flex-grow">
+        <!-- Filters section -->
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block mb-1 font-medium">Filter by Role</label>
-                <select 
-                    [ngModel]="selectedRole" 
-                    (ngModelChange)="onRoleChange($event)" 
-                    class="w-full border p-2 rounded"
-                >
+                <select [ngModel]="selectedRole" (ngModelChange)="onRoleChange($event)" class="w-full border p-2 rounded">
                     <option value="">All</option>
-                    <option *ngFor="let role of availableRoles" [value]="role">
-                        {{ role }}
-                    </option>
+                    <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
                 </select>
             </div>
             <div>
                 <label class="block mb-1 font-medium">Billing Status</label>
-                <select 
-                    [ngModel]="selectedBillingStatus" 
-                    (ngModelChange)="onBillingStatusChange($event)" 
-                    class="w-full border p-2 rounded"
-                >
+                <select [ngModel]="selectedBillingStatus" (ngModelChange)="onBillingStatusChange($event)" class="w-full border p-2 rounded">
                     <option value="">All</option>
-                    <option *ngFor="let status of uniqueBillingStatuses" [value]="status">
-                        {{ status }}
-                    </option>
+                    <option *ngFor="let status of uniqueBillingStatuses" [value]="status">{{ status }}</option>
                 </select>
             </div>
         </div>
-    </div>
-    <div class="w-full overflow-x-auto">
-        <div class="min-w-[350px]" [style.width.px]="barChartData?.labels?.length * 60">
-            <p-chart type="bar" [data]="barChartData" [options]="barChartOptions"></p-chart>
+
+        <!-- Bar chart container: matches filter width -->
+        <div class="w-full h-full">
+            <p-chart type="bar" [data]="barChartData" [options]="barChartOptions" style="width: 100%; height: 100%"></p-chart>
         </div>
     </div>
 </div>

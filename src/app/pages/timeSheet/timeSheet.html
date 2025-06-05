@@ -8,39 +8,33 @@
                 [ngClass]="{ 'border-red-500': showStartDateError }"  /> -->
             <!-- <div class="mt-1"><message-form-demo *ngIf="showStartDateError" type="error"
                     text="Date is required"></message-form-demo></div> -->
-                <datepicker-icon-demo label="Start Date" [dateStr]="startDate"
-                (dateStrChange)="startDate = $event"  [showError]="showStartDateError" (dateStrChange)="onDateChange('start', $event)" ></datepicker-icon-demo>
+            <datepicker-icon-demo label="Start Date" [dateStr]="startDate" (dateStrChange)="startDate = $event" [showError]="showStartDateError" (dateStrChange)="onDateChange('start', $event)"></datepicker-icon-demo>
         </div>
         <div>
             <!-- <label class="block mb-1 font-medium" [ngClass]="{ 'text-red-500': showEndDateError }">End Date</label>
             <input type="date" [(ngModel)]="endDate" class="w-full border p-2 rounded ng-invalid ng-dirty"
                 [ngClass]="{ 'border-red-500': showEndDateError }" (ngModelChange)="onDateChange('end')" /> -->
-            <datepicker-icon-demo label="End Date" [dateStr]="endDate" [minDate]="minEndDate"
-                (dateStrChange)="endDate = $event"  [showError]="showEndDateError" (dateStrChange)="onDateChange('end', $event)" ></datepicker-icon-demo>
-
+            <datepicker-icon-demo label="End Date" [dateStr]="endDate" [minDate]="minEndDate" (dateStrChange)="endDate = $event" [showError]="showEndDateError" (dateStrChange)="onDateChange('end', $event)"></datepicker-icon-demo>
         </div>
         <div>
-
-            <multi-select-basic-demo *ngIf="departmentOptions.length" [options]="departmentOptions"
-                [(selectedValue)]="department" label="Department"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="empDepartmentOptions.length" [options]="empDepartmentOptions" [(selectedValue)]="emp_department" label="Employee Department"></multi-select-basic-demo>
         </div>
         <div>
-
-            <multi-select-basic-demo *ngIf="positionTitleOptions.length" [options]="positionTitleOptions"
-                [(selectedValue)]="positionTitle" label="Position Title"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="positionTitleOptions.length" [options]="positionTitleOptions" [(selectedValue)]="positionTitle" label="Position Title"></multi-select-basic-demo>
         </div>
         <div>
-            <multi-select-basic-demo *ngIf="geographyOptions.length" [options]="geographyOptions"
-                [(selectedValue)]="geography" label="Geography"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="proDepartmentOptions.length" [options]="proDepartmentOptions" [(selectedValue)]="pro_department" label="Project Department"></multi-select-basic-demo>
+        </div>
+        <div>
+            <multi-select-basic-demo *ngIf="geographyOptions.length" [options]="geographyOptions" [(selectedValue)]="geography" label="Geography"></multi-select-basic-demo>
         </div>
 
         <!-- <div>
             <multi-select-basic-demo *ngIf="projectOptions.length" [options]="projectOptions" [(selectedValue)]="project"
                 label="Project"></multi-select-basic-demo>
-        </div>  temp commented--> 
+        </div>  temp commented-->
         <div>
-            <multi-select-basic-demo *ngIf="employeeOptions.length" [options]="employeeOptions"
-                [(selectedValue)]="emp_name" label="Employee"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="employeeOptions.length" [options]="employeeOptions" [(selectedValue)]="emp_name" label="Employee"></multi-select-basic-demo>
         </div>
         <div class="flex items-end">
             <!-- <button (click)="applyFilters()"
@@ -50,28 +44,22 @@
             <p-button (click)="applyFilters()" label="Apply Filters" class="w-full mr-2"></p-button>
             <p-button (click)="resetFilters()" label="Reset Filters" class="w-full"></p-button>
         </div>
-
     </div>
 
     <!-- Chart Section -->
     <p-fluid class="grid grid-cols-12 gap-8">
         <!-- Pie Chart Area -->
         <div class="col-span-12 xl:col-span-6 mb-4" *ngIf="projectTableData.length">
-            <app-pie-chart [data]="projectTableData" [selectedGeography]="selectedGeography"
-                [selectedGeographyIndex]="selectedGeographyIndex" (geographyClick)="handleGeographyClick($event)">
-            </app-pie-chart>
+            <app-pie-chart [data]="projectTableData" [selectedGeography]="selectedGeography" [selectedGeographyIndex]="selectedGeographyIndex" (geographyClick)="handleGeographyClick($event)"> </app-pie-chart>
         </div>
 
         <!-- Bar Chart Area -->
         <div class="col-span-12 xl:col-span-6 mb-4" *ngIf="projectTableData.length">
-            <app-bar-chart [data]="projectTableData" [selectedDepartment]="selectedDepartment"
-                [selectedGeography]="selectedGeography" (departmentClick)="handleDepartmentClick($event)">
-            </app-bar-chart>
+            <app-bar-chart [data]="projectTableData" [selectedDepartment]="selectedDepartment" [selectedGeography]="selectedGeography" (departmentClick)="handleDepartmentClick($event)"> </app-bar-chart>
         </div>
     </p-fluid>
     <!-- Data Table -->
     <div class="p-mt-4" *ngIf="projectTableData.length">
-        <app-project-table *ngIf="projectTableData.length" [projectTableData]="projectTableData"
-            [exportData]="exportData" />
+        <app-project-table *ngIf="projectTableData.length" [projectTableData]="projectTableData" [exportData]="exportData" />
     </div>
 </div>

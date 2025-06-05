@@ -4,24 +4,23 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root'
 })
 export class DepartmentService {
-  private baseUrl = environment.apiUrl; // Use the environment variable for the base URL
-  
-  constructor(private http: HttpClient) {}
+    private baseUrl = environment.apiUrl; // Use the environment variable for the base URL
 
-  fetchDepartmentItem(): Observable<string> {
-    const token = sessionStorage.getItem('access_token');
-  
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+    constructor(private http: HttpClient) {}
 
-    return this.http.get(this.baseUrl+"/Server/odata/sg_Department",  {
-      headers,
-      responseType: 'text'
-    });
-  }
-  
+    fetchDepartmentItem(): Observable<string> {
+        const token = sessionStorage.getItem('access_token');
+
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        return this.http.get(this.baseUrl + '/Server/odata/sg_Department', {
+            headers,
+            responseType: 'text'
+        });
+    }
 }

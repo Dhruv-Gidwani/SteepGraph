@@ -2,9 +2,10 @@ import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { Contract } from '../interfaces/interface';
+import { ButtonModule } from 'primeng/button';
 @Component({
     selector: 'app-pie-chart',
-    imports: [ChartModule, CommonModule],
+    imports: [ChartModule, CommonModule, ButtonModule],
     templateUrl: './pie-chart.component.html',
     styleUrl: './pie-chart.component.scss'
 })
@@ -15,6 +16,10 @@ export class PieChartComponent implements OnChanges {
 
     @Output() projectSelected = new EventEmitter<{ project: string; index: number }>();
 
+    @Output() toggleExpand = new EventEmitter<'pie'>();
+    @Input() isExpanded: boolean = false;
+    @Input() expandedComponent: 'pie' | 'bar' | 'table' | null = null;
+
     pieChartData: any;
     pieChartOptions: any;
     private isFirstLoad = true;
@@ -22,12 +27,12 @@ export class PieChartComponent implements OnChanges {
     ngOnChanges(): void {
         this.renderPieChart();
 
-    // Auto-select first project only on first load
-    if (this.isFirstLoad && this.pieChartData?.labels?.length > 0) {
-        const firstProject = this.pieChartData.labels[0];
-        this.projectSelected.emit({ project: firstProject, index: 0 });
-        this.isFirstLoad = false;
-    }
+        // // Auto-select first project only on first load
+        // if (this.isFirstLoad && this.pieChartData?.labels?.length > 0) {
+        //     const firstProject = this.pieChartData.labels[0];
+        //     this.projectSelected.emit({ project: firstProject, index: 0 });
+        //     this.isFirstLoad = false;
+        // }
     }
 
     onProjectClick(project: string): void {
@@ -35,6 +40,20 @@ export class PieChartComponent implements OnChanges {
         this.projectSelected.emit({ project, index });
     }
 
+    // private renderPieChart(): void {
+    //     const projectCountMap = this.calculateProjectCounts();
+    //     const labels = Object.keys(projectCountMap);
+    //     const data = Object.values(projectCountMap);
+
+    //     this.pieChartData = this.createChartData(labels, data);
+    //     this.pieChartOptions = this.createChartOptions();
+
+    //     // If no project is selected, select the first one
+    //     if (!this.selectedProject && labels.length > 0) {
+    //         const firstProject = labels[0];
+    //         this.projectSelected.emit({ project: firstProject, index: 0 });
+    //     }
+    // }
     private renderPieChart(): void {
         const projectCountMap = this.calculateProjectCounts();
         const labels = Object.keys(projectCountMap);
@@ -43,10 +62,18 @@ export class PieChartComponent implements OnChanges {
         this.pieChartData = this.createChartData(labels, data);
         this.pieChartOptions = this.createChartOptions();
 
-        // If no project is selected, select the first one
-        if (!this.selectedProject && labels.length > 0) {
+        // Only select first project if none is selected
+        if (!this.selectedProject && labels.length > 0 && this.isFirstLoad) {
             const firstProject = labels[0];
             this.projectSelected.emit({ project: firstProject, index: 0 });
+            this.isFirstLoad = false;
+        }
+
+        // Update the offset for the selected project
+        if (this.pieChartData?.datasets?.[0]) {
+            this.pieChartData.datasets[0].offset = labels.map((_, index) => 
+                index === this.selectedProjectIndex ? 20 : 0
+            );
         }
     }
 
@@ -77,7 +104,7 @@ export class PieChartComponent implements OnChanges {
     private createChartOptions(): any {
         return {
             responsive: true,
-            cutout: '50%',
+            cutout: '40%',
             onClick: (evt: any, activeEls: any[]) => {
                 if (activeEls.length > 0) {
                     const chart = activeEls[0].element.$context.chart;

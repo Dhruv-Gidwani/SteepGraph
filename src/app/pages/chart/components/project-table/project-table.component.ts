@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, Output, EventEmitter } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -18,9 +18,12 @@ import { ExportService } from './Excel/excel';
 })
 export class ProjectTableComponent implements OnChanges {
     @Input() data: TableData[] = [];
+    @Input() isExpanded: boolean = false;
+    @Input() expandedComponent: 'pie' | 'bar' | 'table' | null = null;
+    @Output() toggleExpand = new EventEmitter<'table'>();
 
     @ViewChild('dt2') table!: Table;
-    
+
     displayedData: TableData[] = [];
     ResourcesNames: string[] = [];
     TSapproverNames: string[] = [];
@@ -41,7 +44,7 @@ export class ProjectTableComponent implements OnChanges {
             this.updateRoleNames();
             this.updatePositionTitleNames();
             this.updateBillingStatusNames();
-             console.log('Initial data:', this.data);
+            console.log('Initial data:', this.data);
         }
     }
 
@@ -97,40 +100,39 @@ export class ProjectTableComponent implements OnChanges {
     //     this.updateRepresentativeNames();
     // }
     private processTableData(): void {
-    this.displayedData = this.data.map((row) => {
-        const formatted = this.formatDates(row);
-        const monthMap = this.createMonthMap(row);
-        const startDate = new Date(row['Start Date']);
-        const endDate = new Date(row['End Date']);
+        this.displayedData = this.data.map((row) => {
+            const formatted = this.formatDates(row);
+            const monthMap = this.createMonthMap(row);
+            const startDate = new Date(row['Start Date']);
+            const endDate = new Date(row['End Date']);
 
-        return {
-            ...row,
-            ...formatted,
-            ...monthMap,
-            // Keep original string dates for display
-            'Start Date': formatted['Start Date'],
-            'End Date': formatted['End Date'],
-            // Add date objects and timestamps for sorting
-            'Start Date Object': startDate,
-            'End Date Object': endDate,
-            startDateSort: startDate.getTime(),
-            endDateSort: endDate.getTime(),
-            // Maintain the existing numeric conversions
-            ResUti: Number(row['Resource Utilization']),
-            HrRate: Number(row['Hourly Rate']),
-            alloHrs: Number(row['Allocated Hrs.']),
-            remHrs: Number(row['Rem. Hrs.'])
-        };
-    });
+            return {
+                ...row,
+                ...formatted,
+                ...monthMap,
+                // Keep original string dates for display
+                'Start Date': formatted['Start Date'],
+                'End Date': formatted['End Date'],
+                // Add date objects and timestamps for sorting
+                'Start Date Object': startDate,
+                'End Date Object': endDate,
+                startDateSort: startDate.getTime(),
+                endDateSort: endDate.getTime(),
+                // Maintain the existing numeric conversions
+                ResUti: Number(row['Resource Utilization']),
+                HrRate: Number(row['Hourly Rate']),
+                alloHrs: Number(row['Allocated Hrs.']),
+                remHrs: Number(row['Rem. Hrs.'])
+            };
+        });
 
-    this.updateRepresentativeNames();
-    this.updateTSapproverNames();
-    this.updateBillingMethodNames();
-    this.updateRoleNames();
-    this.updatePositionTitleNames();
-    this.updateBillingStatusNames();
-    
-}
+        this.updateRepresentativeNames();
+        this.updateTSapproverNames();
+        this.updateBillingMethodNames();
+        this.updateRoleNames();
+        this.updatePositionTitleNames();
+        this.updateBillingStatusNames();
+    }
     onGlobalFilter(event: Event, table: Table): void {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
@@ -221,23 +223,46 @@ export class ProjectTableComponent implements OnChanges {
             });
 
             // Create the final export object
+            // return {
+            //     Project: row.Project,
+            //     'Work Contract Name': row['Work Contract Name'],
+            //     'Project Manager': row['Project Manager'],
+            //     'Billing Method': row['Billing Method'],
+            //     'PWO Name': row['PWO Name'],
+            //     'Position Role': row['Position Role'],
+            //     'WCT Status': row['WCT Status'],
+            //     'Resource Name': row['Resource Name'],
+            //     'TS Approver': row['TS Approver'],
+            //     'Position Title': row['Position Title'],
+            //     'Billing Status': row['Billing Status'],
+            //     'Resource Utilization': row['Resource Utilization'],
+            //     'Hourly Rate': row['Hourly Rate'],
+            //     Currency: row['Currency'],
+            //     'Allocated Hrs.': row['Allocated Hrs.'],
+            //     'Rem. Hrs.': row['Rem. Hrs.'],
+            //     'Start Date': row['Start Date'],
+            //     'End Date': row['End Date'],
+            //     ...monthValues
+            // };
+
             return {
                 Project: row.Project,
                 'Work Contract Name': row['Work Contract Name'],
-                'Project Manager': row['Project Manager'],
-                'Billing Method': row['Billing Method'],
                 'PWO Name': row['PWO Name'],
-                'Position Role': row['Position Role'],
-                'WCT Status': row['WCT Status'],
                 'Resource Name': row['Resource Name'],
-                'TS Approver': row['TS Approver'],
-                'Position Title': row['Position Title'],
-                'Billing Status': row['Billing Status'],
-                'Resource Utilization': row['Resource Utilization'],
-                'Hourly Rate': row['Hourly Rate'],
-                Currency: row['Currency'],
                 'Allocated Hrs.': row['Allocated Hrs.'],
                 'Rem. Hrs.': row['Rem. Hrs.'],
+                'Billing Status': row['Billing Status'],
+                'Rate Card': row['Rate Card'],
+                'Position Role': row['Position Role'],
+                'TS Approver': row['TS Approver'],
+                'Position Title': row['Position Title'],
+                'Resource Utilization': row['Resource Utilization'],
+                'Hourly Rate': row['Hourly Rate'],
+                'Billing Method': row['Billing Method'],
+                'Project Manager': row['Project Manager'],
+                'WCT Status': row['WCT Status'],
+                Currency: row['Currency'],
                 'Start Date': row['Start Date'],
                 'End Date': row['End Date'],
                 ...monthValues

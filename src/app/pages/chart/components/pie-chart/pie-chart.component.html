@@ -1,15 +1,50 @@
-<div class="card flex flex-col h-[420px]">
-    <div class="font-semibold text-xl mb-4 text-center">Project Distribution</div>
-    <div class="flex h-full overflow-hidden">
-        <div class="w-[250px] h-[250px]">
+<!-- <div class="card flex flex-col h-[420px] relative"> -->
+<div
+    class="card flex flex-col relative"
+    [ngClass]="{
+        'h-[420px]': !(isExpanded && expandedComponent === 'pie'),
+        'h-full': isExpanded && expandedComponent === 'pie'
+    }"
+>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-4 px-2">
+        <div class="font-semibold text-xl text-center w-full">Project Distribution</div>
+        <button
+            class="absolute top-2 right-2 text-gray-600 hover:text-black z-10"
+            pButton
+            [icon]="isExpanded && expandedComponent === 'pie' ? 'pi pi-compress' : 'pi pi-expand'"
+            (click)="toggleExpand.emit('pie')"
+            styleClass="p-button-text p-0"
+        ></button>
+    </div>
+
+    <!-- Chart and List -->
+    <div class="flex h-full overflow-hidden px-2">
+        <div
+            [ngClass]="{
+                'w-[250px] h-[250px]': !(isExpanded && expandedComponent === 'pie'),
+                'w-[500px] h-[500px]': isExpanded && expandedComponent === 'pie'
+            }"
+        >
             <p-chart type="pie" [data]="pieChartData" [options]="pieChartOptions"></p-chart>
         </div>
-        <div class="flex-1 overflow-y-auto ml-4 max-h-[350px] pr-2 hide-scrollbar">
+        <div
+            class="flex-1 overflow-y-auto ml-4 pr-2 hide-scrollbar"
+            [ngClass]="{
+                'max-h-[350px]': !(isExpanded && expandedComponent === 'pie'),
+                'max-h-full': isExpanded && expandedComponent === 'pie'
+            }"
+        >
             <ul class="project-list">
-                <li *ngFor="let project of pieChartData?.labels" (click)="onProjectClick(project)" [ngClass]="{
+                <li
+                    *ngFor="let project of pieChartData?.labels"
+                    (click)="onProjectClick(project)"
+                    [ngClass]="{
                         'bg-blue-100 text-blue-700 font-semibold': project === selectedProject,
                         'hover:bg-gray-100 dark:hover:bg-surface-700': true
-                    }" class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200">
+                    }"
+                    class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
+                >
                     {{ project }}
                 </li>
             </ul>

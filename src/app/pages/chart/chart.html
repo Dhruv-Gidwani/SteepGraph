@@ -1,79 +1,98 @@
 <app-loader *ngIf="isLoading"></app-loader>
 <div class="p-0" *ngIf="!isLoading">
     <!-- Filters -->
-    <div class="mb-4 grid grid-cols-1 md:grid-cols-8 gap-2">
-        <div >
-            <!-- <label class="block mb-1 font-medium">CWO Start Date</label>
-            <input type="date" [(ngModel)]="filters.startDate" class="w-full border p-2 rounded" /> -->
-            <datepicker-icon-demo label="CWO Start Date" [dateStr]="filters.startDate"
-                (dateStrChange)="filters.startDate = $event">
-            </datepicker-icon-demo>
-
-        </div>
-        <div>
-            <!-- <label class="block mb-1 font-medium">CWO End Date</label>
-            <input type="date" [(ngModel)]="filters.endDate" class="w-full border p-2 rounded" /> -->
-            <datepicker-icon-demo label="CWO End Date" [dateStr]="filters.endDate" 
-                (dateStrChange)="filters.endDate = $event">
-            </datepicker-icon-demo>
-
-
-
-
-        </div>
-        <div>
-            <!-- <label class="block mb-1 font-medium">Status</label>
-            <select [(ngModel)]="filters.status" class="w-full border p-2 rounded" disabled>
-              
-                <option *ngFor="let status of uniqueStatuses" [value]="status" [selected]="status === 'Active'">{{ status }}</option>
-            </select> -->
-            <multi-select-basic-demo *ngIf="statusoptionswc.length" [options]="statusoptionswc" [isDisabled]="true"
-                [(selectedValue)]="filters.status" label="Status"></multi-select-basic-demo>
-        </div>
-        <div>
-
-            <multi-select-basic-demo *ngIf="geographyOptionswc.length" [options]="geographyOptionswc" 
-                [(selectedValue)]="filters.geography" label="Geography"></multi-select-basic-demo>
-        </div>
-        <div>
-
-            <multi-select-basic-demo *ngIf="billingMethodOptionswc.length" [options]="billingMethodOptionswc"
-                [(selectedValue)]="filters.billingMethod" label="Billing Method"></multi-select-basic-demo>
-        </div>
+    <div *ngIf="!isExpanded" class="mb-4 grid grid-cols-1 md:grid-cols-8 gap-2">
         <!-- <div>
-
-            <multi-select-basic-demo *ngIf="customerOptionswc.length" [options]="customerOptionswc"
-                [(selectedValue)]="filters.customer" label="Customer"></multi-select-basic-demo>
+            <datepicker-icon-demo label="CWO Start Date" [dateStr]="filters.startDate" (dateStrChange)="filters.startDate = $event" [showError]="showStartDateError" (dateStrChange)="onDateChange('start', $event)"> </datepicker-icon-demo>
+        </div>
+        <div>
+            <datepicker-icon-demo label="CWO End Date" [dateStr]="filters.endDate" (dateStrChange)="filters.endDate = $event" [showError]="showEndDateError" (dateStrChange)="onDateChange('end', $event)"> </datepicker-icon-demo>
         </div> -->
         <div>
-
-            <multi-select-basic-demo *ngIf="projectDistributionwc.length" [options]="projectDistributionwc"
-                [(selectedValue)]="filters.project" label="Project"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="statusoptionswc.length" [options]="statusoptionswc" [isDisabled]="true" [(selectedValue)]="filters.status" label="Status"></multi-select-basic-demo>
         </div>
-        <div class="flex items-end ">
+        <div>
+            <multi-select-basic-demo *ngIf="geographyOptionswc.length" [options]="geographyOptionswc" [(selectedValue)]="filters.geography" label="Geography"></multi-select-basic-demo>
+        </div>
+        <div>
+            <multi-select-basic-demo *ngIf="billingMethodOptionswc.length" [options]="billingMethodOptionswc" [(selectedValue)]="filters.billingMethod" label="Billing Method"></multi-select-basic-demo>
+        </div>
+        <div>
+            <multi-select-basic-demo *ngIf="projectDistributionwc.length" [options]="projectDistributionwc" [(selectedValue)]="filters.project" label="Project"></multi-select-basic-demo>
+        </div>
+        <div class="flex items-end">
             <p-button (click)="applyFilters()" label="Apply Filters" class="w-full mr-2"></p-button>
             <p-button (click)="resetFilters()" label="Reset Filters" class="w-full"></p-button>
         </div>
     </div>
 
-    <p-fluid class="grid grid-cols-12 gap-8">
-        <!-- Pie Chart Card -->
+    <div *ngIf="expandedComponent === 'pie'" class="fixed top-0 left-0 w-screen h-screen z-[9999] bg-white p-4 overflow-auto">
+        <app-pie-chart
+            [contracts]="filteredContracts"
+            [selectedProject]="selectedProject"
+            [selectedProjectIndex]="selectedProjectIndex"
+            [isExpanded]="isExpanded"
+            [expandedComponent]="expandedComponent"
+            (projectSelected)="onProjectClick($event)"
+            (toggleExpand)="toggleExpand($event)"
+        ></app-pie-chart>
+    </div>
+    <div *ngIf="expandedComponent === 'bar'" class="fixed top-0 left-0 w-screen h-screen z-[9999] bg-white p-4 overflow-auto">
+        <app-bar-chart
+            [contracts]="selectedProjectData"
+            [selectedProject]="selectedProject"
+            [availableRoles]="availableRoles"
+            [uniqueBillingStatuses]="uniqueBillingStatuses"
+            [selectedRole]="selectedRole"
+            [selectedBillingStatus]="selectedBillingStatus"
+            [isExpanded]="isExpanded"
+            [expandedComponent]="expandedComponent"
+            (roleChanged)="onRoleChanged($event)"
+            (billingStatusChanged)="onBillingStatusChanged($event)"
+            (toggleExpand)="toggleExpand($event)"
+        >
+        </app-bar-chart>
+    </div>
+    <div *ngIf="!isExpanded" class="grid grid-cols-12 gap-8">
         <div class="col-span-12 xl:col-span-6 mb-4">
-            <app-pie-chart class="col-span-12 xl:col-span-6" [contracts]="filteredContracts"
-                [selectedProject]="selectedProject" [selectedProjectIndex]="selectedProjectIndex"
-                (projectSelected)="onProjectClick($event)"> </app-pie-chart>
+            <app-pie-chart
+                [contracts]="filteredContracts"
+                [selectedProject]="selectedProject"
+                [selectedProjectIndex]="selectedProjectIndex"
+                [isExpanded]="isExpanded"
+                [expandedComponent]="expandedComponent"
+                (projectSelected)="onProjectClick($event)"
+                (toggleExpand)="toggleExpand($event)"
+            ></app-pie-chart>
         </div>
-
         <div class="col-span-12 xl:col-span-6 mb-4" *ngIf="selectedProject">
-            <app-bar-chart *ngIf="selectedProject" [contracts]="selectedProjectData" [selectedProject]="selectedProject"
-                [availableRoles]="availableRoles" [uniqueBillingStatuses]="uniqueBillingStatuses"
-                [selectedRole]="selectedRole" [selectedBillingStatus]="selectedBillingStatus"
-                (roleChanged)="onRoleChanged($event)" (billingStatusChanged)="onBillingStatusChanged($event)">
+            <app-bar-chart
+                [contracts]="selectedProjectData"
+                [selectedProject]="selectedProject"
+                [availableRoles]="availableRoles"
+                [uniqueBillingStatuses]="uniqueBillingStatuses"
+                [selectedRole]="selectedRole"
+                [selectedBillingStatus]="selectedBillingStatus"
+                [isExpanded]="isExpanded"
+                [expandedComponent]="expandedComponent"
+                (roleChanged)="onRoleChanged($event)"
+                (billingStatusChanged)="onBillingStatusChanged($event)"
+                (toggleExpand)="toggleExpand($event)"
+            >
             </app-bar-chart>
         </div>
-    </p-fluid>
-    <!-- Data Table -->
-    <div class="p-mt-4" *ngIf="selectedProjectData.length">
+    </div>
+
+    <!-- <div class="p-mt-4" *ngIf="selectedProjectData.length && !isExpanded">
         <app-project-table [data]="selectedProjectData"> </app-project-table>
+    </div> -->
+    <!-- Add expanded view for table -->
+    <div *ngIf="expandedComponent === 'table'" class="fixed top-0 left-0 w-screen h-screen z-[9999] bg-white p-4 overflow-auto">
+        <app-project-table [data]="selectedProjectData" [isExpanded]="isExpanded" [expandedComponent]="expandedComponent" (toggleExpand)="toggleExpand($event)"> </app-project-table>
+    </div>
+
+    <!-- Update the existing table in the normal view -->
+    <div class="p-mt-4" *ngIf="selectedProjectData.length && !isExpanded">
+        <app-project-table [data]="selectedProjectData" [isExpanded]="isExpanded" [expandedComponent]="expandedComponent" (toggleExpand)="toggleExpand($event)"> </app-project-table>
     </div>
 </div>
