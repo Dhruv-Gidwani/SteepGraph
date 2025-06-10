@@ -55,7 +55,9 @@
                     <button
                         class="text-gray-600 hover:text-black h-[38px] flex items-center justify-center"
                         pButton
-                        [icon]="isExpanded && expandedComponent === 'table' ? 'pi pi-compress' : 'pi pi-expand'"
+                        [icon]="isExpanded && expandedComponent === 'table' ? 'pi pi-angle-down' : 'pi pi-angle-up'"
+                        [pTooltip]="isExpanded && expandedComponent === 'bar' ? 'Collapse View' : 'Expand View'"
+                        tooltipPosition="top"
                         (click)="toggleExpand.emit('table')"
                         styleClass="p-button-text p-2"
                     ></button>

@@ -95,6 +95,9 @@ export class timeSheetDemo {
     geographyOptions: { label: string; value: string }[] = [];
     positionTitleOptions: { label: string; value: string }[] = [];
     minEndDate: Date | null = null;
+    isExpanded: boolean = false;
+    expandedComponent: 'pie' | 'bar' | 'table' | null = null;
+
     constructor(
         private cdr: ChangeDetectorRef,
         private exportService: ExportService,
@@ -119,18 +122,7 @@ export class timeSheetDemo {
         return [...sorted.map((item) => ({ label: item, value: item }))]; // { label: 'All', value: '' },
     }
     ngOnInit(): void {
-        // if (this.globalState.filter && this.globalState.filteredData.length > 0) {
-        //     this.afterglobalfilter = this.globalState.filter;
-        //     this.projectTableData = this.globalState.filteredData;
-
-        //     this.startDate = this.afterglobalfilter.startDate;
-        //     this.endDate = this.afterglobalfilter.endDate;
-        //     this.department = this.afterglobalfilter.department;
-        //     this.project = this.afterglobalfilter.project;
-        //     this.positionTitle = this.afterglobalfilter.positionTitle;
-        //     this.geography = this.afterglobalfilter.geography;
-        //     this.emp_name = this.afterglobalfilter.emp_name;
-        // }
+       
         const pageKey = 'page1';
 
         const savedFilter = this.globalState.getFilters(pageKey);
@@ -216,45 +208,6 @@ export class timeSheetDemo {
                 console.error('Error fetching role item:', error);
             }
         });
-
-        // 3rd service
-        // this.ProjectService.fetchProjectItem().subscribe({
-        //     next: (response) => {
-        //         console.log('Service response:', response);
-
-        //         let parsedResponse: any = response;
-
-        //         // If response is a string, try to parse it as JSON
-        //         if (typeof response === 'string') {
-        //             try {
-        //                 parsedResponse = JSON.parse(response);
-        //             } catch (e) {
-        //                 console.error('Failed to parse response as JSON:', e);
-        //                 return;
-        //             }
-        //         }
-
-        //         // Loop through the array inside "value" and extract sg_role
-        //         if (parsedResponse && Array.isArray(parsedResponse.value)) {
-        //             for (const item of parsedResponse.value) {
-        //                 if (item.keyed_name) {
-        //                     this.ProjectList.push(item.keyed_name);
-        //                 }
-        //             }
-        //         }
-        //         this.ProjectList.sort((a, b) => a.localeCompare(b));
-        //         // this.projectOptions = [
-        //         //     { label: 'All', value: '' },
-        //         //     ...this.ProjectList.map(name => ({ label: name, value: name }))
-        //         // ];
-        //         this.projectOptions = this.buildOptions(this.ProjectList);
-        //         this.cdr.detectChanges();
-        //         console.log('Extracted Department list:', this.ProjectList);
-        //     },
-        //     error: (error) => {
-        //         console.error('Error fetching role item:', error);
-        //     }
-        // });
 
         //4th service
         this.EmployeeService.fetchEmployeeItem().subscribe({
@@ -612,6 +565,11 @@ export class timeSheetDemo {
                 };
             })
         }));
+    }
+
+    toggleExpand(component: 'pie' | 'bar' | 'table' | null): void {
+        this.isExpanded = !this.isExpanded;
+        this.expandedComponent = this.isExpanded ? component : null;
     }
 
     handleGeographyClick(selectedGeography: string): void {

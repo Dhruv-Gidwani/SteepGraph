@@ -1,14 +1,15 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit,  Output, EventEmitter } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
     selector: 'app-project-table',
     standalone: true,
-    imports: [ChartModule, CommonModule, TableModule, ButtonModule, MultiSelectModule, FormsModule],
+    imports: [ChartModule, CommonModule, TableModule, ButtonModule, MultiSelectModule, FormsModule, TooltipModule],
     templateUrl: './project-table.component.html',
     styleUrl: './project-table.component.scss'
 })
@@ -16,6 +17,9 @@ export class ProjectTableComponent implements OnInit {
     @Input() projectTableData: any[] = [];
     @Input() customSort!: (event: any) => void;
     @Input() exportData!: () => void;
+    @Input() isExpanded: boolean = false;
+    @Input() expandedComponent: 'pie' | 'bar' | 'table' | null = null;
+    @Output() toggleExpand = new EventEmitter<'table'>();
 
     searchValue: string | undefined;
     flatData: any[] = [];

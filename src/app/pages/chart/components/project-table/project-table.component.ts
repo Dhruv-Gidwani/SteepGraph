@@ -8,10 +8,10 @@ import { FormsModule } from '@angular/forms';
 import { Table } from 'primeng/table';
 import { TableData, MonthData } from '../interfaces/interface';
 import { ExportService } from './Excel/excel';
-
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
     selector: 'app-project-table',
-    imports: [ChartModule, CommonModule, TableModule, ButtonModule, MultiSelectModule, FormsModule],
+    imports: [ChartModule, CommonModule, TableModule, ButtonModule, MultiSelectModule, FormsModule, TooltipModule],
     providers: [ExportService],
     templateUrl: './project-table.component.html',
     styleUrl: './project-table.component.scss'
@@ -65,40 +65,6 @@ export class ProjectTableComponent implements OnChanges {
         };
     }
 
-    // private processTableData(): void {
-    //     this.displayedData = this.data.map((row) => ({
-    //         ...row,
-    //         ...this.formatDates(row),
-    //         ...this.createMonthMap(row)
-    //     }));
-    //     //this.calculateRowspan();
-    //     this.updateRepresentativeNames();
-    // }
-    // private processTableData(): void {
-    //     this.displayedData = this.data.map((row) => {
-    //         const formatted = this.formatDates(row);
-    //         const monthMap = this.createMonthMap(row);
-
-    //         return {
-    //             ...row,
-    //             ...formatted,
-    //             ...monthMap,
-    //             // Convert dates to Date objects for sorting
-    //             'Start Date': new Date(row['Start Date']),
-    //             'End Date': new Date(row['End Date']),
-    //             // Maintain the existing numeric conversions
-    //             ResUti: Number(row['Resource Utilization']),
-    //             HrRate: Number(row['Hourly Rate']),
-    //             alloHrs: Number(row['Allocated Hrs.']),
-    //             remHrs: Number(row['Rem. Hrs.']),
-    //             // Add sortable date fields
-    //             startDateSort: new Date(row['Start Date']).getTime(),
-    //             endDateSort: new Date(row['End Date']).getTime()
-    //         };
-    //     });
-
-    //     this.updateRepresentativeNames();
-    // }
     private processTableData(): void {
         this.displayedData = this.data.map((row) => {
             const formatted = this.formatDates(row);
@@ -149,7 +115,7 @@ export class ProjectTableComponent implements OnChanges {
         const startDate = new Date(formattedStartDate);
         const endDate = new Date(formattedEndDate);
         const currentYear = new Date().getFullYear();
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = ['Jan', 'Feb', 'Mar','Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         // Initialize all months with empty values and default background
         months.forEach((month) => {
@@ -212,7 +178,7 @@ export class ProjectTableComponent implements OnChanges {
 
     exportToExcel(): void {
         const exportData = this.displayedData.map((row) => {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const months = ['Jan', 'Feb', 'Mar','Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
             // Define proper type for monthValues
             const monthValues: { [key: string]: string } = {};
@@ -221,29 +187,6 @@ export class ProjectTableComponent implements OnChanges {
                 const monthKey = `${month}-${this.currentYear}`;
                 monthValues[month] = row.monthData?.[monthKey]?.day || '';
             });
-
-            // Create the final export object
-            // return {
-            //     Project: row.Project,
-            //     'Work Contract Name': row['Work Contract Name'],
-            //     'Project Manager': row['Project Manager'],
-            //     'Billing Method': row['Billing Method'],
-            //     'PWO Name': row['PWO Name'],
-            //     'Position Role': row['Position Role'],
-            //     'WCT Status': row['WCT Status'],
-            //     'Resource Name': row['Resource Name'],
-            //     'TS Approver': row['TS Approver'],
-            //     'Position Title': row['Position Title'],
-            //     'Billing Status': row['Billing Status'],
-            //     'Resource Utilization': row['Resource Utilization'],
-            //     'Hourly Rate': row['Hourly Rate'],
-            //     Currency: row['Currency'],
-            //     'Allocated Hrs.': row['Allocated Hrs.'],
-            //     'Rem. Hrs.': row['Rem. Hrs.'],
-            //     'Start Date': row['Start Date'],
-            //     'End Date': row['End Date'],
-            //     ...monthValues
-            // };
 
             return {
                 Project: row.Project,

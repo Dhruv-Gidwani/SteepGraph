@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
-
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
     selector: 'app-pie-chart',
-    imports: [ChartModule, CommonModule],
+    imports: [ChartModule, CommonModule, ButtonModule, TooltipModule],
     templateUrl: './pie-chart.component.html',
     styleUrl: './pie-chart.component.scss'
 })
@@ -14,6 +15,10 @@ export class PieChartComponent implements OnChanges {
     @Input() selectedGeographyIndex: number | null = null;
     @Output() geographyClick = new EventEmitter<string>();
     @Output() geographySelected = new EventEmitter<{ geography: string; index: number }>();
+
+    @Output() toggleExpand = new EventEmitter<'pie'>();
+    @Input() isExpanded: boolean = false;
+    @Input() expandedComponent: 'pie' | 'bar' | 'table' | null = null;
 
     firstGeography: string | null = null; //new
     pieChartData: any;

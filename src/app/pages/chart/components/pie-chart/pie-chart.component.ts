@@ -3,9 +3,10 @@ import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { Contract } from '../interfaces/interface';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
     selector: 'app-pie-chart',
-    imports: [ChartModule, CommonModule, ButtonModule],
+    imports: [ChartModule, CommonModule, ButtonModule, TooltipModule],
     templateUrl: './pie-chart.component.html',
     styleUrl: './pie-chart.component.scss'
 })
@@ -26,13 +27,6 @@ export class PieChartComponent implements OnChanges {
 
     ngOnChanges(): void {
         this.renderPieChart();
-
-        // // Auto-select first project only on first load
-        // if (this.isFirstLoad && this.pieChartData?.labels?.length > 0) {
-        //     const firstProject = this.pieChartData.labels[0];
-        //     this.projectSelected.emit({ project: firstProject, index: 0 });
-        //     this.isFirstLoad = false;
-        // }
     }
 
     onProjectClick(project: string): void {
@@ -40,20 +34,6 @@ export class PieChartComponent implements OnChanges {
         this.projectSelected.emit({ project, index });
     }
 
-    // private renderPieChart(): void {
-    //     const projectCountMap = this.calculateProjectCounts();
-    //     const labels = Object.keys(projectCountMap);
-    //     const data = Object.values(projectCountMap);
-
-    //     this.pieChartData = this.createChartData(labels, data);
-    //     this.pieChartOptions = this.createChartOptions();
-
-    //     // If no project is selected, select the first one
-    //     if (!this.selectedProject && labels.length > 0) {
-    //         const firstProject = labels[0];
-    //         this.projectSelected.emit({ project: firstProject, index: 0 });
-    //     }
-    // }
     private renderPieChart(): void {
         const projectCountMap = this.calculateProjectCounts();
         const labels = Object.keys(projectCountMap);

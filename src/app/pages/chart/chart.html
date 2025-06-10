@@ -83,9 +83,6 @@
         </div>
     </div>
 
-    <!-- <div class="p-mt-4" *ngIf="selectedProjectData.length && !isExpanded">
-        <app-project-table [data]="selectedProjectData"> </app-project-table>
-    </div> -->
     <!-- Add expanded view for table -->
     <div *ngIf="expandedComponent === 'table'" class="fixed top-0 left-0 w-screen h-screen z-[9999] bg-white p-4 overflow-auto">
         <app-project-table [data]="selectedProjectData" [isExpanded]="isExpanded" [expandedComponent]="expandedComponent" (toggleExpand)="toggleExpand($event)"> </app-project-table>

@@ -2,11 +2,12 @@ import { Component, Input, EventEmitter, Output, OnChanges, SimpleChanges } from
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
     selector: 'app-bar-chart',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule],
+    imports: [ChartModule, CommonModule, FormsModule, ButtonModule, TooltipModule],
     templateUrl: './bar-chart.component.html',
     styleUrl: './bar-chart.component.scss'
 })
@@ -14,7 +15,11 @@ export class BarChartComponent implements OnChanges {
     @Input() data: any[] = [];
     @Input() selectedDepartment: string | null = null;
     @Input() selectedGeography: string | null = null;
-    @Output() departmentClick = new EventEmitter<string>(); //new
+    @Output() departmentClick = new EventEmitter<string>();
+    @Input() isExpanded: boolean = false;
+    @Input() expandedComponent: 'pie' | 'bar' | 'table' | null = null;
+    @Output() toggleExpand = new EventEmitter<'bar'>();
+
     barChartData: any;
     barChartOptions: any;
 
@@ -56,15 +61,15 @@ export class BarChartComponent implements OnChanges {
         };
     }
     onDepartmentClick(department: string): void {
-    if (this.selectedDepartment === department) {
-        // Toggle off (reset to All/default)
-        this.selectedDepartment = null;
-        this.departmentClick.emit('');
-    } else {
-        this.selectedDepartment = department;
-        this.departmentClick.emit(department);
+        if (this.selectedDepartment === department) {
+            // Toggle off (reset to All/default)
+            this.selectedDepartment = null;
+            this.departmentClick.emit('');
+        } else {
+            this.selectedDepartment = department;
+            this.departmentClick.emit(department);
+        }
     }
-}
     private initializeChartOptions(): void {
         this.barChartOptions = {
             responsive: true,
@@ -115,10 +120,7 @@ export class BarChartComponent implements OnChanges {
             },
             layout: {
                 padding: {
-                    left: 10,
-                    right: 10,
-                    top: 20,
-                    bottom: 20
+                    bottom: 25
                 }
             }
         };

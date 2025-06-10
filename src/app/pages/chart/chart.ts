@@ -82,8 +82,6 @@ export class ChartDemo implements OnInit {
     minEndDate: Date | null = null;
 
     filters = {
-        // startDate: '',
-        // endDate: '',
         status: ['Active'] as string[],
         geography: [] as string[], // multi-select returns array of strings
         billingMethod: [] as string[], // multi-select returns array of strings
@@ -97,9 +95,6 @@ export class ChartDemo implements OnInit {
     uniqueBillingStatuses: string[] = [];
     selectedBillingStatus: string = '';
     exportOptions: MenuItem[] | undefined;
-
-    // cwoStartDate: string = '';
-    // cwoEndDate: string = '';
     cwoStatus: string = 'Active';
     StatusList: string[] = ['Active'];
     RegionList: string[] = [];

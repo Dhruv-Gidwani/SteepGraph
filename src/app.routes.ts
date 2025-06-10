@@ -6,20 +6,20 @@ import { Login } from './app/guards/login/login';
 import { AuthGuard } from './app/guards/auth.guard';
 import{timeSheetDemo} from './app/pages/timeSheet/timeSheet';
 export const appRoutes: Routes = [
-    { path: '', component: Login },
+    { path: '', redirectTo: 'login', pathMatch: 'full' }, // Default: Redirect to login
+    { path: 'login', component: Login },
 
     {
         path: '',
         component: AppLayout,
         children: [
             { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
-            { path: 'workcontract', component: ChartDemo },
-            { path: 'timesheet', component: timeSheetDemo },
+            { path: 'workcontract', component: ChartDemo ,canActivate: [AuthGuard]},
+            { path: 'timesheet', component: timeSheetDemo,canActivate: [AuthGuard] },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },
 
-    { path: '', redirectTo: '', pathMatch: 'full' }, // Default: Redirect to login
 
-    { path: '**', redirectTo: '' }
+    { path: '**', redirectTo: 'login' }
 ];

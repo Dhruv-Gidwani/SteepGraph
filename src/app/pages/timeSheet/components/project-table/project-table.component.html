@@ -1,17 +1,18 @@
 <div class="p-mt-4" *ngIf="projectTableData.length">
-    <p-table [value]="flatData" 
-    [resizableColumns]="true" 
-    [rows]="10" 
-    [scrollable]="true" 
-    scrollHeight="500px" 
-    [rowsPerPageOptions]="[10, 20, 50,100]" 
-    [paginator]="true" 
-    columnResizeMode="fit"
-    [tableStyle]="{ 'min-width': '50rem' }" 
-    class="custom-table">
-
+    <p-table
+        [value]="flatData"
+        [resizableColumns]="true"
+        [rows]="10"
+        [scrollable]="true"
+        scrollHeight="500px"
+        [rowsPerPageOptions]="[10, 20, 50, 100]"
+        [paginator]="true"
+        columnResizeMode="fit"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        class="custom-table"
+    >
         <!-- Caption with Search and Export -->
-        <ng-template pTemplate="caption">
+        <!-- <ng-template pTemplate="caption">
             <div class="flex justify-between items-center w-full p-2">
                 <div class="relative w-64">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -22,6 +23,34 @@
 
                 <p-button label="Export" icon="pi pi-file-excel" styleClass="p-button-success" (click)="exportData()"></p-button>
             </div>
+        </ng-template> -->
+
+        <!-- Caption with Search and Button Group -->
+        <ng-template pTemplate="caption">
+            <div class="flex justify-between items-center w-full p-2">
+                <!-- Search Input -->
+                <div class="relative w-64">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <i class="pi pi-search text-gray-400"></i>
+                    </span>
+                    <input type="text" (input)="onGlobalFilter($event)" placeholder="Search keyword" class="w-full pl-10 pr-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300" />
+                </div>
+
+                <!-- Button Group -->
+                <div class="flex items-center space-x-1">
+                    <button class="text-gray-600 hover:text-black h-[38px] flex items-center justify-center" pButton icon="pi pi-file-excel" label="Export" (click)="exportData()" styleClass="p-button-text p-2"></button>
+
+                    <button
+                        class="text-gray-600 hover:text-black h-[38px] flex items-center justify-center"
+                        pButton
+                        [icon]="isExpanded && expandedComponent === 'table' ? 'pi pi-angle-down' : 'pi pi-angle-up'"
+                        [pTooltip]="isExpanded && expandedComponent === 'bar' ? 'Collapse View' : 'Expand View'"
+                        tooltipPosition="top"
+                        (click)="toggleExpand.emit('table')"
+                        styleClass="p-button-text p-2"
+                    ></button>
+                </div>
+            </div>
         </ng-template>
 
         <!-- Table Header -->
@@ -30,7 +59,7 @@
                 <th pSortableColumn="employee">
                     Employee
                     <p-sortIcon field="employee"></p-sortIcon>
-                      <p-columnFilter field="employee" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                    <p-columnFilter field="employee" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                         <ng-template pTemplate="header">
                             <div class="px-3 pt-3 pb-0">
                                 <span class="font-bold">Name Picker</span>
@@ -49,7 +78,7 @@
                 <th pSortableColumn="sg_position_title">
                     Position Title
                     <p-sortIcon field="sg_position_title"></p-sortIcon>
-                      <p-columnFilter field="sg_position_title" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                    <p-columnFilter field="sg_position_title" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                         <ng-template pTemplate="header">
                             <div class="px-3 pt-3 pb-0">
                                 <span class="font-bold">Name Picker</span>
@@ -115,7 +144,7 @@
                     Billing Status
                     <p-sortIcon field="billing_status"></p-sortIcon>
                 </th>
-                 <th pSortableColumn="sg_billing_method">
+                <th pSortableColumn="sg_billing_method">
                     Billing Method
                     <p-sortIcon field="sg_billing_method"></p-sortIcon>
                 </th>
@@ -168,16 +197,16 @@
                 <td>{{ row.sg_geography }}</td>
                 <td>{{ row.sg_position_role }}</td>
                 <td>{{ row.billing_status }}</td>
-                <td>{{row.sg_billing_method}}</td>
+                <td>{{ row.sg_billing_method }}</td>
                 <td>{{ row.total_leave }}</td>
-                <td>{{row.GCW_hrs}}</td>
+                <td>{{ row.GCW_hrs }}</td>
                 <td>{{ row.missing_timeSheet }}</td>
                 <td>{{ row.total_ts_fill_hrs }}</td>
                 <td>{{ row.total_billable_hr_company }}</td>
                 <td>{{ row.total_hours }}</td>
                 <td>{{ row.total_non_billable_hr }}</td>
-                <td>{{ row.company_billability.toFixed(2)}}%</td>
-                <td>{{ row.person_billability.toFixed(2)}}%</td>
+                <td>{{ row.company_billability.toFixed(2) }}%</td>
+                <td>{{ row.person_billability.toFixed(2) }}%</td>
             </tr>
         </ng-template>
     </p-table>
