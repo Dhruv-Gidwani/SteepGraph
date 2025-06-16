@@ -24,29 +24,11 @@ import { RegionService } from '../../services/region.service';
 import { billingMethodWCService } from '../../services/billingMethod_wc';
 import { CustomerService } from '../../services/customer_wc';
 import { MultiselectFilterDemo } from '../../components/multiselect/multiselect.component';
-import { DatePickerIconDemo } from '../../components/date/date.component';
 import { GlobalStateService } from '../../services/globalservicefilters';
 
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
-    // imports: [
-    //     DatePickerIconDemo,
-    //     MultiselectFilterDemo,
-    //     CommonModule,
-    //     ChartModule,
-    //     FluidModule,
-    //     FormsModule,
-    //     TableModule,
-    //     ScrollPanelModule,
-    //     SplitButtonModule,
-    //     ButtonModule,
-    //     PieChartComponent,
-    //     BarChartComponent,
-    //     ProjectTableComponent,
-    //     ProgressSpinnerModule,
-    //     LoaderComponent
-    // ],
     imports: [
         MultiselectFilterDemo,
         CommonModule,
@@ -85,7 +67,6 @@ export class ChartDemo implements OnInit {
         status: ['Active'] as string[],
         geography: [] as string[], // multi-select returns array of strings
         billingMethod: [] as string[], // multi-select returns array of strings
-        // customer: [] as string[],
         project: [] as string[]
     };
     filtersRestored = false;
@@ -109,6 +90,8 @@ export class ChartDemo implements OnInit {
     statusoptionswc: { label: string; value: string }[] = [];
     isExpanded: boolean = false;
     expandedComponent: 'pie' | 'bar' | 'table' | null = null;
+    private originalBillingMethods: string[] = [];
+    private originalProjects: string[] = [];
 
     constructor(
         private ApiService: ApiService,
@@ -173,46 +156,11 @@ export class ChartDemo implements OnInit {
             paramMapString = JSON.stringify(this.paramMap);
 
             // 3rd service
-            // const updatedParamMapFinance = { ...this.paramMap };
-            // const now = new Date();
-            // const currentYear = now.getFullYear();
-            // const currentMonth = now.getMonth(); // 0 = Jan, 3 = Apr
-
-            // // Determine financial year start: If before April, go to previous year
-            // const fyStartYear = currentMonth < 3 ? currentYear - 1 : currentYear;
-            // const fyEndYear = currentYear + 1;
-            // updatedParamMapFinance['sg_cwo_start'] = `${fyStartYear}-04-01T00:00:00`;
-            // const today = new Date();
-            // updatedParamMapFinance['sg_cwo_end'] = `${fyEndYear}-03-31T00:00:00`;
-            // console.log(updatedParamMapFinance);
-            // this.cwoStartDate = updatedParamMapFinance['sg_cwo_start'].split('T')[0];
-            // this.cwoEndDate = updatedParamMapFinance['sg_cwo_end'].split('T')[0];
-            // this.filters.startDate = this.cwoStartDate;
-            // this.filters.endDate = this.cwoEndDate;
-            // await this.fetchAndProcessContracts(updatedParamMapFinance, this.tgvdXmlString);
             const updatedParamMap = { ...this.paramMap };
             updatedParamMap['sg_work_contract_state'] = 'Active';
 
             await this.fetchAndProcessContracts(updatedParamMap, this.tgvdXmlString);
 
-            // Apply filters
-            // const { startDate, endDate, status, geography, billingMethod, project } = this.filters; // temp remove-customer
-            // const userStart = startDate ? new Date(startDate) : null;
-            // const userEnd = endDate ? new Date(endDate) : null;
-            // this.filteredContracts = this.allContracts.filter((item) => {
-            //     const itemStart = new Date(item['Start Date']);
-            //     const itemEnd = new Date(item['End Date']);
-            //     const isDateMatch = userStart && userEnd && itemStart >= userStart && itemEnd <= userEnd;
-            //     const statusMatch = !status.length || status.some((s) => s.toLowerCase() === (item.Status?.toString().toLowerCase() || ''));
-
-            //     // For multiselect filters: check if the item's value is in the selected array (case insensitive)
-            //     const geographyMatch = !geography.length || geography.some((g) => g.toLowerCase() === (item.Geography?.toString().toLowerCase() || ''));
-            //     const billingMethodMatch = !billingMethod.length || billingMethod.some((b) => b.toLowerCase() === (item['Billing Method']?.toString().toLowerCase() || ''));
-            //     // const customerMatch = !customer.length || customer.some(c => c.toLowerCase() === (item.Customer?.toString().toLowerCase() || ''));
-            //     const projectMatch = !project.length || project.some((c) => c.toLowerCase() === (item.Project?.toString().toLowerCase() || ''));
-
-            //     return isDateMatch && statusMatch && geographyMatch && billingMethodMatch && projectMatch;
-            // });
             const { status, geography, billingMethod, project } = this.filters;
             this.filteredContracts = this.allContracts.filter((item) => {
                 const statusMatch = item.Status?.toString().toLowerCase() === 'active';
@@ -252,7 +200,10 @@ export class ChartDemo implements OnInit {
         this.uniqueGeographies = [...new Set(this.allContracts.map((c) => c.Geography?.trim() || 'Unknown'))];
         this.uniqueBillingMethods = [...new Set(this.allContracts.map((c) => c['Billing Method']?.trim() || 'Unknown'))];
         this.uniqueCustomers = [...new Set(this.allContracts.map((c) => c.Customer?.trim() || 'Unknown'))];
-        console.log('Vaibhav', this.uniqueGeographies);
+
+        // Store original values here, after creating unique lists but before sorting
+        this.originalBillingMethods = [...this.uniqueBillingMethods];
+
         // data in filter goes by data by below lines
         this.uniqueGeographies.sort((a, b) => a.localeCompare(b));
         this.uniqueBillingMethods.sort((a, b) => a.localeCompare(b));
@@ -261,6 +212,7 @@ export class ChartDemo implements OnInit {
         this.billingMethodOptionswc = this.buildOptions(this.uniqueBillingMethods);
 
         const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
+        this.originalProjects = [...new Set(projectNames)];
         console.log('Project distribution:', projectNames);
         const tempLabels = [...new Set(projectNames)];
         this.selectedProject = tempLabels[0];
@@ -281,40 +233,100 @@ export class ChartDemo implements OnInit {
         console.log(this.projectDistributionwc);
     }
 
+    // Add new method to update dependent filters
+    // private updateDependentFilters(): void {
+    //     const selectedGeographies = this.filters.geography;
+
+    //     // If no geography is selected, restore original values
+    //     if (!selectedGeographies.length) {
+    //         this.billingMethodOptionswc = this.buildOptions(this.originalBillingMethods);
+    //         this.projectDistributionwc = this.buildOptions(this.originalProjects);
+    //         return;
+    //     }
+
+    //     // Filter contracts based on selected geographies
+    //     const geographyFilteredContracts = this.allContracts.filter((contract) => selectedGeographies.some((g) => g.toLowerCase() === (contract.Geography?.toString().toLowerCase() || '')));
+
+    //     // Update billing method options
+    //     const filteredBillingMethods = [...new Set(geographyFilteredContracts.map((c) => c['Billing Method']?.trim() || 'Unknown').filter(Boolean))].sort();
+    //     this.billingMethodOptionswc = this.buildOptions(filteredBillingMethods);
+
+    //     // Update project options
+    //     const filteredProjects = [...new Set(geographyFilteredContracts.map((c) => c.Project?.trim() || 'Unknown').filter(Boolean))].sort();
+    //     this.projectDistributionwc = this.buildOptions(filteredProjects);
+
+    //     // Clear selections if they're no longer valid
+    //     this.filters.billingMethod = this.filters.billingMethod.filter((bm) => filteredBillingMethods.includes(bm));
+    //     this.filters.project = this.filters.project.filter((p) => filteredProjects.includes(p));
+    // }
+
+    // Update the updateDependentFilters method
+    private updateDependentFilters(): void {
+        const { geography, billingMethod } = this.filters;
+
+        // If no filters are selected, restore original values
+        if (!geography.length && !billingMethod.length) {
+            this.billingMethodOptionswc = this.buildOptions(this.originalBillingMethods);
+            this.projectDistributionwc = this.buildOptions(this.originalProjects);
+            return;
+        }
+
+        // Filter contracts based on selected criteria
+        const filteredContracts = this.allContracts.filter((contract) => {
+            const geographyMatch = !geography.length || geography.some((g) => g.toLowerCase() === (contract.Geography?.toString().toLowerCase() || ''));
+            const billingMethodMatch = !billingMethod.length || billingMethod.some((b) => b.toLowerCase() === (contract['Billing Method']?.toString().toLowerCase() || ''));
+            return geographyMatch && billingMethodMatch;
+        });
+
+        // Update billing method options if geography is selected
+        if (geography.length && !billingMethod.length) {
+            const filteredBillingMethods = [...new Set(filteredContracts.map((c) => c['Billing Method']?.trim() || 'Unknown').filter(Boolean))].sort();
+            this.billingMethodOptionswc = this.buildOptions(filteredBillingMethods);
+        }
+
+        // Update project options based on all filters
+        const filteredProjects = [...new Set(filteredContracts.map((c) => c.Project?.trim() || 'Unknown').filter(Boolean))].sort();
+        this.projectDistributionwc = this.buildOptions(filteredProjects);
+
+        // Clear invalid selections
+        this.filters.billingMethod = this.filters.billingMethod.filter((bm) => this.billingMethodOptionswc.some((opt) => opt.value === bm));
+        this.filters.project = this.filters.project.filter((p) => this.projectDistributionwc.some((opt) => opt.value === p));
+    }
+
+    // Add method to handle billing method changes
+    onBillingMethodChange(event: string[]): void {
+        this.filters.billingMethod = event;
+        this.updateDependentFilters();
+        this.cdr.detectChanges();
+    }
+    // Add method to handle geography filter changes
+    onGeographyChange(event: string[]): void {
+        this.filters.geography = event;
+        this.updateDependentFilters();
+        this.cdr.detectChanges();
+    }
+
     async applyFilters(): Promise<void> {
-        //const { startDate, endDate, status, geography, billingMethod, project } = this.filters; // temp-remove customer
         const { status, geography, billingMethod, project } = this.filters;
-        console.log('filters', this.filters);
 
-        // if ((!startDate || startDate === '') && (!endDate || endDate === '')) {
-        //     this.validateDates();
-        //     console.log('Please enter dates for the filters');
-        // } else {
-        //     const userStart = startDate ? new Date(startDate) : null;
-        //     const userEnd = endDate ? new Date(endDate) : null;
-        //     const updatedParamMap = { ...this.paramMap };
-
-        //     // Update date filters
-        //     if (startDate) {
-        //         const sd = new Date(startDate);
-        //         updatedParamMap['sg_cwo_start'] = `${sd.getFullYear()}-${(sd.getMonth() + 1).toString().padStart(2, '0')}-${sd.getDate().toString().padStart(2, '0')}T00:00:00`;
-        //     }
-
-        //     if (endDate) {
-        //         const ed = new Date(endDate);
-        //         updatedParamMap['sg_cwo_end'] = `${ed.getFullYear()}-${(ed.getMonth() + 1).toString().padStart(2, '0')}-${ed.getDate().toString().padStart(2, '0')}T00:00:00`;
-        //     }
-
-        //await this.fetchAndProcessContracts(updatedParamMap, this.tgvdXmlString);
-        // Apply filters
-        // Apply filters
+        // Apply filters in sequence
         this.filteredContracts = this.allContracts.filter((item) => {
+            // First check status
             const statusMatch = item.Status?.toString().toLowerCase() === 'active';
+            if (!statusMatch) return false;
+
+            // Then check geography
             const geographyMatch = !geography.length || geography.some((g) => g.toLowerCase() === (item.Geography?.toString().toLowerCase() || ''));
+            if (!geographyMatch) return false;
+
+            // Then billing method
             const billingMethodMatch = !billingMethod.length || billingMethod.some((b) => b.toLowerCase() === (item['Billing Method']?.toString().toLowerCase() || ''));
+            if (!billingMethodMatch) return false;
+
+            // Finally check project
             const projectMatch = !project.length || project.some((c) => c.toLowerCase() === (item.Project?.toString().toLowerCase() || ''));
 
-            return statusMatch && geographyMatch && billingMethodMatch && projectMatch;
+            return projectMatch;
         });
 
         if (this.filteredContracts.length === 0) {
@@ -421,24 +433,6 @@ export class ChartDemo implements OnInit {
         this.cdr.detectChanges();
     }
 
-    // resetFilters(): void {
-    //     // this.globalState.resetPageData(this.pageKey);
-    //     this.filters = {
-    //         startDate: this.cwoStartDate,
-    //         endDate: this.cwoEndDate,
-    //         status: [this.cwoStatus],
-    //         geography: [] as string[],
-    //         billingMethod: [] as string[],
-    //         // customer: [] as string[],
-    //         project: [] as string[]
-    //     };
-    //     this.selectedRole = '';
-    //     this.selectedBillingStatus = '';
-    //     this.showStartDateError = false; //new
-    //     this.showEndDateError = false; //new
-    //     this.applyFilters();
-    //     // this.cdr.detectChanges();
-    // }
     resetFilters(): void {
         this.filters = {
             status: ['Active'],
@@ -447,6 +441,9 @@ export class ChartDemo implements OnInit {
             project: []
         };
 
+        // Reset to original options
+        this.billingMethodOptionswc = this.buildOptions(this.originalBillingMethods);
+        this.projectDistributionwc = this.buildOptions(this.originalProjects);
         this.selectedRole = '';
         this.selectedBillingStatus = '';
         this.applyFilters();

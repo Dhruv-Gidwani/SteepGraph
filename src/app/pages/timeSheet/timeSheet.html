@@ -1,32 +1,37 @@
 <app-loader *ngIf="isLoading"></app-loader>
 <div class="p-0" *ngIf="!isLoading">
     <!-- Filters -->
-    <div class="mb-4 grid grid-cols-1 md:grid-cols-8 gap-2">
+    <div class="mb-4 grid grid-cols-1 md:grid-cols-9 gap-2">
         <div>
-            <datepicker-icon-demo label="Start Date" [dateStr]="startDate" (dateStrChange)="startDate = $event" [showError]="showStartDateError" (dateStrChange)="onDateChange('start', $event)"></datepicker-icon-demo>
-        </div>
-        <div>
-            <datepicker-icon-demo label="End Date" [dateStr]="endDate" [minDate]="minEndDate" (dateStrChange)="endDate = $event" [showError]="showEndDateError" (dateStrChange)="onDateChange('end', $event)"></datepicker-icon-demo>
+            <datepicker-icon-demo label="Start Date" [dateStr]="startDate" (dateStrChange)="onDateChange('start', $event)" [showError]="showStartDateError"> </datepicker-icon-demo>
         </div>
         <div>
-            <multi-select-basic-demo *ngIf="empDepartmentOptions.length" [options]="empDepartmentOptions" [(selectedValue)]="emp_department" label="Employee Department"></multi-select-basic-demo>
+            <datepicker-icon-demo label="End Date" [dateStr]="endDate" [minDate]="minEndDate" (dateStrChange)="onDateChange('end', $event)" [showError]="showEndDateError"> </datepicker-icon-demo>
         </div>
-        <div>
-            <multi-select-basic-demo *ngIf="positionTitleOptions.length" [options]="positionTitleOptions" [(selectedValue)]="positionTitle" label="Position Title"></multi-select-basic-demo>
-        </div>
-        <div>
-            <multi-select-basic-demo *ngIf="proDepartmentOptions.length" [options]="proDepartmentOptions" [(selectedValue)]="pro_department" label="Project Department"></multi-select-basic-demo>
-        </div>
-        <div>
-            <multi-select-basic-demo *ngIf="geographyOptions.length" [options]="geographyOptions" [(selectedValue)]="geography" label="Geography"></multi-select-basic-demo>
-        </div>
-        <div>
-            <multi-select-basic-demo *ngIf="employeeOptions.length" [options]="employeeOptions" [(selectedValue)]="emp_name" label="Employee"></multi-select-basic-demo>
-        </div>
-        <div class="flex items-end">
-            <p-button (click)="applyFilters()" label="Apply Filters" class="w-full mr-2"></p-button>
-            <p-button (click)="resetFilters()" label="Reset Filters" class="w-full"></p-button>
-        </div>
+        <ng-container *ngIf="startDate && endDate">
+            <div>
+                <multi-select-basic-demo *ngIf="empDepartmentOptions.length" [options]="empDepartmentOptions" [(selectedValue)]="emp_department" label="Employee Dept"> </multi-select-basic-demo>
+            </div>
+            <div>
+                <multi-select-basic-demo *ngIf="positionTitleOptions.length" [options]="positionTitleOptions" [(selectedValue)]="positionTitle" label="Position Title"> </multi-select-basic-demo>
+            </div>
+            <div>
+                <multi-select-basic-demo *ngIf="proDepartmentOptions.length" [options]="proDepartmentOptions" [(selectedValue)]="pro_department" label="Project Dept"></multi-select-basic-demo>
+            </div>
+            <div>
+                <multi-select-basic-demo *ngIf="geographyOptions.length" [options]="geographyOptions" [(selectedValue)]="geography" label="Geography"> </multi-select-basic-demo>
+            </div>
+            <div>
+                <multi-select-basic-demo *ngIf="employeeOptions.length" [options]="employeeOptions" [(selectedValue)]="emp_name" label="Employee"> </multi-select-basic-demo>
+            </div>
+            <div>
+                <multi-select-basic-demo *ngIf="projectOptions.length" [options]="projectOptions" [(selectedValue)]="project" label="Project"> </multi-select-basic-demo>
+            </div>
+            <div class="flex items-end gap-1">
+                <p-button (click)="applyFilters()" label="Apply" class="w-full md:w-auto"></p-button>
+                <p-button (click)="resetFilters()" label="Reset" class="w-full md:w-auto"></p-button>
+            </div>
+        </ng-container>
     </div>
 
     <!-- Expanded Pie Chart View -->

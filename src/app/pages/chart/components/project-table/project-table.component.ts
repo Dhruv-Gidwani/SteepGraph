@@ -25,9 +25,16 @@ export class ProjectTableComponent implements OnChanges {
     @ViewChild('dt2') table!: Table;
 
     displayedData: TableData[] = [];
+    ProjectNames: string[] = [];
+    WorkContractNames: string[] = [];
+    PWONames: string[] = [];
     ResourcesNames: string[] = [];
     TSapproverNames: string[] = [];
+    ProjectManagerNames: string[] = [];
+    CWOStatusOptions: string[] = [];
+    CurrencyOptions: string[] = [];
     BillingMethod: string[] = [];
+    RateCard: string[] = [];
     Role: string[] = [];
     PositionTitle: string[] = [];
     BillingStatus: string[] = [];
@@ -38,9 +45,16 @@ export class ProjectTableComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['data']) {
             this.processTableData();
+            this.updateProjectNames();
+            this.updateWorkContractNames();
+            this.updatePWONames();
             this.updateRepresentativeNames();
             this.updateTSapproverNames();
+            this.updateProjectManagerNames();
+            this.updateCWOStatusOptions();
+            this.updateCurrencyOptions();
             this.updateBillingMethodNames();
+            this.updateRateCardNames();
             this.updateRoleNames();
             this.updatePositionTitleNames();
             this.updateBillingStatusNames();
@@ -54,12 +68,15 @@ export class ProjectTableComponent implements OnChanges {
             return !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '';
         };
 
+        const formattedLastTsDate = formatDate(row['Last Ts Date']);
         const formattedStart = formatDate(row['Start Date']);
         const formattedEnd = formatDate(row['End Date']);
 
         return {
+            'Last Ts Date': formattedLastTsDate,
             'Start Date': formattedStart,
             'End Date': formattedEnd,
+            'Last Ts Date Object': formattedLastTsDate ? new Date(formattedLastTsDate) : null,
             'Start Date Object': formattedStart ? new Date(formattedStart) : null,
             'End Date Object': formattedEnd ? new Date(formattedEnd) : null
         };
@@ -69,6 +86,7 @@ export class ProjectTableComponent implements OnChanges {
         this.displayedData = this.data.map((row) => {
             const formatted = this.formatDates(row);
             const monthMap = this.createMonthMap(row);
+            const lastTsDate = new Date(row['Last Ts Date']);
             const startDate = new Date(row['Start Date']);
             const endDate = new Date(row['End Date']);
 
@@ -77,9 +95,11 @@ export class ProjectTableComponent implements OnChanges {
                 ...formatted,
                 ...monthMap,
                 // Keep original string dates for display
+                'Last Ts Date': formatted['Last Ts Date'],
                 'Start Date': formatted['Start Date'],
                 'End Date': formatted['End Date'],
                 // Add date objects and timestamps for sorting
+                'Last Ts Date Object': lastTsDate,
                 'Start Date Object': startDate,
                 'End Date Object': endDate,
                 startDateSort: startDate.getTime(),
@@ -88,13 +108,20 @@ export class ProjectTableComponent implements OnChanges {
                 ResUti: Number(row['Resource Utilization']),
                 HrRate: Number(row['Hourly Rate']),
                 alloHrs: Number(row['Allocated Hrs.']),
+                consumedHrs: Number(row['Consumed Hrs.']),
                 remHrs: Number(row['Rem. Hrs.'])
             };
         });
-
+        this.updateProjectNames();
+        this.updateWorkContractNames();
+        this.updatePWONames();
         this.updateRepresentativeNames();
         this.updateTSapproverNames();
+        this.updateProjectManagerNames();
+        this.updateCWOStatusOptions();
+        this.updateCurrencyOptions();
         this.updateBillingMethodNames();
+        this.updateRateCardNames();
         this.updateRoleNames();
         this.updatePositionTitleNames();
         this.updateBillingStatusNames();
@@ -115,7 +142,7 @@ export class ProjectTableComponent implements OnChanges {
         const startDate = new Date(formattedStartDate);
         const endDate = new Date(formattedEndDate);
         const currentYear = new Date().getFullYear();
-        const months = ['Jan', 'Feb', 'Mar','Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         // Initialize all months with empty values and default background
         months.forEach((month) => {
@@ -156,15 +183,35 @@ export class ProjectTableComponent implements OnChanges {
         const date = new Date(dateString);
         return !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : null;
     }
-
+    private updateProjectNames(): void {
+        this.ProjectNames = [...new Set(this.displayedData.map((row) => row['Project']).filter(Boolean))];
+    }
+    private updateWorkContractNames(): void {
+        this.WorkContractNames = [...new Set(this.displayedData.map((row) => row['Work Contract Name']).filter(Boolean))];
+    }
+    private updatePWONames(): void {
+        this.PWONames = [...new Set(this.displayedData.map((row) => row['PWO Name']).filter(Boolean))];
+    }
     private updateRepresentativeNames(): void {
         this.ResourcesNames = [...new Set(this.displayedData.map((row) => row['Resource Name']).filter(Boolean))];
     }
     private updateTSapproverNames(): void {
         this.TSapproverNames = [...new Set(this.displayedData.map((row) => row['TS Approver']).filter(Boolean))];
     }
+    private updateProjectManagerNames(): void {
+        this.ProjectManagerNames = [...new Set(this.displayedData.map((row) => row['Project Manager']).filter(Boolean))];
+    }
+    private updateCWOStatusOptions(): void {
+        this.CWOStatusOptions = [...new Set(this.displayedData.map((row) => row['WCT Status']).filter(Boolean))];
+    }
+    private updateCurrencyOptions(): void {
+        this.CurrencyOptions = [...new Set(this.displayedData.map((row) => row['Currency']).filter(Boolean))];
+    }
     private updateBillingMethodNames(): void {
         this.BillingMethod = [...new Set(this.displayedData.map((row) => row['Billing Method']).filter(Boolean))];
+    }
+    private updateRateCardNames(): void {
+        this.RateCard = [...new Set(this.displayedData.map((row) => row['Rate Card']).filter(Boolean))];
     }
     private updateRoleNames(): void {
         this.Role = [...new Set(this.displayedData.map((row) => row['Position Role']).filter(Boolean))];
@@ -178,7 +225,7 @@ export class ProjectTableComponent implements OnChanges {
 
     exportToExcel(): void {
         const exportData = this.displayedData.map((row) => {
-            const months = ['Jan', 'Feb', 'Mar','Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
             // Define proper type for monthValues
             const monthValues: { [key: string]: string } = {};
@@ -194,6 +241,7 @@ export class ProjectTableComponent implements OnChanges {
                 'PWO Name': row['PWO Name'],
                 'Resource Name': row['Resource Name'],
                 'Allocated Hrs.': row['Allocated Hrs.'],
+                'Consumed Hrs.': row['Consumed Hrs.'],
                 'Rem. Hrs.': row['Rem. Hrs.'],
                 'Billing Status': row['Billing Status'],
                 'Rate Card': row['Rate Card'],
@@ -206,6 +254,7 @@ export class ProjectTableComponent implements OnChanges {
                 'Project Manager': row['Project Manager'],
                 'WCT Status': row['WCT Status'],
                 Currency: row['Currency'],
+                'Last Ts Date': row['Last Ts Date'],
                 'Start Date': row['Start Date'],
                 'End Date': row['End Date'],
                 ...monthValues

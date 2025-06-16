@@ -67,7 +67,8 @@ export class Login implements AfterViewInit {
                 sessionStorage.setItem('access_token', response.access_token);
                 sessionStorage.setItem('expires_in', response.expires_in);
                 this.isLoading = false;
-                this.router.navigate(['/dashboard']);
+                //this.router.navigate(['/dashboard']);
+                this.router.navigate(['/workcontract']);
             },
             error: (error) => {
                 console.error('Login Error:', error);

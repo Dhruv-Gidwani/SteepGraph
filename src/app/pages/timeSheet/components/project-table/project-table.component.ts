@@ -1,4 +1,4 @@
-import { Component, Input, OnInit,  Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -26,18 +26,25 @@ export class ProjectTableComponent implements OnInit {
     EmployeeNames: any[] = [];
     PositionTitle: any[] = [];
     Department: any[] = [];
+    Project: any[] = [];
+    Geography: any[] = [];
     Role: any[] = [];
+    BillingStatus: any[] = [];
+    BillingMethod: any[] = [];
 
     ngOnInit() {
         console.log('Project Table Data:', this.projectTableData);
         this.flatData = this.flattenData(this.projectTableData);
         this.flatData.sort((a, b) => a.employee.localeCompare(b.employee));
-        this.EmployeeNames = [...new Set(this.flatData.map(emp => emp.employee))].sort();
-        this.PositionTitle = [...new Set(this.flatData.map(emp => emp.sg_position_title))].sort();
-        this.Department = [...new Set(this.flatData.map(emp => emp.sg_employee_department))].sort();
-        this.Role = [...new Set(this.flatData.map(emp => emp.sg_position_role))].sort();
+        this.EmployeeNames = [...new Set(this.flatData.map((emp) => emp.employee))].sort();
+        this.PositionTitle = [...new Set(this.flatData.map((emp) => emp.sg_position_title))].sort();
+        this.Department = [...new Set(this.flatData.map((emp) => emp.sg_employee_department))].sort();
+        this.Project = [...new Set(this.flatData.map((emp) => emp.project))].sort();
+        this.Geography = [...new Set(this.flatData.map((emp) => emp.sg_geography))].sort();
+        this.Role = [...new Set(this.flatData.map((emp) => emp.sg_position_role))].sort();
+        this.BillingStatus = [...new Set(this.flatData.map((emp) => emp.billing_status))].sort();
+        this.BillingMethod = [...new Set(this.flatData.map((emp) => emp.sg_billing_method))].sort();
     }
-
 
     // Convert nested structure into flat array
     flattenData(data: any[]): any[] {
@@ -63,7 +70,7 @@ export class ProjectTableComponent implements OnInit {
                         person_billability: proj.person_billability,
                         total_leave: detail.total_leave,
                         missing_timeSheet: detail.missing_timeSheet,
-                        GCW_hrs: detail.GCW_hrs,
+                        GCW_hrs: detail.GCW_hrs
                     });
                 });
             });
@@ -80,6 +87,6 @@ export class ProjectTableComponent implements OnInit {
 
         const filtered = this.flattenData(this.projectTableData).filter((item) => Object.values(item).some((val) => val?.toString().toLowerCase().includes(searchValue)));
 
-        this.flatData = filtered.sort((a, b) => a.employee.localeCompare(b.employee));;
+        this.flatData = filtered.sort((a, b) => a.employee.localeCompare(b.employee));
     }
 }

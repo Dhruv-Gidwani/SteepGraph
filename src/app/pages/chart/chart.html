@@ -1,28 +1,23 @@
 <app-loader *ngIf="isLoading"></app-loader>
 <div class="p-0" *ngIf="!isLoading">
     <!-- Filters -->
-    <div *ngIf="!isExpanded" class="mb-4 grid grid-cols-1 md:grid-cols-8 gap-2">
-        <!-- <div>
-            <datepicker-icon-demo label="CWO Start Date" [dateStr]="filters.startDate" (dateStrChange)="filters.startDate = $event" [showError]="showStartDateError" (dateStrChange)="onDateChange('start', $event)"> </datepicker-icon-demo>
-        </div>
-        <div>
-            <datepicker-icon-demo label="CWO End Date" [dateStr]="filters.endDate" (dateStrChange)="filters.endDate = $event" [showError]="showEndDateError" (dateStrChange)="onDateChange('end', $event)"> </datepicker-icon-demo>
-        </div> -->
+    <div *ngIf="!isExpanded" class="mb-4 grid grid-cols-1 md:grid-cols-5 gap-2">
         <div>
             <multi-select-basic-demo *ngIf="statusoptionswc.length" [options]="statusoptionswc" [isDisabled]="true" [(selectedValue)]="filters.status" label="Status"></multi-select-basic-demo>
         </div>
         <div>
-            <multi-select-basic-demo *ngIf="geographyOptionswc.length" [options]="geographyOptionswc" [(selectedValue)]="filters.geography" label="Geography"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="geographyOptionswc.length" [options]="geographyOptionswc" [(selectedValue)]="filters.geography" (selectedValueChange)="onGeographyChange($event)" label="Geography"> </multi-select-basic-demo>
         </div>
         <div>
-            <multi-select-basic-demo *ngIf="billingMethodOptionswc.length" [options]="billingMethodOptionswc" [(selectedValue)]="filters.billingMethod" label="Billing Method"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="billingMethodOptionswc.length" [options]="billingMethodOptionswc" [(selectedValue)]="filters.billingMethod" (selectedValueChange)="onBillingMethodChange($event)" label="Billing Method">
+            </multi-select-basic-demo>
         </div>
         <div>
-            <multi-select-basic-demo *ngIf="projectDistributionwc.length" [options]="projectDistributionwc" [(selectedValue)]="filters.project" label="Project"></multi-select-basic-demo>
+            <multi-select-basic-demo *ngIf="projectDistributionwc.length" [options]="projectDistributionwc" [(selectedValue)]="filters.project" label="Project"> </multi-select-basic-demo>
         </div>
-        <div class="flex items-end">
-            <p-button (click)="applyFilters()" label="Apply Filters" class="w-full mr-2"></p-button>
-            <p-button (click)="resetFilters()" label="Reset Filters" class="w-full"></p-button>
+        <div class="flex items-end gap-1">
+            <p-button (click)="applyFilters()" label="Apply" class="w-full md:w-auto"></p-button>
+            <p-button (click)="resetFilters()" label="Reset" class="w-full md:w-auto"></p-button>
         </div>
     </div>
 

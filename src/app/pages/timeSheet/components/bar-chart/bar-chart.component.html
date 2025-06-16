@@ -24,7 +24,7 @@
         <button
             class="absolute top-2 right-2 text-gray-600 hover:text-black z-10"
             pButton
-            [icon]="isExpanded && expandedComponent === 'bar' ? 'pi pi-angle-down' : 'pi pi-angle-up'"
+            [icon]="isExpanded && expandedComponent === 'bar' ? 'pi pi-times' : 'pi pi-expand'"
             [pTooltip]="isExpanded && expandedComponent === 'bar' ? 'Collapse View' : 'Expand View'"
             tooltipPosition="top"
             (click)="toggleExpand.emit('bar')"

@@ -122,6 +122,8 @@ export class BarChartComponent implements OnChanges {
                                     text: 'Alloc.Hrs',
                                     fillStyle: '#42A5F5',
                                     strokeStyle: '#42A5F5',
+                                    fontColor: '#42A5F5', // legacy property (fallback)
+                                    color: '#42A5F5', // latest property used
                                     hidden: false,
                                     datasetIndex: 0
                                 },
@@ -129,6 +131,8 @@ export class BarChartComponent implements OnChanges {
                                     text: 'Rem.Hrs: ≤30% of Alloc.',
                                     fillStyle: '#FF4444',
                                     strokeStyle: '#FF4444',
+                                    fontColor: '#FF4444',
+                                    color: '#FF4444',
                                     hidden: false,
                                     datasetIndex: 1
                                 },
@@ -136,6 +140,8 @@ export class BarChartComponent implements OnChanges {
                                     text: 'Rem.Hrs: >30% of Alloc.',
                                     fillStyle: '#66BB6A',
                                     strokeStyle: '#66BB6A',
+                                    fontColor: '#66BB6A',
+                                    color: '#66BB6A',
                                     hidden: false,
                                     datasetIndex: 1
                                 }

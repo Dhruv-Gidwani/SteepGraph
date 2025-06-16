@@ -43,8 +43,8 @@
                     <button
                         class="text-gray-600 hover:text-black h-[38px] flex items-center justify-center"
                         pButton
-                        [icon]="isExpanded && expandedComponent === 'table' ? 'pi pi-angle-down' : 'pi pi-angle-up'"
-                        [pTooltip]="isExpanded && expandedComponent === 'bar' ? 'Collapse View' : 'Expand View'"
+                        [icon]="isExpanded && expandedComponent === 'table' ? 'pi pi-times' : 'pi pi-expand'"
+                        [pTooltip]="isExpanded && expandedComponent === 'table' ? 'Collapse View' : 'Expand View'"
                         tooltipPosition="top"
                         (click)="toggleExpand.emit('table')"
                         styleClass="p-button-text p-2"
@@ -113,13 +113,51 @@
                         </ng-template>
                     </p-columnFilter>
                 </th>
-                <th pSortableColumn="project">
+                <!-- <th pSortableColumn="project">
                     Project
                     <p-sortIcon field="project"></p-sortIcon>
                 </th>
                 <th pSortableColumn="sg_geography">
                     Geography
                     <p-sortIcon field="sg_geography"></p-sortIcon>
+                </th> -->
+                <th pSortableColumn="project">
+                    Project
+                    <p-sortIcon field="project"></p-sortIcon>
+                    <p-columnFilter field="project" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Project Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="Project" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+                <th pSortableColumn="sg_geography">
+                    Geography
+                    <p-sortIcon field="sg_geography"></p-sortIcon>
+                    <p-columnFilter field="sg_geography" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Geography Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="Geography" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="sg_position_role">
                     Role
@@ -140,13 +178,52 @@
                         </ng-template>
                     </p-columnFilter>
                 </th>
-                <th pSortableColumn="billing_status">
+                <!-- <th pSortableColumn="billing_status">
                     Billing Status
                     <p-sortIcon field="billing_status"></p-sortIcon>
                 </th>
                 <th pSortableColumn="sg_billing_method">
                     Billing Method
                     <p-sortIcon field="sg_billing_method"></p-sortIcon>
+                </th> -->
+                <th pSortableColumn="billing_status">
+                    Billing Status
+                    <p-sortIcon field="billing_status"></p-sortIcon>
+                    <p-columnFilter field="billing_status" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Billing Status Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="BillingStatus" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+
+                <th pSortableColumn="sg_billing_method">
+                    Billing Method
+                    <p-sortIcon field="sg_billing_method"></p-sortIcon>
+                    <p-columnFilter field="sg_billing_method" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                        <ng-template pTemplate="header">
+                            <div class="px-3 pt-3 pb-0">
+                                <span class="font-bold">Billing Method Picker</span>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-multiSelect [ngModel]="value" (ngModelChange)="filter($event)" [options]="BillingMethod" placeholder="Any" display="chip">
+                                <ng-template let-option pTemplate="item">
+                                    <span class="ml-1">{{ option }}</span>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-template>
+                    </p-columnFilter>
                 </th>
                 <th pSortableColumn="total_leave">
                     Total Leave
