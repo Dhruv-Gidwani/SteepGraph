@@ -1,27 +1,3 @@
-<!-- <div class="card flex flex-col h-[420px]">
-    <div class="font-semibold text-xl mb-4 text-center">Geography Distribution</div>
-    <div class="flex h-full overflow-hidden">
-        <div class="w-[300px] h-[0px]">
-            <p-chart type="pie" [data]="pieChartData" [options]="pieChartOptions"> </p-chart>
-        </div>
-        <div class="flex-1 overflow-y-auto ml-4 max-h-[350px] pr-2 hide-scrollbar">
-            <ul class="geography-list">
-                <li
-                    *ngFor="let geography of displayedGeographies; let i = index"
-                    (click)="onGeographyClick(geography)"
-                    [ngClass]="{
-                        'bg-blue-100 text-blue-700 font-semibold': geography === firstGeography,
-                        'hover:bg-gray-100 dark:hover:bg-surface-700': true
-                    }"
-                    class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
-                >
-                    {{ geography }}
-                </li>
-            </ul>
-        </div>
-    </div>
-</div> -->
-
 <div
     class="card flex flex-col relative"
     [ngClass]="{
@@ -72,6 +48,7 @@
                     class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
                 >
                     {{ geography }}
+                    <span class="resource-count" *ngIf="geography !== 'All'"> ({{ geographyEmployeeCounts[geography] || 0 }} | {{ getGeographyPercentage(geography) }}%) </span>
                 </li>
             </ul>
         </div>

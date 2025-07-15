@@ -20,11 +20,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LoaderComponent } from './components/loader/loader.component';
 import { ProjectDataMap } from './components/interfaces/interface';
 import { XmlParserService } from '../../services/xml-parser.service';
-import { RegionService } from '../../services/region.service';
-import { billingMethodWCService } from '../../services/billingMethod_wc';
-import { CustomerService } from '../../services/customer_wc';
 import { MultiselectFilterDemo } from '../../components/multiselect/multiselect.component';
-import { GlobalStateService } from '../../services/globalservicefilters';
+
 
 @Component({
     selector: 'app-chart-demo',
@@ -69,6 +66,7 @@ export class ChartDemo implements OnInit {
         billingMethod: [] as string[], // multi-select returns array of strings
         project: [] as string[]
     };
+    
     filtersRestored = false;
     uniqueStatuses: string[] = [];
     availableRoles: string[] = [];
@@ -99,11 +97,7 @@ export class ChartDemo implements OnInit {
         private arasService: ArasService,
         private arasService1: ArasService1,
         private exportService: ExportService,
-        private xmlParserService: XmlParserService,
-        private RegionService: RegionService,
-        private billingMethodWCService: billingMethodWCService,
-        private CustomerService: CustomerService,
-        private globalState: GlobalStateService
+        private xmlParserService: XmlParserService
     ) {}
 
     // Function to call exportToExcel from the service
@@ -232,33 +226,6 @@ export class ChartDemo implements OnInit {
         this.projectDistributionwc = this.buildOptions(Object.keys(projectDataMap));
         console.log(this.projectDistributionwc);
     }
-
-    // Add new method to update dependent filters
-    // private updateDependentFilters(): void {
-    //     const selectedGeographies = this.filters.geography;
-
-    //     // If no geography is selected, restore original values
-    //     if (!selectedGeographies.length) {
-    //         this.billingMethodOptionswc = this.buildOptions(this.originalBillingMethods);
-    //         this.projectDistributionwc = this.buildOptions(this.originalProjects);
-    //         return;
-    //     }
-
-    //     // Filter contracts based on selected geographies
-    //     const geographyFilteredContracts = this.allContracts.filter((contract) => selectedGeographies.some((g) => g.toLowerCase() === (contract.Geography?.toString().toLowerCase() || '')));
-
-    //     // Update billing method options
-    //     const filteredBillingMethods = [...new Set(geographyFilteredContracts.map((c) => c['Billing Method']?.trim() || 'Unknown').filter(Boolean))].sort();
-    //     this.billingMethodOptionswc = this.buildOptions(filteredBillingMethods);
-
-    //     // Update project options
-    //     const filteredProjects = [...new Set(geographyFilteredContracts.map((c) => c.Project?.trim() || 'Unknown').filter(Boolean))].sort();
-    //     this.projectDistributionwc = this.buildOptions(filteredProjects);
-
-    //     // Clear selections if they're no longer valid
-    //     this.filters.billingMethod = this.filters.billingMethod.filter((bm) => filteredBillingMethods.includes(bm));
-    //     this.filters.project = this.filters.project.filter((p) => filteredProjects.includes(p));
-    // }
 
     // Update the updateDependentFilters method
     private updateDependentFilters(): void {

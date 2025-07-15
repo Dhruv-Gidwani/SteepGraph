@@ -24,6 +24,7 @@ export class PieChartComponent implements OnChanges {
     pieChartData: any;
     pieChartOptions: any;
     private isFirstLoad = true;
+    projectEmployeeCounts: { [project: string]: number } = {};
 
     ngOnChanges(): void {
         this.renderPieChart();
@@ -35,9 +36,9 @@ export class PieChartComponent implements OnChanges {
     }
 
     private renderPieChart(): void {
-        const projectCountMap = this.calculateProjectCounts();
-        const labels = Object.keys(projectCountMap);
-        const data = Object.values(projectCountMap);
+        this.projectEmployeeCounts = this.calculateProjectEmployeeCounts();
+        const labels = Object.keys(this.projectEmployeeCounts);
+        const data = Object.values(this.projectEmployeeCounts);
 
         this.pieChartData = this.createChartData(labels, data);
         this.pieChartOptions = this.createChartOptions();
@@ -51,21 +52,28 @@ export class PieChartComponent implements OnChanges {
 
         // Update the offset for the selected project
         if (this.pieChartData?.datasets?.[0]) {
-            this.pieChartData.datasets[0].offset = labels.map((_, index) => 
-                index === this.selectedProjectIndex ? 20 : 0
-            );
+            this.pieChartData.datasets[0].offset = labels.map((_, index) => (index === this.selectedProjectIndex ? 20 : 0));
         }
     }
 
-    private calculateProjectCounts(): { [project: string]: number } {
-        return this.contracts.reduce(
-            (acc, contract) => {
-                const project = contract.Project || 'Unknown';
-                acc[project] = (acc[project] || 0) + 1;
-                return acc;
-            },
-            {} as { [project: string]: number }
-        );
+    private calculateProjectEmployeeCounts(): { [project: string]: number } {
+        const projectEmployeeMap: { [project: string]: Set<string> } = {};
+
+        for (const contract of this.contracts) {
+            const project = contract.Project || 'Unknown';
+            const employee = contract['Resource Name'] || 'Unknown';
+            if (!projectEmployeeMap[project]) {
+                projectEmployeeMap[project] = new Set();
+            }
+            projectEmployeeMap[project].add(employee);
+        }
+
+        // Convert sets to counts
+        const result: { [project: string]: number } = {};
+        for (const project in projectEmployeeMap) {
+            result[project] = projectEmployeeMap[project].size;
+        }
+        return result;
     }
 
     private createChartData(labels: string[], data: number[]): any {
@@ -104,11 +112,22 @@ export class PieChartComponent implements OnChanges {
         };
     }
 
-    private createTooltipLabel(context: any): string {
+    private createTooltipLabel = (context: any): string => {
         const label = context.label || '';
-        const value = context.raw || 0;
-        const total = context.chart.data.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
-        const percentage = ((value / total) * 100).toFixed(1);
+        // Use the unique employee count for this project
+        const value = this.projectEmployeeCounts[label] || 0;
+        const total = Object.values(this.projectEmployeeCounts).reduce((a, b) => a + b, 0);
+        const percentage = total ? ((value / total) * 100).toFixed(1) : '0.0';
         return `${label}: ${value} (${percentage}%)`;
+    };
+
+    get totalUniqueEmployees(): number {
+        return Object.values(this.projectEmployeeCounts).reduce((a, b) => a + b, 0);
+    }
+
+    getProjectPercentage(project: string): string {
+        const count = this.projectEmployeeCounts[project] || 0;
+        const total = this.totalUniqueEmployees;
+        return total ? ((count / total) * 100).toFixed(1) : '0.0';
     }
 }

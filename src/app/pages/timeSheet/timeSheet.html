@@ -4,9 +4,11 @@
     <div class="mb-4 grid grid-cols-1 md:grid-cols-9 gap-2">
         <div>
             <datepicker-icon-demo label="Start Date" [dateStr]="startDate" (dateStrChange)="onDateChange('start', $event)" [showError]="showStartDateError"> </datepicker-icon-demo>
+            <!-- <datepicker-icon-demo label="Start Date" [dateStr]="startDate" [showError]="showStartDateError"> </datepicker-icon-demo> -->
         </div>
         <div>
             <datepicker-icon-demo label="End Date" [dateStr]="endDate" [minDate]="minEndDate" (dateStrChange)="onDateChange('end', $event)" [showError]="showEndDateError"> </datepicker-icon-demo>
+            <!-- <datepicker-icon-demo label="End Date" [dateStr]="endDate" [minDate]="minEndDate" [showError]="showEndDateError"> </datepicker-icon-demo> -->
         </div>
         <ng-container *ngIf="startDate && endDate">
             <div>

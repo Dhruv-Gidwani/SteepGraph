@@ -78,14 +78,21 @@ export class BarChartComponent implements OnChanges {
     }
 
     private createChartData(resourceMap: { [key: string]: { allocated: number; remaining: number } }): void {
-        const labels = Object.keys(resourceMap).sort();
-        const allocatedData = labels.map((label) => resourceMap[label].allocated);
-        const remainingData = labels.map((label) => resourceMap[label].remaining);
+        // Create an array of [resource, allocated] pairs
+        const resourceEntries = Object.entries(resourceMap);
+
+        // Sort by allocated hours in descending order
+        resourceEntries.sort((a, b) => b[1].allocated - a[1].allocated);
+
+        // Extract sorted labels and data
+        const labels = resourceEntries.map(([resource]) => resource);
+        const allocatedData = resourceEntries.map(([, data]) => data.allocated);
+        const remainingData = resourceEntries.map(([, data]) => data.remaining);
 
         // Calculate colors based on the ratio of remaining to allocated hours
-        const remainingColors = labels.map((label) => {
-            const allocated = resourceMap[label].allocated;
-            const remaining = resourceMap[label].remaining;
+        const remainingColors = resourceEntries.map(([, data]) => {
+            const allocated = data.allocated;
+            const remaining = data.remaining;
             const ratio = allocated > 0 ? remaining / allocated : 0;
             return ratio <= 0.3 ? '#FF4444' : '#66BB6A';
         });

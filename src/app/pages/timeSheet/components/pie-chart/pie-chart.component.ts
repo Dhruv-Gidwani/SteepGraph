@@ -20,34 +20,13 @@ export class PieChartComponent implements OnChanges {
     @Input() isExpanded: boolean = false;
     @Input() expandedComponent: 'pie' | 'bar' | 'table' | null = null;
 
-    firstGeography: string | null = null; //new
+    firstGeography: string | null = null;
     pieChartData: any;
     pieChartOptions: any;
     displayedGeographies: string[] = [];
     private isFirstLoad = true;
-    
+    geographyEmployeeCounts: { [geography: string]: number } = {};
 
-    // ngOnChanges(): void {
-    //     this.renderPieChart();
-
-    //     const labels = this.pieChartData?.labels || [];
-
-    //     if (labels.length > 1) {
-    //         this.displayedGeographies = ['All', ...labels];
-
-    //         if (this.isFirstLoad) {
-    //             this.geographySelected.emit({ geography: 'All', index: -1 });
-    //             this.isFirstLoad = false;
-    //         }
-    //     } else {
-    //         this.displayedGeographies = labels;
-
-    //         if (this.isFirstLoad && labels.length === 1) {
-    //             this.geographySelected.emit({ geography: labels[0], index: 0 });
-    //             this.isFirstLoad = false;
-    //         }
-    //     }
-    // }
     ngOnChanges(): void {
         this.renderPieChart();
 
@@ -74,34 +53,28 @@ export class PieChartComponent implements OnChanges {
         }
     }
 
-    //geographyClick for simple string-based filtering
-    //geographySelected for internal visual selection (like highlighting the selected item)
     onGeographyClick(geography: string): void {
-    const index = geography === 'All' ? -1 : this.pieChartData.labels.indexOf(geography);
+        const index = geography === 'All' ? -1 : this.pieChartData.labels.indexOf(geography);
 
-    // this.geographySelected.emit({ geography: geography === 'All' ? '' : geography, index });
-    // this.geographyClick.emit(geography === 'All' ? '' : geography);
-     if (this.selectedGeography === geography) {
-    // User clicked the same geography again → toggle to 'All'
-    this.selectedGeography = 'All';
-    this.selectedGeographyIndex = -1;
-    this.geographySelected.emit({ geography: '', index: -1 });
-    this.geographyClick.emit('');
-  } else {
-    // User clicked a new geography
-    this.selectedGeography = geography;
-    this.selectedGeographyIndex = index;
-    this.geographySelected.emit({  geography, index });    // geography: geography === 'All' ? '' : removed 
-    this.geographyClick.emit( geography);    // geography === 'All' ? '' : removed
-  }
-
-}
-
+        if (this.selectedGeography === geography) {
+            // User clicked the same geography again → toggle to 'All'
+            this.selectedGeography = 'All';
+            this.selectedGeographyIndex = -1;
+            this.geographySelected.emit({ geography: '', index: -1 });
+            this.geographyClick.emit('');
+        } else {
+            // User clicked a new geography
+            this.selectedGeography = geography;
+            this.selectedGeographyIndex = index;
+            this.geographySelected.emit({ geography, index }); // geography: geography === 'All' ? '' : removed
+            this.geographyClick.emit(geography); // geography === 'All' ? '' : removed
+        }
+    }
 
     private renderPieChart(): void {
-        const geographyCountMap = this.calculateGeographyCounts();
-        const labels = Object.keys(geographyCountMap);
-        const data = Object.values(geographyCountMap);
+        this.geographyEmployeeCounts = this.calculateGeographyCounts();
+        const labels = Object.keys(this.geographyEmployeeCounts);
+        const data = Object.values(this.geographyEmployeeCounts);
 
         this.pieChartData = this.createChartData(labels, data);
         this.pieChartOptions = this.createChartOptions();
@@ -164,5 +137,17 @@ export class PieChartComponent implements OnChanges {
         const total = context.chart.data.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
         const percentage = ((value / total) * 100).toFixed(1);
         return `${label}_Employee: ${value} (${percentage}%)`;
+    }
+
+    // for the total count
+    get totalGeographyCount(): number {
+        return Object.values(this.geographyEmployeeCounts).reduce((a, b) => a + b, 0);
+    }
+
+    // percentage for a geography
+    getGeographyPercentage(geography: string): string {
+        const count = this.geographyEmployeeCounts[geography] || 0;
+        const total = this.totalGeographyCount;
+        return total ? ((count / total) * 100).toFixed(1) : '0.0';
     }
 }

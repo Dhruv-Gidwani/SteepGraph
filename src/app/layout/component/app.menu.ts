@@ -192,10 +192,10 @@ export class AppMenu implements OnInit {
 
     ngOnInit() {
         this.model = [
-            {
-                label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
-            },
+            // {
+            //     label: 'Home',
+            //     items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
+            // },
             {
                 label: 'Contract Mgmt. Reports',
                 items: [{ label: 'Work Contract', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/workcontract'] }]
@@ -203,7 +203,7 @@ export class AppMenu implements OnInit {
             {
                 label: 'Employee Reports',
                 items: [{ label: 'Timesheet', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/timesheet'] }]
-            },
+            }
             // {
             //     label: 'Authentication',
             //     items: [{ label: 'LogOut', icon: 'pi pi-fw pi-sign-out', command: () => this.logoutService.logout() }]

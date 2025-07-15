@@ -63,9 +63,14 @@ export class ProjectTableComponent implements OnChanges {
     }
 
     public formatDates(row: TableData): { [key: string]: any } {
+        // const formatDate = (dateString: string): string => {
+        //     const date = new Date(dateString);
+        //     return !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '';
+        // };
         const formatDate = (dateString: string): string => {
-            const date = new Date(dateString);
-            return !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '';
+            if (!dateString) return '';
+            // Use only the date part, ignore the time and timezone
+            return dateString.split('T')[0];
         };
 
         const formattedLastTsDate = formatDate(row['Last Ts Date']);
@@ -85,7 +90,7 @@ export class ProjectTableComponent implements OnChanges {
     private processTableData(): void {
         this.displayedData = this.data.map((row) => {
             const formatted = this.formatDates(row);
-            const monthMap = this.createMonthMap(row);
+            const monthMap = this.createMonthMap(formatted);
             const lastTsDate = new Date(row['Last Ts Date']);
             const startDate = new Date(row['Start Date']);
             const endDate = new Date(row['End Date']);
@@ -112,6 +117,21 @@ export class ProjectTableComponent implements OnChanges {
                 remHrs: Number(row['Rem. Hrs.'])
             };
         });
+
+        // Sort by Work Contract Name, then by Resource Name
+        this.displayedData.sort((a, b) => {
+            const wcA = (a['Work Contract Name'] || '').toLowerCase();
+            const wcB = (b['Work Contract Name'] || '').toLowerCase();
+            if (wcA < wcB) return -1;
+            if (wcA > wcB) return 1;
+            // If WC is the same, sort by Resource Name
+            const resA = (a['Resource Name'] || '').toLowerCase();
+            const resB = (b['Resource Name'] || '').toLowerCase();
+            if (resA < resB) return -1;
+            if (resA > resB) return 1;
+            return 0;
+        });
+
         this.updateProjectNames();
         this.updateWorkContractNames();
         this.updatePWONames();
@@ -130,21 +150,20 @@ export class ProjectTableComponent implements OnChanges {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
-    private createMonthMap(row: TableData): { monthData: { [key: string]: MonthData } } {
+    private createMonthMap(row: { [key: string]: any }): { monthData: { [key: string]: MonthData } } {
         const monthData: { [key: string]: MonthData } = {};
-        const formattedStartDate = this.formatDate(row['Start Date']);
-        const formattedEndDate = this.formatDate(row['End Date']);
+        const formattedStartDate = row['Start Date']; // Should be 'YYYY-MM-DD'
+        const formattedEndDate = row['End Date'];
 
         if (!formattedStartDate || !formattedEndDate) {
             return { monthData };
         }
 
-        const startDate = new Date(formattedStartDate);
-        const endDate = new Date(formattedEndDate);
+        const [startYear, startMonth, startDay] = formattedStartDate.split('-').map(Number);
+        const [endYear, endMonth, endDay] = formattedEndDate.split('-').map(Number);
         const currentYear = new Date().getFullYear();
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        // Initialize all months with empty values and default background
         months.forEach((month) => {
             monthData[`${month}-${currentYear}`] = {
                 day: '',
@@ -152,27 +171,27 @@ export class ProjectTableComponent implements OnChanges {
             };
         });
 
-        // Only process if the dates are in the current year
-        if (startDate.getFullYear() <= currentYear && endDate.getFullYear() >= currentYear) {
-            const yearStartDate = startDate.getFullYear() < currentYear ? 0 : startDate.getMonth();
-            const yearEndDate = endDate.getFullYear() > currentYear ? 11 : endDate.getMonth();
+        if (startYear <= currentYear && endYear >= currentYear) {
+            const yearStartMonth = startYear < currentYear ? 0 : startMonth - 1;
+            const yearEndMonth = endYear > currentYear ? 11 : endMonth - 1;
 
-            // Fill in the progress bar
-            for (let i = yearStartDate; i <= yearEndDate; i++) {
+            for (let i = yearStartMonth; i <= yearEndMonth; i++) {
                 const monthKey = `${months[i]}-${currentYear}`;
-                monthData[monthKey].color = '#22c55e'; // Single green color #4CAF50
+                monthData[monthKey].color = '#22c55e';
             }
 
-            // Add start date if it's in current year
-            if (startDate.getFullYear() === currentYear) {
-                const startMonthKey = `${months[startDate.getMonth()]}-${currentYear}`;
-                monthData[startMonthKey].day = String(startDate.getDate());
+            // Defensive: Only assign day if valid
+            if (startYear === currentYear && Number.isInteger(startMonth) && startMonth >= 1 && startMonth <= 12 && Number.isInteger(startDay) && startDay >= 1 && startDay <= 31) {
+                const startMonthKey = `${months[startMonth - 1]}-${currentYear}`;
+                if (monthData[startMonthKey]) {
+                    monthData[startMonthKey].day = String(startDay);
+                }
             }
-
-            // Add end date if it's in current year
-            if (endDate.getFullYear() === currentYear) {
-                const endMonthKey = `${months[endDate.getMonth()]}-${currentYear}`;
-                monthData[endMonthKey].day = String(endDate.getDate());
+            if (endYear === currentYear && Number.isInteger(endMonth) && endMonth >= 1 && endMonth <= 12 && Number.isInteger(endDay) && endDay >= 1 && endDay <= 31) {
+                const endMonthKey = `${months[endMonth - 1]}-${currentYear}`;
+                if (monthData[endMonthKey]) {
+                    monthData[endMonthKey].day = String(endDay);
+                }
             }
         }
 

@@ -10,12 +10,10 @@ export class timeSheetService {
 
     constructor(private http: HttpClient) {}
     //project:string[]
-    fetchtimeSheetItem(startDate: string, endDate: string, emp_department: string[], positionTitle: string[], pro_department:string[], geography: string[], emp_name: string[]): Observable<string> {
+    fetchtimeSheetItem(startDate: string, endDate: string, emp_department: string[], positionTitle: string[], pro_department: string[], geography: string[], emp_name: string[], project: string[]): Observable<string> {
         const token = sessionStorage.getItem('access_token');
-        // const Name = "sg_work_contract_tgv";
         const formattedStart = `${startDate}T00:00:00`;
         const formattedEnd = `${endDate}T00:00:00`;
-        console.log(positionTitle);
         let filters = `
     <sg_ts_date condition="le">${formattedEnd}</sg_ts_date>
     <sg_ts_date condition="ge">${formattedStart}</sg_ts_date>
@@ -60,7 +58,6 @@ export class timeSheetService {
     `;
         }
 
-        //3/6/25
         if (pro_department && pro_department.length > 0) {
             filters += `
     
@@ -115,10 +112,30 @@ export class timeSheetService {
     `;
         }
 
+        if (project && project.length > 0) {
+            filters += `
+    
+      <or>`;
+
+            for (const proj of project) {
+                filters += `
+      <sg_ts_task_project>
+        <Item type="Project" action="get">
+           <keyed_name condition="eq">${proj}</keyed_name>
+        </Item>
+       </sg_ts_task_project>
+    `;
+            }
+
+            filters += `
+      </or>
+    `;
+        }
+
         const aml = `<AML>
     <Item type="sg_timesheet" action="get">
       ${filters}
-      <sg_ts_activity_type condition="ne">Holiday</sg_ts_activity_type>
+      
       <sg_ts_activity_type condition="ne">ClientHoliday</sg_ts_activity_type>
     </Item>
   </AML>`;

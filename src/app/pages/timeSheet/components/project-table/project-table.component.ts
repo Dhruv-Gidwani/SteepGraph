@@ -64,6 +64,7 @@ export class ProjectTableComponent implements OnInit {
                         sg_billing_method: detail.sg_billing_method,
                         total_ts_fill_hrs: detail.total_ts_fill_hrs,
                         total_billable_hr_company: detail.total_billable_hr_company,
+                        total_billable_hr_person: detail.total_billable_hr_person,
                         total_hours: detail.total_hours,
                         total_non_billable_hr: detail.total_non_billable_hr,
                         company_billability: proj.company_billability,

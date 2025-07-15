@@ -242,23 +242,23 @@
                     <p-sortIcon field="total_ts_fill_hrs"></p-sortIcon>
                 </th>
                 <th pSortableColumn="total_billable_hr_company">
-                    Total Billable Hrs. (Company)
+                    Total Billable Hrs. (Org)
                     <p-sortIcon field="total_billable_hr_company"></p-sortIcon>
                 </th>
-                <th pSortableColumn="total_hours">
-                    Total Billable Hrs. (person)
-                    <p-sortIcon field="total_hours"></p-sortIcon>
+                <th pSortableColumn="total_billable_hr_person">
+                    Total Billable Hrs. (Utilization)
+                    <p-sortIcon field="total_billable_hr_person"></p-sortIcon>
                 </th>
                 <th pSortableColumn="total_non_billable_hr">
                     Total Non-Billable Hrs.
                     <p-sortIcon field="total_non_billable_hr"></p-sortIcon>
                 </th>
                 <th pSortableColumn="company_billability">
-                    Company Billability %
+                    Org Billability %
                     <p-sortIcon field="company_billability"></p-sortIcon>
                 </th>
                 <th pSortableColumn="person_billability">
-                    Person Billability %
+                    Utilization %
                     <p-sortIcon field="person_billability"></p-sortIcon>
                 </th>
             </tr>
@@ -280,7 +280,7 @@
                 <td>{{ row.missing_timeSheet }}</td>
                 <td>{{ row.total_ts_fill_hrs }}</td>
                 <td>{{ row.total_billable_hr_company }}</td>
-                <td>{{ row.total_hours }}</td>
+                <td>{{ row.total_billable_hr_person }}</td>
                 <td>{{ row.total_non_billable_hr }}</td>
                 <td>{{ row.company_billability.toFixed(2) }}%</td>
                 <td>{{ row.person_billability.toFixed(2) }}%</td>

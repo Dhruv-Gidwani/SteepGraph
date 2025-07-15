@@ -46,8 +46,15 @@ export class BarChartComponent implements OnChanges {
     }
 
     private createChartData(departmentData: { [key: string]: number }): void {
-        const labels = Object.keys(departmentData).sort();
-        const counts = labels.map((label) => departmentData[label]);
+        // Create an array of [department, count] pairs
+        const departmentEntries = Object.entries(departmentData);
+
+        // Sort by count in descending order
+        departmentEntries.sort((a, b) => b[1] - a[1]);
+
+        // Extract sorted labels and counts
+        const labels = departmentEntries.map(([department]) => department);
+        const counts = departmentEntries.map(([, count]) => count);
 
         this.barChartData = {
             labels,
@@ -60,6 +67,7 @@ export class BarChartComponent implements OnChanges {
             ]
         };
     }
+
     onDepartmentClick(department: string): void {
         if (this.selectedDepartment === department) {
             // Toggle off (reset to All/default)

@@ -48,6 +48,7 @@
                     class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
                 >
                     {{ project }}
+                    <span class="resource-count"> ({{ projectEmployeeCounts[project] || 0 }} | {{ getProjectPercentage(project) }}%) </span>
                 </li>
             </ul>
         </div>
