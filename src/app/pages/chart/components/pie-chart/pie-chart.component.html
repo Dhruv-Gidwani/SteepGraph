@@ -37,7 +37,7 @@
                 'max-h-full': isExpanded && expandedComponent === 'pie'
             }"
         >
-            <ul class="project-list">
+            <!-- <ul class="project-list">
                 <li
                     *ngFor="let project of pieChartData?.labels"
                     (click)="onProjectClick(project)"
@@ -46,6 +46,59 @@
                         'hover:bg-gray-100 dark:hover:bg-surface-700': true
                     }"
                     class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
+                >
+                    {{ project }}
+                    <span class="resource-count"> ({{ projectEmployeeCounts[project] || 0 }} | {{ getProjectPercentage(project) }}%) </span>
+                </li>
+            </ul> -->
+
+            <!-- <ul class="project-list">
+                <li
+                    (click)="onProjectClick(allOptionLabel)"
+                    [ngClass]="{
+                        'bg-blue-100 text-blue-700 font-semibold': selectedProject === allOptionLabel,
+                        'hover:bg-gray-100 dark:hover:bg-surface-700': true
+                    }"
+                    class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
+                >
+                    {{ allOptionLabel }}
+                </li>
+                <li
+                    *ngFor="let project of pieChartData?.labels"
+                    (click)="onProjectClick(project)"
+                    [ngClass]="{
+                        'bg-blue-100 text-blue-700 font-semibold': project === selectedProject,
+                        'hover:bg-gray-100 dark:hover:bg-surface-700': true
+                    }"
+                    class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
+                >
+                    {{ project }}
+                    <span class="resource-count"> ({{ projectEmployeeCounts[project] || 0 }} | {{ getProjectPercentage(project) }}%) </span>
+                </li>
+            </ul> -->
+            <ul class="project-list">
+                <!-- Show "All" only if more than one project is displayed -->
+                <li
+                    *ngIf="pieChartData?.labels?.length > 1"
+                    (click)="onProjectClick(allOptionLabel)"
+                    [ngClass]="{
+                        'bg-blue-100 text-blue-700 font-semibold': selectedProject === allOptionLabel,
+                        'hover:bg-gray-100 dark:hover:bg-surface-700': true
+                    }"
+                    class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
+                >
+                    {{ allOptionLabel }}
+                </li>
+                <!-- Show only the selected project if one is selected, else show all -->
+                <li
+                    *ngFor="let project of pieChartData?.labels"
+                    (click)="onProjectClick(project)"
+                    [ngClass]="{
+                        'bg-blue-100 text-blue-700 font-semibold': project === selectedProject,
+                        'hover:bg-gray-100 dark:hover:bg-surface-700': true
+                    }"
+                    class="cursor-pointer px-3 py-2 rounded-md transition-colors duration-200"
+                    [hidden]="selectedProject !== allOptionLabel && project !== selectedProject"
                 >
                     {{ project }}
                     <span class="resource-count"> ({{ projectEmployeeCounts[project] || 0 }} | {{ getProjectPercentage(project) }}%) </span>

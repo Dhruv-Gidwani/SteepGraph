@@ -22,7 +22,6 @@ import { ProjectDataMap } from './components/interfaces/interface';
 import { XmlParserService } from '../../services/xml-parser.service';
 import { MultiselectFilterDemo } from '../../components/multiselect/multiselect.component';
 
-
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
@@ -66,7 +65,7 @@ export class ChartDemo implements OnInit {
         billingMethod: [] as string[], // multi-select returns array of strings
         project: [] as string[]
     };
-    
+
     filtersRestored = false;
     uniqueStatuses: string[] = [];
     availableRoles: string[] = [];
@@ -90,6 +89,7 @@ export class ChartDemo implements OnInit {
     expandedComponent: 'pie' | 'bar' | 'table' | null = null;
     private originalBillingMethods: string[] = [];
     private originalProjects: string[] = [];
+    displayedProjects: string[] = [];
 
     constructor(
         private ApiService: ApiService,
@@ -108,6 +108,7 @@ export class ChartDemo implements OnInit {
         const sorted = [...list].filter((x) => x !== 'All').sort((a, b) => a.localeCompare(b));
         return [...sorted.map((item) => ({ label: item, value: item }))]; // { label: 'All', value: '' },
     }
+
     async ngOnInit(): Promise<void> {
         this.isLoading = true;
         // let tgvdXmlString: string = '';
@@ -171,14 +172,26 @@ export class ChartDemo implements OnInit {
                 return;
             }
 
+            // Set displayedProjects here
+            this.displayedProjects = [...this.originalProjects];
+
             // Continue with normal filter processing
             this.updateProjectsAfterFilter();
+            this.selectedProject = 'All';
+            this.selectedProjectIndex = -1;
+            this.selectedProjectData = this.filteredContracts;
+            this.projectTableData = this.filteredContracts;
         } catch (error) {
             console.error('Error in sequential service calls:', error);
         } finally {
             this.isLoading = false;
             this.cdr.detectChanges();
         }
+    }
+
+    private getNormalizedProjectName(project: string | null | undefined): string {
+        const name = project?.trim();
+        return name && name.length > 0 ? name : 'Unknown';
     }
 
     async fetchAndProcessContracts(paramMap: Record<string, string>, tgvdXmlString: string): Promise<void> {
@@ -205,7 +218,9 @@ export class ChartDemo implements OnInit {
         this.geographyOptionswc = this.buildOptions(this.uniqueGeographies);
         this.billingMethodOptionswc = this.buildOptions(this.uniqueBillingMethods);
 
-        const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
+        //const projectNames = this.allContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`));
+        const projectNames = this.allContracts.map((c) => this.getNormalizedProjectName(c.Project));
+
         this.originalProjects = [...new Set(projectNames)];
         console.log('Project distribution:', projectNames);
         const tempLabels = [...new Set(projectNames)];
@@ -214,7 +229,8 @@ export class ChartDemo implements OnInit {
 
         const projectDataMap: { [project: string]: any[] } = {};
         this.allContracts.forEach((contract) => {
-            const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+            //const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
+            const projectKey = this.getNormalizedProjectName(contract.Project);
 
             if (!projectDataMap[projectKey]) projectDataMap[projectKey] = [];
             projectDataMap[projectKey].push(contract);
@@ -291,7 +307,8 @@ export class ChartDemo implements OnInit {
             if (!billingMethodMatch) return false;
 
             // Finally check project
-            const projectMatch = !project.length || project.some((c) => c.toLowerCase() === (item.Project?.toString().toLowerCase() || ''));
+            //const projectMatch = !project.length || project.some((c) => c.toLowerCase() === (item.Project?.toString().toLowerCase() || ''));
+            const projectMatch = !project.length || project.some((c) => this.getNormalizedProjectName(c).toLowerCase() === this.getNormalizedProjectName(item.Project).toLowerCase());
 
             return projectMatch;
         });
@@ -300,6 +317,28 @@ export class ChartDemo implements OnInit {
             this.resetComponentState();
             return;
         }
+
+        // this.updateProjectsAfterFilter();
+        // // // Sync displayedProjects after filtering
+        // // this.displayedProjects = [...this.originalProjects];
+
+        // // Only show projects present in filteredContracts
+        // const filteredProjectNames = [...new Set(this.filteredContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`)))];
+        // this.displayedProjects = filteredProjectNames;
+
+        // Only show projects present in filteredContracts
+        //const filteredProjectNames = [...new Set(this.filteredContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`)))];
+        const filteredProjectNames = [...new Set(this.filteredContracts.map((c) => this.getNormalizedProjectName(c.Project)))];
+
+        // If a single project is selected, show only that project
+        if (this.filters.project.length === 1) {
+            this.displayedProjects = [this.filters.project[0]];
+        } else {
+            this.displayedProjects = filteredProjectNames;
+        }
+
+        // Update project filter options to match filtered projects
+        this.projectDistributionwc = this.buildOptions(filteredProjectNames);
 
         this.updateProjectsAfterFilter();
     }
@@ -340,14 +379,18 @@ export class ChartDemo implements OnInit {
         const tempLabels = Object.keys(projectDataMap);
 
         if (tempLabels.length > 0) {
-            const firstProject = tempLabels[0];
-            this.selectedProject = firstProject;
-            this.selectedProjectIndex = tempLabels.indexOf(firstProject);
-            this.handleProjectSelection(firstProject, projectDataMap);
+            this.selectedProject = 'All';
+            this.selectedProjectIndex = -1;
+            this.selectedProjectData = this.filteredContracts;
+            this.projectTableData = this.filteredContracts;
+            // Optionally update filters, roles, etc.
+            this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
+            this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
+            this.selectedRole = '';
+            this.selectedBillingStatus = '';
         } else {
             this.resetComponentState();
         }
-
         this.cdr.detectChanges();
     }
 
@@ -356,19 +399,97 @@ export class ChartDemo implements OnInit {
         dt.filterGlobal(input.value, 'contains');
     }
 
+    // onProjectClick(event: { project: string; index: number }): void {
+    //     this.selectedProject = event.project;
+    //     this.selectedProjectIndex = event.index;
+
+    //     const projectDataMap = this.buildProjectDataMap();
+
+    //     if (event.project === 'All') {
+    //         // Show all contracts
+    //         this.selectedProjectData = this.filteredContracts;
+    //         this.projectTableData = this.filteredContracts;
+    //     } else {
+    //         // Show only selected project
+    //         this.selectedProjectData = projectDataMap[event.project] || [];
+    //         this.projectTableData = this.selectedProjectData;
+    //     }
+
+    //     // Update filters, roles, etc. as needed
+    //     this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
+    //     this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
+    //     this.selectedRole = '';
+    //     this.selectedBillingStatus = '';
+    //     this.cdr.detectChanges();
+    // }
     onProjectClick(event: { project: string; index: number }): void {
-        const projectDataMap = this.buildProjectDataMap();
-        this.selectedProject = event.project;
-        this.selectedProjectIndex = event.index;
-        this.handleProjectSelection(event.project, projectDataMap);
+        // If "All" is selected or the same project is clicked again, reset to all
+        // if (event.project === 'All' || this.filters.project[0] === event.project) {
+        //     this.selectedProject = 'All';
+        //     this.selectedProjectIndex = -1;
+        //     this.filters.project = [];
+        //     this.displayedProjects = [...this.originalProjects];
+        //     this.selectedProjectData = this.filteredContracts;
+        //     this.projectTableData = this.filteredContracts;
+        // } else {
+        //     // Project selected
+        //     this.selectedProject = event.project;
+        //     this.selectedProjectIndex = event.index;
+        //     this.filters.project = [event.project];
+        //     this.displayedProjects = [event.project];
+        //     const projectDataMap = this.buildProjectDataMap();
+        //     this.selectedProjectData = projectDataMap[event.project] || [];
+        //     this.projectTableData = this.selectedProjectData;
+        // }
+
+        // // Update filters, roles, etc. as needed
+        // this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
+        // this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
+        // this.selectedRole = '';
+        // this.selectedBillingStatus = '';
+        // this.cdr.detectChanges();
+
+        const normalizedProject = this.getNormalizedProjectName(event.project);
+
+        if (normalizedProject === 'All' || this.filters.project[0] === normalizedProject) {
+            this.selectedProject = 'All';
+            this.selectedProjectIndex = -1;
+            this.filters.project = [];
+            this.displayedProjects = [...this.originalProjects];
+            this.selectedProjectData = this.filteredContracts;
+            this.projectTableData = this.filteredContracts;
+        } else {
+            this.selectedProject = normalizedProject;
+            this.selectedProjectIndex = event.index;
+            this.filters.project = [normalizedProject];
+            this.displayedProjects = [normalizedProject];
+
+            const projectDataMap = this.buildProjectDataMap();
+            this.selectedProjectData = projectDataMap[normalizedProject] || [];
+            this.projectTableData = this.selectedProjectData;
+        }
+
+        this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
+        this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
+        this.selectedRole = '';
+        this.selectedBillingStatus = '';
+        this.cdr.detectChanges();
     }
 
+    // private buildProjectDataMap(): ProjectDataMap {
+    //     return this.filteredContracts.reduce((acc, contract) => {
+    //         const project = contract.Project || 'Unknown';
+    //         if (!acc[project]) {
+    //             acc[project] = [];
+    //         }
+    //         acc[project].push(contract);
+    //         return acc;
+    //     }, {} as ProjectDataMap);
+    // }
     private buildProjectDataMap(): ProjectDataMap {
         return this.filteredContracts.reduce((acc, contract) => {
-            const project = contract.Project || 'Unknown';
-            if (!acc[project]) {
-                acc[project] = [];
-            }
+            const project = this.getNormalizedProjectName(contract.Project);
+            if (!acc[project]) acc[project] = [];
             acc[project].push(contract);
             return acc;
         }, {} as ProjectDataMap);
@@ -410,6 +531,7 @@ export class ChartDemo implements OnInit {
 
         // Reset to original options
         this.billingMethodOptionswc = this.buildOptions(this.originalBillingMethods);
+        this.displayedProjects = [...this.originalProjects];
         this.projectDistributionwc = this.buildOptions(this.originalProjects);
         this.selectedRole = '';
         this.selectedBillingStatus = '';

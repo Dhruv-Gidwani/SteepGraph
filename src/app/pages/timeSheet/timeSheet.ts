@@ -354,11 +354,9 @@ export class timeSheetDemo {
         return items
             .filter((item) => !!item)
             .map((item: any) => ({
-                //billableqty: item.sg_billableqty || '0',
                 billableqty: parseFloat(item.sg_billableqty) || 0,
-                //billing_status: item.billing_status || 'N/A',
                 billing_status: item.sg_billing_status || 'N/A',
-                project: item.project || 'N/A',
+                project: item.sg_ts_task_project?.$?.keyed_name || 'N/A',
                 sg_billing_method: item.sg_billing_method || 'N/A',
                 sg_employee: item?.sg_employee?.$?.keyed_name || 'N/A',
                 sg_employee_department: item?.sg_employee_department?.$?.keyed_name || 'N/A',
@@ -520,6 +518,7 @@ export class timeSheetDemo {
             employeeUniqueDates.get(employee)!.add(date);
         });
 
+        
         // Calculate Missing Timesheet Days
         const ans: { [employee: string]: number } = {};
         employeeUniqueDates.forEach((dateSet, employee) => {
