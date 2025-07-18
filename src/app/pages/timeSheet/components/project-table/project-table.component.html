@@ -4,6 +4,8 @@
         [resizableColumns]="true"
         [rows]="10"
         [scrollable]="true"
+        showCurrentPageReport="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         scrollHeight="500px"
         [rowsPerPageOptions]="[10, 20, 50, 100]"
         [paginator]="true"
@@ -11,20 +13,6 @@
         [tableStyle]="{ 'min-width': '50rem' }"
         class="custom-table"
     >
-        <!-- Caption with Search and Export -->
-        <!-- <ng-template pTemplate="caption">
-            <div class="flex justify-between items-center w-full p-2">
-                <div class="relative w-64">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <i class="pi pi-search text-gray-400"></i>
-                    </span>
-                    <input type="text" (input)="onGlobalFilter($event)" placeholder="Search keyword" class="w-full pl-10 pr-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300" />
-                </div>
-
-                <p-button label="Export" icon="pi pi-file-excel" styleClass="p-button-success" (click)="exportData()"></p-button>
-            </div>
-        </ng-template> -->
-
         <!-- Caption with Search and Button Group -->
         <ng-template pTemplate="caption">
             <div class="flex justify-between items-center w-full p-2">

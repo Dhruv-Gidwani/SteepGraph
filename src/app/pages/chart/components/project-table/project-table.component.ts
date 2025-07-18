@@ -63,10 +63,6 @@ export class ProjectTableComponent implements OnChanges {
     }
 
     public formatDates(row: TableData): { [key: string]: any } {
-        // const formatDate = (dateString: string): string => {
-        //     const date = new Date(dateString);
-        //     return !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '';
-        // };
         const formatDate = (dateString: string): string => {
             if (!dateString) return '';
             // Use only the date part, ignore the time and timezone
@@ -198,10 +194,6 @@ export class ProjectTableComponent implements OnChanges {
         return { monthData };
     }
 
-    private formatDate(dateString: string): string | null {
-        const date = new Date(dateString);
-        return !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : null;
-    }
     private updateProjectNames(): void {
         this.ProjectNames = [...new Set(this.displayedData.map((row) => row['Project']).filter(Boolean))];
     }
