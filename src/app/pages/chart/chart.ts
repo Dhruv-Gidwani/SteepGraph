@@ -90,6 +90,7 @@ export class ChartDemo implements OnInit {
     private originalBillingMethods: string[] = [];
     private originalProjects: string[] = [];
     displayedProjects: string[] = [];
+    fullDataset: any[] = [];
 
     constructor(
         private ApiService: ApiService,
@@ -111,12 +112,10 @@ export class ChartDemo implements OnInit {
 
     async ngOnInit(): Promise<void> {
         this.isLoading = true;
-        // let tgvdXmlString: string = '';
         let paramMapString: string = '';
-        let newsStr: string = '';
         const pageKey = 'page1';
         this.statusoptionswc = this.buildOptions(this.StatusList);
-        console.log('Status options:', this.statusoptionswc);
+
         try {
             // 1st service: fetch TGVD XML
             const tgvdResponse = await firstValueFrom(this.arasService.fetchTgvdItem());
@@ -125,8 +124,7 @@ export class ChartDemo implements OnInit {
             // 2nd service: fetch QB values and parse XML
             const qbResponse = await firstValueFrom(this.arasService1.fetchQBValueItem());
             const result = await this.xmlParserService.parseXml(qbResponse);
-            // Convert callback-style parseString to a promise
-            console.log('Hello', result);
+
             const paramMap = await new Promise<Record<string, string>>((resolve, reject) => {
                 try {
                     const items = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'].Result.Item.Relationships.Item;
@@ -144,43 +142,27 @@ export class ChartDemo implements OnInit {
                     reject(parseError);
                 }
             });
-            console.log('default paramap', paramMap);
+
             this.cwoStatus = paramMap['sg_work_contract_state'];
             this.filters.status = [this.cwoStatus];
-            this.paramMap = paramMap; // Save for reuse
+            this.paramMap = paramMap;
             paramMapString = JSON.stringify(this.paramMap);
 
-            // 3rd service
+            // 3rd service: fetch contracts
             const updatedParamMap = { ...this.paramMap };
             updatedParamMap['sg_work_contract_state'] = 'Active';
 
             await this.fetchAndProcessContracts(updatedParamMap, this.tgvdXmlString);
 
-            const { status, geography, billingMethod, project } = this.filters;
-            this.filteredContracts = this.allContracts.filter((item) => {
-                const statusMatch = item.Status?.toString().toLowerCase() === 'active';
-                const geographyMatch = !geography.length || geography.some((g) => g.toLowerCase() === (item.Geography?.toString().toLowerCase() || ''));
-                const billingMethodMatch = !billingMethod.length || billingMethod.some((b) => b.toLowerCase() === (item['Billing Method']?.toString().toLowerCase() || ''));
-                const projectMatch = !project.length || project.some((c) => c.toLowerCase() === (item.Project?.toString().toLowerCase() || ''));
+            // ✅ NEW: Save full dataset for filtering
+            this.fullDataset = [...this.allContracts];
 
-                return statusMatch && geographyMatch && billingMethodMatch && projectMatch;
-            });
+            // ✅ NEW: Do not manually filter here — just apply filters using the central method
+            await this.applyFilters();
 
-            // Reset everything if no data matches filters
-            if (this.filteredContracts.length === 0) {
-                this.resetComponentState();
-                return;
-            }
-
-            // Set displayedProjects here
-            this.displayedProjects = [...this.originalProjects];
-
-            // Continue with normal filter processing
-            this.updateProjectsAfterFilter();
+            // ✅ Reset selection defaults after filters applied
             this.selectedProject = 'All';
             this.selectedProjectIndex = -1;
-            this.selectedProjectData = this.filteredContracts;
-            this.projectTableData = this.filteredContracts;
         } catch (error) {
             console.error('Error in sequential service calls:', error);
         } finally {
@@ -292,55 +274,51 @@ export class ChartDemo implements OnInit {
     async applyFilters(): Promise<void> {
         const { status, geography, billingMethod, project } = this.filters;
 
-        // Apply filters in sequence
-        this.filteredContracts = this.allContracts.filter((item) => {
-            // First check status
+        this.filteredContracts = this.fullDataset.filter((item) => {
+            // Active status only
             const statusMatch = item.Status?.toString().toLowerCase() === 'active';
             if (!statusMatch) return false;
 
-            // Then check geography
-            const geographyMatch = !geography.length || geography.some((g) => g.toLowerCase() === (item.Geography?.toString().toLowerCase() || ''));
+            // Geography match
+            const geographyMatch = !geography.length || geography.some((g) => g.toLowerCase() === (item.Geography?.toString().toLowerCase() || 'n/a'));
             if (!geographyMatch) return false;
 
-            // Then billing method
-            const billingMethodMatch = !billingMethod.length || billingMethod.some((b) => b.toLowerCase() === (item['Billing Method']?.toString().toLowerCase() || ''));
+            // Billing method match
+            const billingMethodMatch = !billingMethod.length || billingMethod.some((b) => b.toLowerCase() === (item['Billing Method']?.toString().toLowerCase() || 'n/a'));
             if (!billingMethodMatch) return false;
 
-            // Finally check project
-            //const projectMatch = !project.length || project.some((c) => c.toLowerCase() === (item.Project?.toString().toLowerCase() || ''));
+            // Project match (normalized)
             const projectMatch = !project.length || project.some((c) => this.getNormalizedProjectName(c).toLowerCase() === this.getNormalizedProjectName(item.Project).toLowerCase());
 
             return projectMatch;
         });
 
         if (this.filteredContracts.length === 0) {
-            this.resetComponentState();
+            this.resetComponentState(); // Reset charts and tables
             return;
         }
 
-        // this.updateProjectsAfterFilter();
-        // // // Sync displayedProjects after filtering
-        // // this.displayedProjects = [...this.originalProjects];
-
-        // // Only show projects present in filteredContracts
-        // const filteredProjectNames = [...new Set(this.filteredContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`)))];
-        // this.displayedProjects = filteredProjectNames;
-
-        // Only show projects present in filteredContracts
-        //const filteredProjectNames = [...new Set(this.filteredContracts.map((c) => (c.Project?.trim() && c.Project.trim().length > 0 ? c.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`)))];
+        // Derive displayed projects from filtered data
         const filteredProjectNames = [...new Set(this.filteredContracts.map((c) => this.getNormalizedProjectName(c.Project)))];
 
-        // If a single project is selected, show only that project
-        if (this.filters.project.length === 1) {
-            this.displayedProjects = [this.filters.project[0]];
+        this.projectDistributionwc = [{ label: 'All', value: '' }, ...this.buildOptions(filteredProjectNames)];
+        this.displayedProjects = filteredProjectNames;
+        // Call function to sync other views like pie chart
+        this.updateProjectsAfterFilter();
+    }
+
+    onProjectSelected(project: string): void {
+        if (!project || project === 'All') {
+            this.filters.project = [];
+        } else if (this.filters.project.includes(project)) {
+            this.filters.project = []; // Deselect if already selected
         } else {
-            this.displayedProjects = filteredProjectNames;
+            this.filters.project = [project]; // Select only this
         }
 
-        // Update project filter options to match filtered projects
-        this.projectDistributionwc = this.buildOptions(filteredProjectNames);
-
-        this.updateProjectsAfterFilter();
+        // this.applyFilters();
+        const projectDataMap = this.buildProjectDataMap();
+        this.onProjectClick({ project, index: -1 }); // index can be -1 for dropdown
     }
 
     toggleExpand(component: 'pie' | 'bar' | 'table') {
@@ -399,93 +377,54 @@ export class ChartDemo implements OnInit {
         dt.filterGlobal(input.value, 'contains');
     }
 
-    // onProjectClick(event: { project: string; index: number }): void {
-    //     this.selectedProject = event.project;
-    //     this.selectedProjectIndex = event.index;
-
-    //     const projectDataMap = this.buildProjectDataMap();
-
-    //     if (event.project === 'All') {
-    //         // Show all contracts
-    //         this.selectedProjectData = this.filteredContracts;
-    //         this.projectTableData = this.filteredContracts;
-    //     } else {
-    //         // Show only selected project
-    //         this.selectedProjectData = projectDataMap[event.project] || [];
-    //         this.projectTableData = this.selectedProjectData;
-    //     }
-
-    //     // Update filters, roles, etc. as needed
-    //     this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
-    //     this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
-    //     this.selectedRole = '';
-    //     this.selectedBillingStatus = '';
-    //     this.cdr.detectChanges();
-    // }
     onProjectClick(event: { project: string; index: number }): void {
-        // If "All" is selected or the same project is clicked again, reset to all
-        // if (event.project === 'All' || this.filters.project[0] === event.project) {
-        //     this.selectedProject = 'All';
-        //     this.selectedProjectIndex = -1;
-        //     this.filters.project = [];
-        //     this.displayedProjects = [...this.originalProjects];
-        //     this.selectedProjectData = this.filteredContracts;
-        //     this.projectTableData = this.filteredContracts;
-        // } else {
-        //     // Project selected
-        //     this.selectedProject = event.project;
-        //     this.selectedProjectIndex = event.index;
-        //     this.filters.project = [event.project];
-        //     this.displayedProjects = [event.project];
-        //     const projectDataMap = this.buildProjectDataMap();
-        //     this.selectedProjectData = projectDataMap[event.project] || [];
-        //     this.projectTableData = this.selectedProjectData;
-        // }
-
-        // // Update filters, roles, etc. as needed
-        // this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
-        // this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
-        // this.selectedRole = '';
-        // this.selectedBillingStatus = '';
-        // this.cdr.detectChanges();
-
         const normalizedProject = this.getNormalizedProjectName(event.project);
 
-        if (normalizedProject === 'All' || this.filters.project[0] === normalizedProject) {
+        const isSameProjectSelected = this.filters.project.length === 1 && this.getNormalizedProjectName(this.filters.project[0]).toLowerCase() === normalizedProject.toLowerCase();
+
+        if (normalizedProject === 'All' || isSameProjectSelected) {
+            // 🔁 Case: Deselect or 'All' selected -> reset everything
             this.selectedProject = 'All';
             this.selectedProjectIndex = -1;
             this.filters.project = [];
-            this.displayedProjects = [...this.originalProjects];
+
+            this.applyFilters(); // 🔁 Triggers rebuild of filteredContracts, displayedProjects, etc.
+
+            // 🔁 Reset bar chart and table data
             this.selectedProjectData = this.filteredContracts;
-            this.projectTableData = this.filteredContracts;
+            this.projectTableData = this.selectedProjectData;
+
+            // 🔁 Reset subfilters
+            this.updateRolesAndBillingList(this.selectedProjectData);
+            this.selectedRole = '';
+            this.selectedBillingStatus = '';
+
+            this.cdr.detectChanges();
         } else {
+            // ✅ Case: Selecting a new specific project
             this.selectedProject = normalizedProject;
             this.selectedProjectIndex = event.index;
             this.filters.project = [normalizedProject];
-            this.displayedProjects = [normalizedProject];
 
             const projectDataMap = this.buildProjectDataMap();
             this.selectedProjectData = projectDataMap[normalizedProject] || [];
             this.projectTableData = this.selectedProjectData;
-        }
 
-        this.availableRoles = [...new Set(this.selectedProjectData.map((c) => c['Position Role']).filter(Boolean))];
-        this.uniqueBillingStatuses = [...new Set(this.selectedProjectData.map((c) => c['Billing Status']).filter(Boolean))];
-        this.selectedRole = '';
-        this.selectedBillingStatus = '';
-        this.cdr.detectChanges();
+            this.displayedProjects = [normalizedProject];
+
+            this.updateRolesAndBillingList(this.selectedProjectData);
+            this.selectedRole = '';
+            this.selectedBillingStatus = '';
+
+            this.cdr.detectChanges();
+        }
     }
 
-    // private buildProjectDataMap(): ProjectDataMap {
-    //     return this.filteredContracts.reduce((acc, contract) => {
-    //         const project = contract.Project || 'Unknown';
-    //         if (!acc[project]) {
-    //             acc[project] = [];
-    //         }
-    //         acc[project].push(contract);
-    //         return acc;
-    //     }, {} as ProjectDataMap);
-    // }
+    private updateRolesAndBillingList(data: any[]): void {
+        this.availableRoles = [...new Set(data.map((c) => c['Position Role']).filter(Boolean))];
+        this.uniqueBillingStatuses = [...new Set(data.map((c) => c['Billing Status']).filter(Boolean))];
+    }
+
     private buildProjectDataMap(): ProjectDataMap {
         return this.filteredContracts.reduce((acc, contract) => {
             const project = this.getNormalizedProjectName(contract.Project);

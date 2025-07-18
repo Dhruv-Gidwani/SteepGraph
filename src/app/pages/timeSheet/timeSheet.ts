@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, ChangeDetectorRef, NgZone } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FluidModule } from 'primeng/fluid';
 import { FormsModule } from '@angular/forms';
@@ -74,6 +74,7 @@ export class timeSheetDemo {
     showSecondaryFilters: boolean = false;
     private static hasVisited: boolean = false;
     private fullDataset: any[] = [];
+    totalWorkingDays: number = 0;
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -95,41 +96,6 @@ export class timeSheetDemo {
         console.log('everytime sorted', sorted);
         return [...sorted.map((item) => ({ label: item, value: item }))];
     }
-
-    // ngOnInit(): void {
-    //     const pageKey = 'page1';
-    //     const savedFilter = this.globalState.getFilters(pageKey);
-    //     const savedData = this.globalState.getFilteredData(pageKey);
-    //     const savedFullDataset = this.globalState.getFullDataset(pageKey);
-
-    //     if (savedFullDataset.length > 0 && savedFilter) {
-    //         this.fullDataset = savedFullDataset;
-    //         this.populateFilterOptions();
-
-    //         // Restore filters and date range
-    //         this.restoreFilters(savedFilter);
-
-    //         // Restore table data (if any) or show all data
-    //         if (savedData && savedData.length > 0) {
-    //             this.projectTableData = savedData;
-    //             this.rawProjectData = savedData;
-    //         } else {
-    //             this.rawProjectData = [...this.fullDataset];
-    //             this.groupProjectData();
-    //         }
-
-    //         this.showSecondaryFilters = true;
-    //         this.cdr.detectChanges();
-    //     } else {
-    //         if (!timeSheetDemo.hasVisited) {
-    //             const today = new Date();
-    //             this.startDate = this.formatDateToYMD(new Date(today.getFullYear(), today.getMonth(), 1));
-    //             this.endDate = this.formatDateToYMD(today);
-    //             this.fetchInitialData();
-    //             timeSheetDemo.hasVisited = true;
-    //         }
-    //     }
-    // }
 
     ngOnInit(): void {
         const pageKey = 'page1';
@@ -157,6 +123,7 @@ export class timeSheetDemo {
             }
         }
     }
+
     private async getUnfilteredData(startDate: string, endDate: string): Promise<void> {
         try {
             // Get unfiltered data for the date range
@@ -231,6 +198,15 @@ export class timeSheetDemo {
         this.isLoading = true;
 
         try {
+            if (this.startDate && this.endDate) {
+                try {
+                    this.totalWorkingDays = await this.calculateWorkingDaysExcludingWeekendsAndHolidays(this.startDate, this.endDate);
+                } catch (holidayError) {
+                    console.error('❌ Failed to calculate working days:', holidayError);
+                    this.totalWorkingDays = 0;
+                }
+            }
+
             // First call: Get all data for the date range to populate filter options
             const allDataResponse = await firstValueFrom(this.timeSheetService.fetchtimeSheetItem(this.startDate, this.endDate, [], [], [], [], [], []));
             console.log('All data response:', allDataResponse);
@@ -363,7 +339,7 @@ export class timeSheetDemo {
                 sg_geography: item.sg_geography || 'N/A',
                 sg_position_role: item?.sg_position_role?.$?.keyed_name || 'N/A',
                 sg_position_title: item.sg_position_title?.$?.keyed_name || 'N/A',
-                sg_project_department: item.sg_project_department || 'N/A',
+                sg_project_department: item?.sg_department?.$?.keyed_name || 'N/A',
                 sg_ts_activity_type: item.sg_ts_activity_type || 'N/A',
                 sg_ts_date: item.sg_ts_date || 'N/A'
             }));
@@ -373,6 +349,14 @@ export class timeSheetDemo {
         this.isLoading = true;
 
         try {
+            //await this.calculateWorkingDaysAndMissingHrs();
+            try {
+                this.totalWorkingDays = await this.calculateWorkingDaysExcludingWeekendsAndHolidays(this.startDate, this.endDate);
+            } catch (holidayError) {
+                console.error('❌ Failed to calculate working days:', holidayError);
+                this.totalWorkingDays = 0;
+            }
+
             // Filter the stored dataset without making a service call
             this.rawProjectData = this.fullDataset.filter((item) => {
                 return (
@@ -399,18 +383,32 @@ export class timeSheetDemo {
         return filterArray.length === 0 || filterArray.includes(value || 'N/A');
     }
 
-    countWeekdays(startDate: Date, endDate: Date, holidays: Set<string>): number {
-        let count = 0;
-        let currentDate = new Date(startDate);
-        while (currentDate <= endDate) {
-            const day = currentDate.getDay();
-            const dateStr = currentDate.toISOString().split('T')[0];
-            if (day !== 0 && day !== 6 && !holidays.has(dateStr)) {
-                count++;
+    private async calculateWorkingDaysExcludingWeekendsAndHolidays(start: string, end: string): Promise<number> {
+        const holidays: string[] = await firstValueFrom(this.timeSheetService.getHolidaysInRange(start, end));
+
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const holidaySet = new Set(holidays.map((dateStr) => dateStr.split('T')[0]));
+
+        let workingDays = 0;
+        let current = new Date(startDate);
+
+        while (current <= endDate) {
+            const day = current.getDay(); // Sunday = 0, Saturday = 6
+            const dateStr = current.toISOString().split('T')[0];
+
+            if (day !== 0 && day !== 6 && !holidaySet.has(dateStr)) {
+                workingDays++;
             }
-            currentDate.setDate(currentDate.getDate() + 1);
+
+            current.setDate(current.getDate() + 1);
         }
-        return count;
+
+        console.log('✅ Working Days (excluding weekends & holidays):', workingDays);
+        //console.log('🗓️ Holidays:', [...holidaySet]);
+        console.log('🗓️ Holidays:', Array.from(holidaySet));
+
+        return workingDays;
     }
 
     groupProjectData() {
@@ -518,13 +516,13 @@ export class timeSheetDemo {
             employeeUniqueDates.get(employee)!.add(date);
         });
 
-        
         // Calculate Missing Timesheet Days
         const ans: { [employee: string]: number } = {};
         employeeUniqueDates.forEach((dateSet, employee) => {
-            ans[employee] = this.totalDays - dateSet.size;
+            // ans[employee] = this.totalDays - dateSet.size;
+            ans[employee] = this.totalWorkingDays - dateSet.size;
         });
-        console.log('ans:', ans);
+        console.log('Missing Timesheet Days: ', ans);
 
         // Convert to array format for HTML
         this.projectTableData = Object.entries(result).map(([key, data]) => ({
@@ -541,7 +539,7 @@ export class timeSheetDemo {
                 const billingDetails = statuses.map((item) => ({
                     billing_status: item.billing_status,
                     sg_billing_method: item.sg_billing_method,
-                    total_hours: item.billableqty, 
+                    total_hours: item.billableqty,
                     total_ts_fill_hrs: ['Learning', 'HalfDay_Delivery', 'Delivery'].includes(item.sg_ts_activity_type) ? item.billableqty : 0,
                     sg_position_role: item.sg_position_role,
                     total_billable_hr_company:
@@ -664,15 +662,12 @@ export class timeSheetDemo {
             this.selectedGeographyIndex = null;
             this.selectedDepartment = null;
 
-            this.ngZone.run(() => {
+            this.ngZone.run(async () => {
                 // Use existing fullDataset without making service call
                 this.rawProjectData = [...this.fullDataset];
 
                 // Calculate total days
-                const startDateTs = new Date(currentDateRange.startDate);
-                const endDateTs = new Date(currentDateRange.endDate);
-                //this.totalDays = this.countWeekdays(startDateTs, endDateTs); // Need to remove holidays of the the year
-                this.totalDays = this.countWeekdays(startDateTs, endDateTs, new Set());
+                this.totalWorkingDays = await this.calculateWorkingDaysExcludingWeekendsAndHolidays(currentDateRange.startDate, currentDateRange.endDate);
 
                 // Update table data
                 this.groupProjectData();

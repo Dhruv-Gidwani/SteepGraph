@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { map } from 'rxjs';
 @Injectable({
     providedIn: 'root'
 })
@@ -150,5 +151,73 @@ export class timeSheetService {
             headers,
             responseType: 'text'
         });
+    }
+
+    getHolidaysInRange(start: string, end: string): Observable<string[]> {
+        const startYear = new Date(start).getFullYear();
+        const endYear = new Date(end).getFullYear();
+        const yearsToQuery = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
+
+        const aml = `
+    <AML>
+        ${yearsToQuery
+            .map(
+                (year) => `
+            <Item type='Business Calendar Year' action='get' select='name'>
+                <year>${year}</year>
+                <Relationships>
+                    <Item type='Business Calendar Exception' action='get' select='day_off,dat_date,description' />
+                </Relationships>
+            </Item>
+        `
+            )
+            .join('')}
+    </AML>
+`;
+
+        const token = sessionStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/xml',
+            Authorization: `Bearer ${token}`,
+            SOAPAction: 'ApplyAML',
+            Accept: 'application/json'
+        });
+
+        return this.http
+            .post(this.baseUrl + '/Server/InnovatorServer.aspx', aml, {
+                headers,
+                responseType: 'text'
+            })
+            .pipe(
+                map((response) => {
+                    console.log('🧾 Raw holidays XML:', response);
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(response, 'application/xml');
+
+                    const holidayItems = xmlDoc.getElementsByTagName('Item');
+                    const holidays: string[] = [];
+
+                    Array.from(holidayItems).forEach((item) => {
+                        const typeAttr = item.getAttribute('type');
+                        if (typeAttr === 'Business Calendar Exception') {
+                            const idNode = item.querySelector('id');
+                            const keyedName = idNode?.getAttribute('keyed_name');
+
+                            if (keyedName) {
+                                const parsedDate = new Date(keyedName); // parses "6/25/2025 6:30:00 PM"
+                                const isoDate = parsedDate.toISOString().split('T')[0]; // "2025-06-25"
+
+                                // only include if in range
+                                if (isoDate >= start && isoDate <= end) {
+                                    holidays.push(isoDate);
+                                }
+                            }
+                        }
+                    });
+
+                    console.log('✅ Holidays in given range:', holidays);
+                    return holidays;
+                })
+            );
     }
 }
