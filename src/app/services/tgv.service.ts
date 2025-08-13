@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ApiService {
-    private baseUrl = environment.apiUrl; // Use the environment variable for the base URL
+    private baseUrl = environment.apiUrl;
     private apiUrl = this.baseUrl + '/Server/odata/method.rb_GetTreeGridData';
     constructor(private http: HttpClient) {}
 
@@ -25,12 +25,12 @@ export class ApiService {
             show_more_offset_info: null,
             levels_to_expand: 3,
             include_headers: '1',
-            tgvd_item:
-            tgvdXmlString,
-            qb_parameters_value_by_name:paramMapString
+            tgvd_item: tgvdXmlString,
+            qb_parameters_value_by_name: paramMapString
         };
         return this.http.post<any>(this.apiUrl, body, { headers }).pipe(
             map((data) => {
+                //data = WC_RAWData[0];
                 const headers = data?.HeaderResult?.map((header: any) => header.label) ?? [];
                 const gridRows = data?.GridRows ?? [];
 
@@ -49,4 +49,32 @@ export class ApiService {
             })
         );
     }
+    /*
+    getTreeGridData(tgvdXmlString: string, paramMapString: string): Observable<any> {
+        // Bypass HTTP call and directly return WC_RAWData
+        // Transform the data to match expected format
+        const mockData = WC_RAWData[0];
+        const headers = mockData?.HeaderResult?.map((header: any) => header.label) ?? [];
+        const gridRows = mockData?.GridRows ?? [];
+
+        const transformed = gridRows.map((row: any) => {
+            const result: Record<string, any> = { Level: '1' };
+            if (Array.isArray(row.cells)) {
+                row.cells.forEach((cell: any, index: number) => {
+                    const key = headers[index] ?? `Unknown_${index}`;
+                    result[key] = cell?.value ?? null;
+                });
+            }
+            return result;
+        });
+
+        console.log('Transformed mock data:', {
+            recordCount: transformed.length,
+            sampleRecord: transformed[0]
+        });
+
+        // Return the mock data as an Observable
+        return of(transformed);
+    }
+    */
 }

@@ -25,6 +25,11 @@ export class BarChartComponent implements OnChanges {
     @Output() toggleExpand = new EventEmitter<'bar'>();
     @Output() roleChanged = new EventEmitter<string>();
     @Output() billingStatusChanged = new EventEmitter<string>();
+    public readonly defaultPageSize = 10;
+    public currentPage = 0;
+    public totalPages = 0;
+    public displayedResourceCount = 0;
+    public totalResourceCount = 0;
 
     barChartData: any;
     barChartOptions: any;
@@ -77,6 +82,7 @@ export class BarChartComponent implements OnChanges {
         return resourceMap;
     }
 
+    /*
     private createChartData(resourceMap: { [key: string]: { allocated: number; remaining: number } }): void {
         // Create an array of [resource, allocated] pairs
         const resourceEntries = Object.entries(resourceMap);
@@ -103,15 +109,77 @@ export class BarChartComponent implements OnChanges {
                 {
                     label: 'Allocated Hrs',
                     backgroundColor: '#42A5F5',
-                    data: allocatedData
+                    data: allocatedData,
+                    barThickness: 25
                 },
                 {
                     label: 'Rem. Hrs.',
                     backgroundColor: remainingColors,
-                    data: remainingData
+                    data: remainingData,
+                    barThickness: 25
                 }
             ]
         };
+    }
+    */
+    private createChartData(resourceMap: { [key: string]: { allocated: number; remaining: number } }): void {
+        // Create array of entries and sort
+        const resourceEntries = Object.entries(resourceMap);
+        resourceEntries.sort((a, b) => b[1].allocated - a[1].allocated);
+
+        // Calculate pagination
+        this.totalResourceCount = resourceEntries.length;
+        this.totalPages = Math.ceil(resourceEntries.length / this.defaultPageSize);
+
+        // Get current page data
+        const startIndex = this.currentPage * this.defaultPageSize;
+        const endIndex = startIndex + this.defaultPageSize;
+        const currentPageData = resourceEntries.slice(startIndex, endIndex);
+
+        // Update displayed count
+        this.displayedResourceCount = currentPageData.length;
+
+        // Extract data for chart
+        const labels = currentPageData.map(([resource]) => resource);
+        const allocatedData = currentPageData.map(([, data]) => data.allocated);
+        const remainingData = currentPageData.map(([, data]) => data.remaining);
+
+        // Calculate colors
+        const remainingColors = currentPageData.map(([, data]) => {
+            const ratio = data.allocated > 0 ? data.remaining / data.allocated : 0;
+            return ratio <= 0.3 ? '#FF4444' : '#66BB6A';
+        });
+        this.barChartData = {
+            labels,
+            datasets: [
+                {
+                    label: 'Allocated Hrs',
+                    backgroundColor: '#42A5F5',
+                    data: allocatedData,
+                    barThickness: 18
+                },
+                {
+                    label: 'Rem. Hrs.',
+                    backgroundColor: remainingColors,
+                    data: remainingData,
+                    barThickness: 18 
+                }
+            ]
+        };
+    }
+
+    public nextPage(): void {
+        if (this.currentPage < this.totalPages - 1) {
+            this.currentPage++;
+            this.renderBarChart();
+        }
+    }
+
+    public previousPage(): void {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.renderBarChart();
+        }
     }
 
     private initializeChartOptions(): void {
@@ -176,15 +244,33 @@ export class BarChartComponent implements OnChanges {
             scales: {
                 x: {
                     stacked: false,
-                    ticks: { display: true }
+                    ticks: {
+                        display: true,
+                        maxRotation: 80, // Rotate labels
+                        minRotation: 20, // Rotate labels
+                        autoSkip: false, // Don't skip labels
+                        font: {
+                            size: 8
+                        }
+                    },
+                    grid: {
+                        display: false // Hide grid lines
+                    },
+                    barPercentage: 0.9,
+                    categoryPercentage: 1
                 },
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Hours',
-                        font: { size: 12 }
+                        font: { size: 8 }
                     }
+                }
+            },
+            layout: {
+                padding: {
+                    bottom: 10
                 }
             }
         };

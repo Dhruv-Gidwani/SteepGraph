@@ -107,7 +107,7 @@ export class ChartDemo implements OnInit {
     };
     private buildOptions(list: string[]): { label: string; value: string }[] {
         const sorted = [...list].filter((x) => x !== 'All').sort((a, b) => a.localeCompare(b));
-        return [...sorted.map((item) => ({ label: item, value: item }))]; // { label: 'All', value: '' },
+        return [...sorted.map((item) => ({ label: item, value: item }))];
     }
 
     async ngOnInit(): Promise<void> {
@@ -154,13 +154,13 @@ export class ChartDemo implements OnInit {
 
             await this.fetchAndProcessContracts(updatedParamMap, this.tgvdXmlString);
 
-            // ✅ NEW: Save full dataset for filtering
+            // Save full dataset for filtering
             this.fullDataset = [...this.allContracts];
 
-            // ✅ NEW: Do not manually filter here — just apply filters using the central method
+            //Do not manually filter here — just apply filters using the central method
             await this.applyFilters();
 
-            // ✅ Reset selection defaults after filters applied
+            //Reset selection defaults after filters applied
             this.selectedProject = 'All';
             this.selectedProjectIndex = -1;
         } catch (error) {
@@ -177,7 +177,6 @@ export class ChartDemo implements OnInit {
     }
 
     async fetchAndProcessContracts(paramMap: Record<string, string>, tgvdXmlString: string): Promise<void> {
-        console.log('passed', paramMap);
         const paramMapString = JSON.stringify(paramMap);
         const data = await firstValueFrom(this.ApiService.getTreeGridData(tgvdXmlString, paramMapString));
 
@@ -209,15 +208,29 @@ export class ChartDemo implements OnInit {
         this.selectedProject = tempLabels[0];
         this.selectedProjectIndex = 0;
 
+        //CONSOLE
+        console.log('Raw data before grouping:', {
+            totalRecords: this.allContracts.length,
+            sampleRecord: this.allContracts[0],
+            allData: this.allContracts
+        });
+
         const projectDataMap: { [project: string]: any[] } = {};
         this.allContracts.forEach((contract) => {
-            //const projectKey = contract.Project?.trim() && contract.Project.trim().length > 0 ? contract.Project.trim() : `Unknown_${Math.random().toString(36).substring(2, 6)}`;
             const projectKey = this.getNormalizedProjectName(contract.Project);
 
             if (!projectDataMap[projectKey]) projectDataMap[projectKey] = [];
             projectDataMap[projectKey].push(contract);
         });
-        console.log('Projectdatamap:', Object.keys(projectDataMap));
+
+        //CONSOLE
+        console.log('Data after grouping by project:', {
+            totalProjects: Object.keys(projectDataMap).length,
+            projectGroups: Object.keys(projectDataMap),
+            sampleProjectGroup: projectDataMap[Object.keys(projectDataMap)[0]],
+            allGroupedData: projectDataMap
+        });
+
         if (this.selectedProject && projectDataMap[this.selectedProject]) {
             this.handleProjectSelection(this.selectedProject, projectDataMap);
         }
@@ -276,9 +289,12 @@ export class ChartDemo implements OnInit {
 
         this.filteredContracts = this.fullDataset.filter((item) => {
             // Active status only
-            const statusMatch = item.Status?.toString().toLowerCase() === 'active';
-            if (!statusMatch) return false;
-
+            //const statusMatch = item.Status?.toString().toLowerCase() === 'active';
+            //if (!statusMatch) return false;
+            const statusMatch = item['WCT Status']?.toString().toLowerCase() === 'active';
+            if (!statusMatch) {
+                return false;
+            }
             // Geography match
             const geographyMatch = !geography.length || geography.some((g) => g.toLowerCase() === (item.Geography?.toString().toLowerCase() || 'n/a'));
             if (!geographyMatch) return false;
@@ -327,16 +343,26 @@ export class ChartDemo implements OnInit {
             this.isExpanded = false;
             this.expandedComponent = null;
 
-            // Re-render with current selection
-            if (component === 'pie' && this.selectedProject) {
-                const projectDataMap = this.buildProjectDataMap();
-                this.handleProjectSelection(this.selectedProject, projectDataMap);
+            const projectDataMap = this.buildProjectDataMap();
+            const project = this.selectedProject || 'All';
+
+            if (project === 'All') {
+                this.selectedProject = 'All';
+                this.selectedProjectIndex = -1;
+                this.selectedProjectData = this.filteredContracts;
+                this.projectTableData = this.selectedProjectData;
+                this.updateRolesAndBillingList(this.selectedProjectData);
+            } else {
+                this.handleProjectSelection(project, projectDataMap);
             }
         } else {
             // Expand the selected component
             this.expandedComponent = component;
             this.isExpanded = true;
         }
+
+        this.selectedRole = '';
+        this.selectedBillingStatus = '';
         this.cdr.detectChanges();
     }
 
@@ -383,25 +409,25 @@ export class ChartDemo implements OnInit {
         const isSameProjectSelected = this.filters.project.length === 1 && this.getNormalizedProjectName(this.filters.project[0]).toLowerCase() === normalizedProject.toLowerCase();
 
         if (normalizedProject === 'All' || isSameProjectSelected) {
-            // 🔁 Case: Deselect or 'All' selected -> reset everything
+            //Case: Deselect or 'All' selected -> reset everything
             this.selectedProject = 'All';
             this.selectedProjectIndex = -1;
             this.filters.project = [];
 
             this.applyFilters(); // 🔁 Triggers rebuild of filteredContracts, displayedProjects, etc.
 
-            // 🔁 Reset bar chart and table data
+            //Reset bar chart and table data
             this.selectedProjectData = this.filteredContracts;
             this.projectTableData = this.selectedProjectData;
 
-            // 🔁 Reset subfilters
+            //Reset subfilters
             this.updateRolesAndBillingList(this.selectedProjectData);
             this.selectedRole = '';
             this.selectedBillingStatus = '';
 
             this.cdr.detectChanges();
         } else {
-            // ✅ Case: Selecting a new specific project
+            // Selecting a new specific project
             this.selectedProject = normalizedProject;
             this.selectedProjectIndex = event.index;
             this.filters.project = [normalizedProject];

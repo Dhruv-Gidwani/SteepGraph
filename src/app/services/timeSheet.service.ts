@@ -3,11 +3,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { map } from 'rxjs';
+import { MOCK_TIMESHEET_RESPONSE } from '../pages/timeSheet/ProdData';
 @Injectable({
     providedIn: 'root'
 })
 export class timeSheetService {
-    private baseUrl = environment.apiUrl; // Use the environment variable for the base URL
+    private baseUrl = environment.apiUrl;
 
     constructor(private http: HttpClient) {}
     //project:string[]
@@ -17,8 +18,7 @@ export class timeSheetService {
         const formattedEnd = `${endDate}T00:00:00`;
         let filters = `
     <sg_ts_date condition="le">${formattedEnd}</sg_ts_date>
-    <sg_ts_date condition="ge">${formattedStart}</sg_ts_date>
-  `;
+    <sg_ts_date condition="ge">${formattedStart}</sg_ts_date> `;
 
         if (emp_department && emp_department.length > 0) {
             filters += `
@@ -215,7 +215,7 @@ export class timeSheetService {
                         }
                     });
 
-                    console.log('✅ Holidays in given range:', holidays);
+                    console.log('Holidays in given range:', holidays);
                     return holidays;
                 })
             );

@@ -44,6 +44,12 @@ export class ProjectTableComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['data']) {
+            console.log('Table data received:', {
+                receivedCount: this.data.length,
+                uniqueProjects: new Set(this.data.map((d) => d.Project)).size,
+                uniqueContracts: new Set(this.data.map((d) => d['Work Contract Name'])).size
+            });
+
             this.processTableData();
             this.updateProjectNames();
             this.updateWorkContractNames();
@@ -99,6 +105,7 @@ export class ProjectTableComponent implements OnChanges {
                 'Last Ts Date': formatted['Last Ts Date'],
                 'Start Date': formatted['Start Date'],
                 'End Date': formatted['End Date'],
+                Status: row['Status'],
                 // Add date objects and timestamps for sorting
                 'Last Ts Date Object': lastTsDate,
                 'Start Date Object': startDate,
@@ -213,7 +220,7 @@ export class ProjectTableComponent implements OnChanges {
         this.ProjectManagerNames = [...new Set(this.displayedData.map((row) => row['Project Manager']).filter(Boolean))];
     }
     private updateCWOStatusOptions(): void {
-        this.CWOStatusOptions = [...new Set(this.displayedData.map((row) => row['WCT Status']).filter(Boolean))];
+        this.CWOStatusOptions = [...new Set(this.displayedData.map((row) => row['Status']).filter(Boolean))];
     }
     private updateCurrencyOptions(): void {
         this.CurrencyOptions = [...new Set(this.displayedData.map((row) => row['Currency']).filter(Boolean))];
@@ -263,7 +270,7 @@ export class ProjectTableComponent implements OnChanges {
                 'Hourly Rate': row['Hourly Rate'],
                 'Billing Method': row['Billing Method'],
                 'Project Manager': row['Project Manager'],
-                'WCT Status': row['WCT Status'],
+                Status: row['Status'],
                 Currency: row['Currency'],
                 'Last Ts Date': row['Last Ts Date'],
                 'Start Date': row['Start Date'],

@@ -20,6 +20,7 @@ export class ProjectTableComponent implements OnInit {
     @Input() isExpanded: boolean = false;
     @Input() expandedComponent: 'pie' | 'bar' | 'table' | null = null;
     @Output() toggleExpand = new EventEmitter<'table'>();
+    @Input() isSummaryView: boolean = false;
 
     searchValue: string | undefined;
     flatData: any[] = [];
@@ -32,18 +33,33 @@ export class ProjectTableComponent implements OnInit {
     BillingStatus: any[] = [];
     BillingMethod: any[] = [];
 
+    // ngOnInit() {
+    //     console.log('Project Table Data:', this.projectTableData);
+    //     this.flatData = this.flattenData(this.projectTableData);
+    //     this.flatData.sort((a, b) => a.employee.localeCompare(b.employee));
+    //     this.EmployeeNames = [...new Set(this.flatData.map((emp) => emp.employee))].sort();
+    //     this.PositionTitle = [...new Set(this.flatData.map((emp) => emp.sg_position_title))].sort();
+    //     this.Department = [...new Set(this.flatData.map((emp) => emp.sg_employee_department))].sort();
+    //     this.Project = [...new Set(this.flatData.map((emp) => emp.project))].sort();
+    //     this.Geography = [...new Set(this.flatData.map((emp) => emp.sg_geography))].sort();
+    //     this.Role = [...new Set(this.flatData.map((emp) => emp.sg_position_role))].sort();
+    //     this.BillingStatus = [...new Set(this.flatData.map((emp) => emp.billing_status))].sort();
+    //     this.BillingMethod = [...new Set(this.flatData.map((emp) => emp.sg_billing_method))].sort();
+    // }
     ngOnInit() {
-        console.log('Project Table Data:', this.projectTableData);
-        this.flatData = this.flattenData(this.projectTableData);
-        this.flatData.sort((a, b) => a.employee.localeCompare(b.employee));
-        this.EmployeeNames = [...new Set(this.flatData.map((emp) => emp.employee))].sort();
-        this.PositionTitle = [...new Set(this.flatData.map((emp) => emp.sg_position_title))].sort();
-        this.Department = [...new Set(this.flatData.map((emp) => emp.sg_employee_department))].sort();
-        this.Project = [...new Set(this.flatData.map((emp) => emp.project))].sort();
-        this.Geography = [...new Set(this.flatData.map((emp) => emp.sg_geography))].sort();
-        this.Role = [...new Set(this.flatData.map((emp) => emp.sg_position_role))].sort();
-        this.BillingStatus = [...new Set(this.flatData.map((emp) => emp.billing_status))].sort();
-        this.BillingMethod = [...new Set(this.flatData.map((emp) => emp.sg_billing_method))].sort();
+        if (!this.isSummaryView) {
+            this.flatData = this.flattenData(this.projectTableData);
+            this.flatData.sort((a, b) => a.employee.localeCompare(b.employee));
+
+            this.EmployeeNames = [...new Set(this.flatData.map((emp) => emp.employee))].sort();
+            this.PositionTitle = [...new Set(this.flatData.map((emp) => emp.sg_position_title))].sort();
+            this.Department = [...new Set(this.flatData.map((emp) => emp.sg_employee_department))].sort();
+            this.Project = [...new Set(this.flatData.map((emp) => emp.project))].sort();
+            this.Geography = [...new Set(this.flatData.map((emp) => emp.sg_geography))].sort();
+            this.Role = [...new Set(this.flatData.map((emp) => emp.sg_position_role))].sort();
+            this.BillingStatus = [...new Set(this.flatData.map((emp) => emp.billing_status))].sort();
+            this.BillingMethod = [...new Set(this.flatData.map((emp) => emp.sg_billing_method))].sort();
+        }
     }
 
     // Convert nested structure into flat array

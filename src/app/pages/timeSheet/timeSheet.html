@@ -95,6 +95,29 @@
             </app-bar-chart>
         </div>
     </p-fluid>
+
+    <p-fluid class="grid grid-cols-12 gap-x-6 gap-y-4">
+        <div class="col-span-12 xl:col-span-6">
+            <p-card>
+                <ng-template pTemplate="title">
+                    <div class="text-center font-semibold text-lg">Company Billability by Geography</div>
+                </ng-template>
+                <p-chart type="bar" [data]="geoChartData" [options]="geoBarChartOptions" styleClass="w-full h-20rem"></p-chart>
+            </p-card>
+        </div>
+
+        <div class="col-span-12 xl:col-span-6">
+            <p-card>
+                <ng-template pTemplate="title">
+                    <div class="text-center font-semibold text-lg">Company Billability by Department</div>
+                </ng-template>
+                <p-chart type="bar" [data]="deptChartData" [options]="geoBarChartOptions" styleClass="w-full h-20rem"></p-chart>
+            </p-card>
+        </div>
+    </p-fluid>
+
+    <br />
+
     <!-- Data Table -->
     <!-- Fullscreen Expanded Table View -->
     <div *ngIf="expandedComponent === 'table'" class="fixed top-0 left-0 w-screen h-screen z-[9999] bg-white p-4 overflow-auto">

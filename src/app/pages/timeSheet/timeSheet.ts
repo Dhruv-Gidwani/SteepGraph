@@ -20,6 +20,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { DatePickerIconDemo } from '../../components/date/date.component';
 import { GlobalStateService } from '../../services/globalservicefilters';
 import { firstValueFrom } from 'rxjs';
+
 @Component({
     selector: 'app-timeSheet-demo',
     standalone: true,
@@ -75,6 +76,71 @@ export class timeSheetDemo {
     private static hasVisited: boolean = false;
     private fullDataset: any[] = [];
     totalWorkingDays: number = 0;
+    flatProjectData: any[] = [];
+    geoSummaryData: any[] = [];
+    deptSummaryData: any[] = [];
+    geoChartData: any;
+    deptChartData: any;
+    // Chart option for line chart
+    lineChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                enabled: true
+            }
+        },
+        scales: {
+            x: {
+                title: {
+                    display: false
+                },
+                ticks: {
+                    font: {
+                        size: 12
+                    }
+                },
+                grid: {
+                    display: true
+                }
+            },
+            y: {
+                title: {
+                    display: false
+                },
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 10,
+                    font: {
+                        size: 12
+                    }
+                },
+                grid: {
+                    display: true
+                }
+            }
+        }
+    };
+
+    geoBarChartOptions: any = {
+        indexAxis: 'y', // Horizontal bar chart
+        //aspectRatio: 1,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: (ctx: any) => `${ctx.parsed.x.toFixed(2)}%`
+                }
+            }
+        },
+        responsive: true
+    };
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -128,14 +194,15 @@ export class timeSheetDemo {
         try {
             // Get unfiltered data for the date range
             const xmlData = await firstValueFrom(this.timeSheetService.fetchtimeSheetItem(startDate, endDate, [], [], [], [], [], []));
-
+            console.log('Raw XML Data:', xmlData);
             const result = await this.xmlParserService.parseXml(xmlData);
+            console.log('Parsed XML Result:', result);
             const items = result?.['SOAP-ENV:Envelope']?.['SOAP-ENV:Body']?.Result?.Item;
             const flatItems = Array.isArray(items) ? items : [items];
-
+            console.log('Flat Items:', flatItems);
             // Store the full dataset
             this.fullDataset = this.processRawData(flatItems);
-
+            console.log('Full Dataset:', this.fullDataset);
             // Populate all filter options
             this.populateFilterOptions();
         } catch (error) {
@@ -202,7 +269,7 @@ export class timeSheetDemo {
                 try {
                     this.totalWorkingDays = await this.calculateWorkingDaysExcludingWeekendsAndHolidays(this.startDate, this.endDate);
                 } catch (holidayError) {
-                    console.error('❌ Failed to calculate working days:', holidayError);
+                    console.error('Failed to calculate working days:', holidayError);
                     this.totalWorkingDays = 0;
                 }
             }
@@ -353,7 +420,7 @@ export class timeSheetDemo {
             try {
                 this.totalWorkingDays = await this.calculateWorkingDaysExcludingWeekendsAndHolidays(this.startDate, this.endDate);
             } catch (holidayError) {
-                console.error('❌ Failed to calculate working days:', holidayError);
+                console.error('Failed to calculate working days:', holidayError);
                 this.totalWorkingDays = 0;
             }
 
@@ -404,7 +471,7 @@ export class timeSheetDemo {
             current.setDate(current.getDate() + 1);
         }
 
-        console.log('✅ Working Days (excluding weekends & holidays):', workingDays);
+        console.log('Working Days (excluding weekends & holidays):', workingDays);
         //console.log('🗓️ Holidays:', [...holidaySet]);
         console.log('🗓️ Holidays:', Array.from(holidaySet));
 
@@ -570,6 +637,121 @@ export class timeSheetDemo {
                     person_billability
                 };
             })
+        }));
+        this.flatProjectData = this.flattenProjectTableData(this.projectTableData);
+        // Now compute summary chart (Horizontal Line and Line Chart) from the flat data
+        this.geoSummaryData = this.computeCompanyBillabilityByGeography();
+        this.deptSummaryData = this.computeCompanyBillabilityByDepartment();
+
+        const geoLabels = this.geoSummaryData.map((item) => item.geography);
+        const deptLabels = this.deptSummaryData.map((item) => item.department);
+
+        this.geoChartData = {
+            labels: geoLabels,
+            datasets: [
+                {
+                    data: this.geoSummaryData.map((item) => item.company_billability),
+                    backgroundColor: this.getColorPalette(geoLabels.length),
+                    hoverBackgroundColor: this.getColorPalette(geoLabels.length)
+                }
+            ]
+        };
+
+        this.deptChartData = {
+            labels: deptLabels,
+            datasets: [
+                {
+                    data: this.deptSummaryData.map((item) => item.company_billability),
+                    backgroundColor: this.getColorPalette(deptLabels.length),
+                    hoverBackgroundColor: this.getColorPalette(deptLabels.length)
+                }
+            ]
+        };
+    }
+
+    getColorPalette(size: number): string[] {
+        const baseColors = ['#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#FF7043', '#26C6DA', '#D4E157', '#FFCA28', '#26A69A', '#EC407A'];
+        const colors: string[] = [];
+
+        for (let i = 0; i < size; i++) {
+            colors.push(baseColors[i % baseColors.length]);
+        }
+
+        return colors;
+    }
+
+    flattenProjectTableData(data: any[]): any[] {
+        const flatData: any[] = [];
+
+        data.forEach((emp) => {
+            emp.projects.forEach((proj: any) => {
+                proj.billingDetails.forEach((detail: any) => {
+                    flatData.push({
+                        employee: emp.employee,
+                        sg_position_title: emp.sg_position_title,
+                        sg_employee_department: emp.sg_employee_department,
+                        sg_geography: emp.sg_geography,
+                        project: proj.project,
+                        sg_position_role: detail.sg_position_role,
+                        billing_status: detail.billing_status,
+                        sg_billing_method: detail.sg_billing_method,
+                        total_ts_fill_hrs: detail.total_ts_fill_hrs,
+                        total_billable_hr_company: detail.total_billable_hr_company,
+                        total_billable_hr_person: detail.total_billable_hr_person,
+                        total_hours: detail.total_hours,
+                        total_non_billable_hr: detail.total_non_billable_hr,
+                        company_billability: proj.company_billability,
+                        person_billability: proj.person_billability,
+                        total_leave: detail.total_leave,
+                        missing_timeSheet: detail.missing_timeSheet,
+                        GCW_hrs: detail.GCW_hrs
+                    });
+                });
+            });
+        });
+
+        return flatData;
+    }
+
+    computeCompanyBillabilityByGeography(): any[] {
+        const result: { [geography: string]: { totalCompanyBillable: number; totalFillHrs: number } } = {};
+
+        this.flatProjectData.forEach((entry) => {
+            const geo = entry.sg_geography;
+            if (!geo) return;
+
+            if (!result[geo]) {
+                result[geo] = { totalCompanyBillable: 0, totalFillHrs: 0 };
+            }
+
+            result[geo].totalCompanyBillable += entry.total_billable_hr_company;
+            result[geo].totalFillHrs += entry.total_ts_fill_hrs;
+        });
+
+        return Object.entries(result).map(([geography, values]) => ({
+            geography,
+            company_billability: values.totalFillHrs > 0 ? (values.totalCompanyBillable * 100) / values.totalFillHrs : 0
+        }));
+    }
+
+    computeCompanyBillabilityByDepartment(): any[] {
+        const result: { [dept: string]: { totalCompanyBillable: number; totalFillHrs: number } } = {};
+
+        this.flatProjectData.forEach((entry) => {
+            const dept = entry.sg_employee_department;
+            if (!dept) return;
+
+            if (!result[dept]) {
+                result[dept] = { totalCompanyBillable: 0, totalFillHrs: 0 };
+            }
+
+            result[dept].totalCompanyBillable += entry.total_billable_hr_company;
+            result[dept].totalFillHrs += entry.total_ts_fill_hrs;
+        });
+
+        return Object.entries(result).map(([department, values]) => ({
+            department,
+            company_billability: values.totalFillHrs > 0 ? (values.totalCompanyBillable * 100) / values.totalFillHrs : 0
         }));
     }
 

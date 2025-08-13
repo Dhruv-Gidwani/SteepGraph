@@ -19,7 +19,7 @@
             'Billing Method',
             'PWO Name',
             'Position Role',
-            'WCT Status',
+            'Status',
             'Resource Name',
             'TS Approver',
             'Position Title',
@@ -212,11 +212,13 @@
                         </ng-template>
                     </p-columnFilter>
                 </th>
+
                 <th pSortableColumn="Start Date">
                     Start Date
                     <p-sortIcon field="Start Date"></p-sortIcon>
                     <p-columnFilter type="date" field="Start Date Object" display="menu"></p-columnFilter>
                 </th>
+
                 <th pSortableColumn="End Date">
                     End Date
                     <p-sortIcon field="End Date"></p-sortIcon>
@@ -352,10 +354,10 @@
                     </p-columnFilter>
                 </th>
 
-                <th pSortableColumn="WCT Status">
+                <th pSortableColumn="Status">
                     CWO Status
-                    <p-sortIcon field="WCT Status"></p-sortIcon>
-                    <p-columnFilter field="WCT Status" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                    <p-sortIcon field="Status"></p-sortIcon>
+                    <p-columnFilter field="Status" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                         <ng-template pTemplate="header">
                             <div class="px-3 pt-3 pb-0">
                                 <span class="font-bold">Status Picker</span>
@@ -406,7 +408,7 @@
                 <td>{{ row['Billing Method'] }}</td>
                 <td>{{ row['TS Approver'] }}</td>
                 <td>{{ row['Project Manager'] }}</td>
-                <td>{{ row['WCT Status'] }}</td>
+                <td>{{ row['Status'] }}</td>
             </tr>
         </ng-template>
     </p-table>
